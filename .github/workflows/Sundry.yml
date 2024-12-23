@@ -18,16 +18,16 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: 设置 Rust
-        # 用于后续的 `cargo binstall` 安装
-        uses: cargo-bins/cargo-binstall@main
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      #- name: 设置 Rust
+      #  # 用于后续的 `cargo binstall` 安装
+      #  uses: cargo-bins/cargo-binstall@main
+      #  env:
+      #    GITHUB_TOKEN: ${{ github.token }}
 
-      - name: 安装 Komac
-        run: cargo binstall komac -y
-        env:
-          GITHUB_TOKEN: ${{ github.token }}
+      #- name: 安装 Komac
+      #  run: cargo binstall komac -y
+      #  env:
+      #    GITHUB_TOKEN: ${{ github.token }}
 
       - name: 克隆 winget-pkgs fork
         run: |

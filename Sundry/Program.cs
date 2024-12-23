@@ -132,7 +132,7 @@ namespace Sundry
 
                 if (error == urlList.Count)
                 {
-                    string command = $"komac remove --identifier {id} --version {version} --reason '[Automated] It returns code over 400 in all urls' --submit --token {token}";
+                    string command = $"komac remove --identifier {id} --version {version} --reason 'It returns code over 400 in all urls' --submit --token {token}";
                     string url = "https://api.github.com/repos/microsoft/winget-pkgs/pulls";
                     client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("token", token);
                     client.DefaultRequestHeaders.Accept.Add(new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/vnd.github.v3+json"));
@@ -149,9 +149,12 @@ namespace Sundry
                     }
                     else
                     {
-                        await Task.Run(() => System.Diagnostics.Process.Start("pwsh", $"-Command {command}"));
+                        //await Task.Run(() => System.Diagnostics.Process.Start("pwsh", $"-Command {command}"));
+                        Console.WriteLine($"[ERROR] {id}(版本 {version}) 检查失败（返回错误代码），运行 {command} 以移除它");
+                        // 以退出代码 404 直接结束程序
+                        Environment.Exit(404);
                     }
-                    Console.WriteLine($"[INFO] {id}(版本 {version}) 检查失败（返回错误代码），运行 {command} 以移除它");
+                    //Console.WriteLine($"[INFO] {id}(版本 {version}) 检查失败（返回错误代码），运行 {command} 以移除它");
                 }
                 else
                 {
