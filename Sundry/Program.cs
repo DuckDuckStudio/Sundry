@@ -37,7 +37,7 @@ namespace Sundry
             {
                 throw new Exception("[ERROR] 找不到 winget-pkgs 文件夹");
             }
-            var folder = new DirectoryInfo(Path.Combine(origin[0].FullName, subdirectory));
+            var folder = new DirectoryInfo(Path.Combine(origin[0].FullName, "manifests", subdirectory));
             Console.WriteLine($"[INFO] 在 {folder.FullName} 找到了文件夹");
 
             // 扫描
