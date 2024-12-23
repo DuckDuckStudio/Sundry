@@ -88,10 +88,11 @@ namespace Sundry
                     return;
                 }
 
-                foreach (var each in installers.Cast<Dictionary<string, object>>())
+                foreach (var each in installers.Cast<Dictionary<object, object>>())
                 {
+                    var installerDict = each.ToDictionary(k => k.Key?.ToString() ?? string.Empty, v => v.Value);
                     Console.WriteLine($"[INFO] 开始检查 {id}(版本 {version})");
-                    string installerUrl = each["InstallerUrl"]?.ToString() ?? string.Empty;
+                    string installerUrl = installerDict["InstallerUrl"]?.ToString() ?? string.Empty;
                     HttpResponseMessage response;
 
                     try
