@@ -1,0 +1,45 @@
+name: Auto Remove
+on:
+  workflow_dispatch:
+  schedule: [{ cron: 0 0 * * * }]
+
+jobs:
+  Remove:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        subdirectory: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"]
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 设置 .NET 8.0.x
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: 设置 Rust
+        # 用于后续的 `cargo binstall` 安装
+        uses: cargo-bins/cargo-binstall@main
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: 安装 Komac
+        run: cargo binstall komac -y
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: 克隆 winget-pkgs fork
+        run: |
+          git clone https://github.com/DuckDuckStudio/winget-pkgs -b wingettools --depth 0
+
+      - name: 安装依赖
+        run: dotnet add Sundry package YamlDotNet --version 16.2.1
+
+      - name: 构建项目
+        run: dotnet build Sundry
+
+      - name: 执行扫描
+        run: dotnet run --project Sundry ${{ matrix.subdirectory }}
+        env:
+          TOKEN: ${{ github.token }}
