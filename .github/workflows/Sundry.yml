@@ -22,16 +22,16 @@ jobs:
       #  # 用于后续的 `cargo binstall` 安装
       #  uses: cargo-bins/cargo-binstall@main
       #  env:
-      #    GITHUB_TOKEN: ${{ github.token }}
+      #    GITHUB_TOKEN: $ {{ github.token }}
 
       #- name: 安装 Komac
       #  run: cargo binstall komac -y
       #  env:
-      #    GITHUB_TOKEN: ${{ github.token }}
+      #    GITHUB_TOKEN: $ {{ github.token }}
 
       - name: 克隆 winget-pkgs fork
         run: |
-          git clone https://github.com/DuckDuckStudio/winget-pkgs -b wingettools --depth 0
+          git clone https://github.com/DuckDuckStudio/winget-pkgs -b wingettools
 
       - name: 安装依赖
         run: dotnet add Sundry package YamlDotNet --version 16.2.1
