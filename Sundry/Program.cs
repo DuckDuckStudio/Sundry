@@ -82,13 +82,13 @@ namespace Sundry
 
             try
             {
-                if (yaml["Installers"] is not List<Dictionary<string, object>> urlList)
+                if (yaml["Installers"] is not List<object> installers)
                 {
                     Console.WriteLine($"[ERROR] {id}(版本 {version}) 的 Installers 字段为空");
                     return;
                 }
 
-                foreach (var each in urlList)
+                foreach (var each in installers.Cast<Dictionary<string, object>>())
                 {
                     Console.WriteLine($"[INFO] 开始检查 {id}(版本 {version})");
                     string installerUrl = each["InstallerUrl"]?.ToString() ?? string.Empty;
@@ -130,7 +130,7 @@ namespace Sundry
                     }
                 }
 
-                if (error == urlList.Count)
+                if (error == installers.Count)
                 {
                     string command = $"komac remove --identifier {id} --version {version} --reason 'It returns code over 400 in all urls' --submit --token {token}";
                     string url = "https://api.github.com/repos/microsoft/winget-pkgs/pulls";
