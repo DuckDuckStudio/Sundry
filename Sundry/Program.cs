@@ -98,7 +98,12 @@ namespace Sundry
                     try
                     {
                         response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Head, installerUrl), HttpCompletionOption.ResponseHeadersRead);
-                        if ((int)response.StatusCode >= 400 && !EXCLUDED_CODE.Contains((int)response.StatusCode))
+                        if ((int)response.StatusCode == 404)
+                        {
+                            Console.WriteLine($"[ERROR] {installerUrl} 返回 404 状态码");
+                            Environment.Exit(404);
+                        }
+                        else if ((int)response.StatusCode >= 400 && !EXCLUDED_CODE.Contains((int)response.StatusCode))
                         {
                             error++;
                         }
@@ -106,7 +111,12 @@ namespace Sundry
                         {
                             Console.WriteLine($"[WARNING] 收到 {installerUrl} 的 {(int)response.StatusCode} 状态码，使用 GET 请求跟随重定向");
                             response = await client.GetAsync(installerUrl, HttpCompletionOption.ResponseHeadersRead);
-                            if ((int)response.StatusCode >= 400 && !EXCLUDED_CODE.Contains((int)response.StatusCode))
+                            if ((int)response.StatusCode == 404)
+                            {
+                                Console.WriteLine($"[ERROR] {installerUrl} 返回 404 状态码");
+                                Environment.Exit(404);
+                            }
+                            else if ((int)response.StatusCode >= 400 && !EXCLUDED_CODE.Contains((int)response.StatusCode))
                             {
                                 error++;
                             }
@@ -118,14 +128,19 @@ namespace Sundry
                         try
                         {
                             response = await client.GetAsync(installerUrl, HttpCompletionOption.ResponseHeadersRead);
-                            if ((int)response.StatusCode >= 400 && !EXCLUDED_CODE.Contains((int)response.StatusCode))
+                            if ((int)response.StatusCode == 404)
+                            {
+                                Console.WriteLine($"[ERROR] {installerUrl} 返回 404 状态码");
+                                Environment.Exit(404);
+                            }
+                            else if ((int)response.StatusCode >= 400 && !EXCLUDED_CODE.Contains((int)response.StatusCode))
                             {
                                 error++;
                             }
                         }
                         catch (HttpRequestException)
                         {
-                            Console.WriteLine($"[INFO] GET 请求也失败了 {installerUrl}");
+                            Console.WriteLine($"[ERROR] GET 请求也失败了 {installerUrl}");
                             error++;
                         }
                     }
@@ -152,8 +167,6 @@ namespace Sundry
                     {
                         //await Task.Run(() => System.Diagnostics.Process.Start("pwsh", $"-Command {command}"));
                         Console.WriteLine($"[ERROR] {id}(版本 {version}) 检查失败（返回错误代码），运行 {command} 以移除它");
-                        // 以退出代码 404 直接结束程序
-                        Environment.Exit(404);
                     }
                     //Console.WriteLine($"[INFO] {id}(版本 {version}) 检查失败（返回错误代码），运行 {command} 以移除它");
                 }

@@ -31,7 +31,7 @@ jobs:
 
       - name: 克隆 winget-pkgs fork
         run: |
-          git clone https://github.com/DuckDuckStudio/winget-pkgs -b wingettools
+          git clone https://github.com/DuckDuckStudio/winget-pkgs -b wingettools --depth 1
 
       - name: 安装依赖
         run: dotnet add Sundry package YamlDotNet --version 16.2.1
