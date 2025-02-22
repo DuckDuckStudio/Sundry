@@ -24,7 +24,7 @@ def main():
     elif tool in ["h", "help", "-h", "-help", "--help", "/?", "帮助"]:
         print("Sundry 使用帮助")
         print("    移除软件包版本: sundry remove [软件包标识符] [软件包版本] [跳过检查(只接受true)/理由(默认为GitHub Action中返回404)]")
-        print(f"    {Fore.RED}[暂未实现]{Fore.RED} 修改检测忽略字段: sundry ignore [add/remove/list] [忽略字段] [理由]")
+        print(f"    {Fore.RED}[暂未实现]{Fore.RESET} 修改检测忽略字段: sundry ignore [add/remove/list] [忽略字段] [理由]")
         print("    修改 Sundry 配置:")
         print("        初始化: sundry config init")
         print("        修改值: sundry config [条目] [值]")
