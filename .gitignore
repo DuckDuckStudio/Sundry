@@ -1,0 +1,18 @@
+.venv/
+test.*
+test/
+*.log
+
+# WIP
+verify/
+
+# User
+config.json
+
+# IDE
+.idea/
+.vscode/
+.vs/
+
+# Sundry Release
+发布/

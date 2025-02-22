@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: 查看已经打开的问题
+    url: https://github.com/DuckDuckStudio/Sundry/issues
+    about: 请确认你的问题没有与已存在的问题重复。
