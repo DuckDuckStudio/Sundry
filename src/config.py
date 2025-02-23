@@ -19,7 +19,8 @@ def 初始化配置文件():
     "version": "1.0.2",
     "winget-pkgs": "",
     "winget-tools": "",
-    "fork": ""
+    "fork": "",
+    "signature": false,
 }
 '''
         默认配置 = json.loads(默认配置)
@@ -65,6 +66,13 @@ def 初始化配置文件():
                         print(f"{Fore.RED}✕{Fore.RESET} 检查 fork 仓库失败，状态码: {Fore.YELLOW}{response.status_code}{Fore.RESET}")
                 except Exception as e:
                     print(f"{Fore.RED}✕{Fore.RESET} 检查 fork 仓库失败:\n{Fore.RED}{e}{Fore.RESET}")
+            else:
+                print(f"{Fore.RED}✕{Fore.RESET} 请输入正确的 fork 仓库格式，例如: owner/repo")
+        signature = input(f"{Fore.BLUE}?{Fore.RESET} 是否要为 Git 提交签名: (默认为{Fore.YELLOW}否{Fore.RESET}): ")
+        if signature.lower() in ["y", "yes", "要", "是", "true"]:
+            默认配置["signature"] = True
+        else:
+            默认配置["signature"] = False
         with open(配置文件, "w", encoding="utf-8") as f:
             json.dump(默认配置, f, indent=4, ensure_ascii=False)
         print(f"{Fore.GREEN}✓{Fore.RESET} 成功初始化配置文件")

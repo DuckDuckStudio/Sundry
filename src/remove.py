@@ -41,6 +41,14 @@ if os.path.exists(配置文件):
         else:
             print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"fork\" 为空{Fore.RESET}")
             print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config fork [所有者/仓库名] 来修改配置文件中的值")
+            sys.exit(3)
+        # ========================================
+        if 配置数据["signature"]:
+            是否签名 = 配置数据["signature"]
+        else:
+            print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"signature\" 为空{Fore.RESET}")
+            print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config signature [true/false] 来修改配置文件中的值")
+            sys.exit(3)
     except Exception as e:
         print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
         sys.exit(3)
@@ -199,7 +207,7 @@ shutil.rmtree(os.path.join(清单目录, 软件包版本))
 print(f"{Fore.BLUE}  已移除软件包 {软件包标识符} 版本 {软件包版本}")
 
 subprocess.run(["git", "add", 清单目录], check=True) # 暂存修改
-if 手动验证结果:
+if 是否签名:
     subprocess.run(["git", "commit", "-S", "-m", f"Remove version: {软件包标识符} version {软件包版本}"], check=True)
 else:
     subprocess.run(["git", "commit", "-m", f"Remove version: {软件包标识符} version {软件包版本}"], check=True)
