@@ -6,8 +6,13 @@ from colorama import init, Fore
 init(autoreset=True)
 
 def main():
-    tool = sys.argv[1]
-    args = sys.argv[2:]
+    try:
+        tool = sys.argv[1]
+        args = sys.argv[2:]
+    except IndexError:
+        print("无效的调用")
+        print("可用调用: [remove/移除] [ignore/忽略] [ver/版本]")
+        return 1
     script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     version = "1.0.1"
 
