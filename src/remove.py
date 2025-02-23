@@ -49,6 +49,13 @@ if os.path.exists(配置文件):
             print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"signature\" 为空{Fore.RESET}")
             print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config signature [true/false] 来修改配置文件中的值")
             sys.exit(3)
+        # ========================================
+        if 配置数据["version"]:
+            版本号 = 配置数据["version"]
+        else:
+            print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"version\" 为空{Fore.RESET}")
+            print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
+            sys.exit(3)
     except Exception as e:
         print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
         sys.exit(3)
@@ -114,14 +121,14 @@ def 创建拉取请求(分支名, 版本文件夹, 理由):
             "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
-            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/), please apply any changes requests directly🙏.\n{理由}\n{手动验证结果}\n\n---\n"
+            "body": f"### This PR is created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {版本号}, please apply any changes requests directly🙏.\n{理由}\n{手动验证结果}\n\n---\n"
         }
     else:
         数据 = {
             "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
-            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/), please apply any changes requests directly🙏.\n{理由}\n\n---\n"
+            "body": f"### This PR is created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {版本号}, please apply any changes requests directly🙏.\n{理由}\n\n---\n"
         }
     response = requests.post(api, headers=请求头, json=数据)
     if response.status_code == 201:
