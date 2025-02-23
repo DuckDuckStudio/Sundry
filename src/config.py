@@ -20,7 +20,7 @@ def 初始化配置文件():
     "winget-pkgs": "",
     "winget-tools": "",
     "fork": "",
-    "signature": false,
+    "signature": false
 }
 '''
         默认配置 = json.loads(默认配置)
