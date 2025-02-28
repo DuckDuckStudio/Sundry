@@ -71,13 +71,17 @@ else:
 手动验证结果 = None
 
 # 尝试从参数中获取软件包标识符和版本
-if ((len(sys.argv) >= 3) and (len(sys.argv) <= 4)): # ==> 3,4 
+if (3 <= len(sys.argv) <= 5):
     软件包标识符 = sys.argv[1]
     软件包版本 = sys.argv[2]
-    if (len(sys.argv) == 4):
+    if (4 <= len(sys.argv) <= 5):
         if ((isinstance(sys.argv[3], bool)) or (sys.argv[3].lower() in ["true"])):
             # bool 值视为是否跳过检查开关
             跳过检查 = True # 不接受传 False
+            if (len(sys.argv) == 5):
+                # 如果需同时传递开关和新理由，则使用
+                # sundry remove [标识符] [版本] True [新理由]
+                理由 = sys.argv[4]
         else:
             # 其他值视为理由
             理由 = sys.argv[3]
@@ -121,14 +125,14 @@ def 创建拉取请求(分支名, 版本文件夹, 理由):
             "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
-            "body": f"### This PR is created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {版本号}🤖, please apply any changes requests directly🙏.\n{理由}\n{手动验证结果}\n\n---\n"
+            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/), please apply any changes requests directly🙏.\n{理由}\n{手动验证结果}\n\n---\n"
         }
     else:
         数据 = {
             "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
-            "body": f"### This PR is created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {版本号}🤖, please apply any changes requests directly🙏.\n{理由}\n\n---\n"
+            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/), please apply any changes requests directly🙏.\n{理由}\n\n---\n"
         }
     response = requests.post(api, headers=请求头, json=数据)
     if response.status_code == 201:
@@ -155,13 +159,9 @@ if not 跳过检查:
                 if 手动验证结果:
                     # 自动将手动验证结果翻译为英文
                     手动验证结果 = Translator(from_lang='zh', to_lang='en').translate(手动验证结果)
-                    手动验证结果 = f"Manual Verification: {手动验证结果} (auto-translate)"
                     if input(f"自动翻译结果: {Fore.BLUE}{手动验证结果}{Fore.RESET} 正确吗? ") in ["否", "n", "no", "不"]:
-                        自动修正 = 手动验证结果.replace("\\ n", "\n").replace("Updated version", "New version") # 其他规则继续加
-                        if input(f"自动修正结果: {Fore.BLUE}{自动修正}{Fore.RESET} 正确吗? ") in ["否", "n", "no", "不"]:
-                            手动验证结果 = input("手动验证结果: ")
-                        else:
-                            手动验证结果 = 自动修正
+                        手动验证结果 = input("手动验证结果: ")
+                    手动验证结果 = f"Manual Verification: {手动验证结果} (auto-translate)"
 
         with open(os.path.join(winget_pkgs目录, "Tools", "Auth.csv"), mode='r', encoding='utf-8') as file:
             csv_reader = csv.DictReader(file)

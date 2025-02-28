@@ -16,7 +16,7 @@ init(autoreset=True)
 def 初始化配置文件():
     if not os.path.exists(配置文件) or (input(f"{Fore.YELLOW}⚠{Fore.RESET} 已经存在了一份配置文件，要覆盖它吗[Y/N]: ").lower() in ["y", "yes", "要", "覆盖", "force"]):
         默认配置 = '''{
-    "version": "1.0.2",
+    "version": "1.0.3",
     "winget-pkgs": "",
     "winget-tools": "",
     "fork": "",

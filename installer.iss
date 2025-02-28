@@ -1,7 +1,7 @@
 [Setup]
 AppName=Sundry
-AppVersion=1.0.2
-VersionInfoVersion=1.0.2
+AppVersion=1.0.3
+VersionInfoVersion=1.0.3
 AppPublisher=DuckStudio
 VersionInfoCopyright=Copyright (c) 鸭鸭「カモ」
 AppPublisherURL=https://duckduckstudio.github.io/yazicbs.github.io/
