@@ -140,5 +140,29 @@ jobs:
       - name: 在 winget-pkgs 上创建更新请求
         if: ${{ github.event_name != 'workflow_dispatch' }}
         shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.ISSUE_TOKEN }}
+        # 我也想用模板啊，但是 no templates found.
         run: |
-          gh issue create --template "✏️ Package Update Request" --title "[Update Request]: DuckStudio.Sundry version "
+          gh issue create --repo microsoft/winget-pkgs --title "[Update Request]: DuckStudio.Sundry version ${{ env.VERSION }}" --body <<EOF
+          ### What type of update are you requesting?
+
+          A new version of an existing package
+
+          ### Current Package Identifier
+
+          DuckStudio.Sundry
+
+          ### Package Version
+
+          ${{ env.VERSION }}
+
+          ### Please describe the changes you would like to see
+
+          Release: https://github.com/DuckDuckStudio/Sundry/releases/tag/${{ env.VERSION }}
+          Installer (inno): https://github.com/DuckDuckStudio/Sundry/releases/download/${{ env.VERSION }}/Sundry_Setup.exe
+
+          > [!NOTE]
+          > This issue is created automatically with the build flow, please @DuckDuckStudio for any errors!
+          EOF
+
