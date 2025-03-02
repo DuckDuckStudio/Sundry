@@ -3,3 +3,4 @@ keyring==25.6.0 # 读取 Token
 colorama==0.4.6 # 输出颜色
 translate==3.6.1 # 翻译手动验证结果
 pygments==2.19.1 # 高亮 json 配置文件
+pyyaml==6.0.2 # 读取 yaml 文件
