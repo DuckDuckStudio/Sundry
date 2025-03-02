@@ -14,7 +14,7 @@ def main():
         print("可用调用: [remove/移除] [ignore/忽略] [ver/版本]")
         return 1
     script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
-    version = "1.0.4"
+    version = "develop"
 
     if tool in ["移除", "remove"]:
         tool_path = "remove.exe"

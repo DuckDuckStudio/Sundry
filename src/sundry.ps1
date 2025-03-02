@@ -5,7 +5,7 @@ param(
 )
 
 $Script_Path = Split-Path -Parent $MyInvocation.MyCommand.Path
-$version = "1.0.4"
+$version = "develop"
 $flag = 0
 
 # 要用虚拟环境请往下翻
