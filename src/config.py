@@ -16,7 +16,7 @@ init(autoreset=True)
 def 初始化配置文件():
     if not os.path.exists(配置文件) or (input(f"{Fore.YELLOW}⚠{Fore.RESET} 已经存在了一份配置文件，要覆盖它吗[Y/N]: ").lower() in ["y", "yes", "要", "覆盖", "force"]):
         默认配置 = '''{
-    "version": "1.0.3",
+    "version": "1.0.4",
     "winget-pkgs": "",
     "winget-tools": "",
     "fork": "",
@@ -68,8 +68,7 @@ def 初始化配置文件():
                     print(f"{Fore.RED}✕{Fore.RESET} 检查 fork 仓库失败:\n{Fore.RED}{e}{Fore.RESET}")
             else:
                 print(f"{Fore.RED}✕{Fore.RESET} 请输入正确的 fork 仓库格式，例如: owner/repo")
-        signature = input(f"{Fore.BLUE}?{Fore.RESET} 是否要为 Git 提交签名: (默认为{Fore.YELLOW}否{Fore.RESET}): ")
-        if signature.lower() in ["y", "yes", "要", "是", "true"]:
+        if input(f"{Fore.BLUE}?{Fore.RESET} 是否要为 Git 提交签名: (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in ["y", "yes", "要", "是", "true"]:
             默认配置["signature"] = True
         else:
             默认配置["signature"] = False

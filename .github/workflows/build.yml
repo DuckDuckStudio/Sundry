@@ -54,6 +54,7 @@ jobs:
           mkdir Release
           mkdir Release/src
           cp -rv src/ Release
+          rm -v Release/src/sundry.py
           # 压缩源码到 Release，7z 和 zip
           7z a -t7z Release/Sundry-src.7z Release/src
           7z a -tzip Release/Sundry-src.zip Release/src
@@ -62,6 +63,7 @@ jobs:
         shell: bash
         env:
           PYTHONIOENCODING: utf-8
+        # 这里是直接打包过去的，不用管 sundry.ps1
         run: |
           pip install pyinstaller
           mkdir Release/pack
@@ -69,6 +71,7 @@ jobs:
           pyinstaller --onefile --distpath="Release/pack" --name="sundry.exe" "src/sundry.py"
           pyinstaller --onefile --distpath="Release/pack" --name="config.exe" "src/config.py"
           pyinstaller --onefile --distpath="Release/pack" --name="remove.exe" "src/remove.py"
+          pyinstaller --onefile --distpath="Release/pack" --name="sync.exe" "src/sync.py"
           echo ========================================
           7z a -t7z Release/Sundry.7z Release/pack
           7z a -tzip Release/Sundry.zip Release/pack
