@@ -59,6 +59,9 @@ try:
             except subprocess.CalledProcessError as e:
                 print(f"{Fore.RED}✕{Fore.RESET} 替换 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
                 sys.exit(3)
+        else:
+            print(f"{Fore.BLUE}[!]{Fore.RESET} 已取消操作")
+            sys.exit(3)
 
     try:
         subprocess.run(["git", "fetch", "origin"], check=True) # 拉取远程修改
@@ -83,6 +86,12 @@ try:
                     except subprocess.CalledProcessError as e:
                         print(f"{Fore.RED}✕{Fore.RESET} 强制变基合并上游修改失败:\n{Fore.RED}{e}{Fore.RESET}")
                         sys.exit(3)
+                else:
+                    print(f"{Fore.BLUE}[!]{Fore.RESET} 已取消操作")
+                    sys.exit(3)
+        else:
+            print(f"{Fore.BLUE}[!]{Fore.RESET} 已取消操作")
+            sys.exit(3)
 
     print(f"{Fore.GREEN}✓{Fore.RESET} 同步完成")
 except KeyboardInterrupt:
