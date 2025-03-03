@@ -1,6 +1,5 @@
 import os
 import sys
-import yaml
 import json
 from pygments import highlight
 from pygments.lexers import YamlLexer
@@ -73,14 +72,13 @@ def 读取和输出(清单文件):
     try:
         # 读取清单文件
         with open(清单文件, 'r', encoding='utf-8') as file:
-            清单内容 = yaml.safe_load(file)
+            清单内容 = file.read()
         
         # 使用 pygments 优化输出 YAML 文件
-        formatted_yaml = yaml.dump(清单内容, allow_unicode=True, default_flow_style=False)
-        highlighted_yaml = highlight(formatted_yaml, YamlLexer(), TerminalFormatter())
+        高亮清单 = highlight(清单内容, YamlLexer(), TerminalFormatter())
         
         # 输出优化后的 YAML 内容
-        print(highlighted_yaml)
+        print(高亮清单)
     except PermissionError:
         print(f"{Fore.RED}✕{Fore.RESET} 读取清单文件失败: {Fore.RED}没有权限{Fore.RESET}")
         sys.exit(3)
