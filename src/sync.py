@@ -43,10 +43,15 @@ try:
     try:
         subprocess.run(["git", "checkout", "master"], check=True) # 确保从 master 分支开始
         print(f"{Fore.BLUE}  已签出到 master 分支")
+    except subprocess.CalledProcessError as e:
+        print(f"{Fore.RED}✕{Fore.RESET} 签出到 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
+        sys.exit(1)
+
+    try:
         subprocess.run(["git", "fetch", "upstream"], check=True) # 拉取上游修改
         print(f"{Fore.BLUE}  已获取上游修改")
     except subprocess.CalledProcessError as e:
-        print(f"{Fore.RED}✕{Fore.RESET} 签出到 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{Fore.RED}✕{Fore.RESET} 获取上游修改失败:\n{Fore.RED}{e}{Fore.RESET}")
         if input(f"{Fore.BLUE}[!]{Fore.RESET} 是否尝试替换 master 分支？(默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in ["y", "yes", "要", "是", "true"]:
             try:
                 subprocess.run(["git", "fetch", "upstream"], check=True) # 拉取上游修改
