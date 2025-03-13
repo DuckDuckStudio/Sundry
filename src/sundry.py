@@ -24,6 +24,8 @@ def main():
         tool_path = "config.exe"
     elif tool in ["sync", "同步", "syncronize", "sync-fork"]:
         tool_path = "sync.exe"
+    elif tool == "cat":
+        tool_path = "cat.exe"
     # ==========================================
     elif tool in ["ver", "版本", "version", "Version", "--version", "--ver", "-v"]:
         print(f"版本: {version}")

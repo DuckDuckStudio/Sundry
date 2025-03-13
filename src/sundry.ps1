@@ -26,6 +26,8 @@ if ($tool -in "移除", "remove") {
 #     $pythonScript = Join-Path $Script_Path "NewVersion.py"
 } elseif ($tool -in "sync", "同步", "syncronize", "sync-fork") {
     $pythonScript = Join-Path $Script_Path "sync.py"
+} elseif ($tool -eq "cat") {
+    $pythonScript = Join-Path $Script_Path "cat.py"
 # ========================================================
 } elseif ($tool -in "ver", "版本", "version", "Version", "--version", "--ver", "-v") {
     Write-Output "版本: $version"
