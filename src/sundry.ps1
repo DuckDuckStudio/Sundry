@@ -28,12 +28,14 @@ if ($tool -in "移除", "remove") {
     $pythonScript = Join-Path $Script_Path "sync.py"
 } elseif ($tool -eq "cat") {
     $pythonScript = Join-Path $Script_Path "cat.py"
+} elseif ($tool -eq "repr") {
+    $pythonScript = Join-Path $Script_Path "repr.py"
 # ========================================================
 } elseif ($tool -in "ver", "版本", "version", "Version", "--version", "--ver", "-v") {
     Write-Output "版本: $version"
     Write-Output "安装在: $Script_Path"
     $flag = 1
-} elseif ($tool -in "h", "help", "-h", "-help", "--help", "/?", "帮助") {
+} else {
     Write-Output "Sundry 使用帮助"
     Write-Output "    移除软件包版本: sundry remove [软件包标识符] [软件包版本] [跳过检查(只接受true)/理由(默认为GitHub Action中返回404)]"
     # Write-Output "    修改检测忽略字段: sundry ignore [add/remove/list] [忽略字段] [理由]"
@@ -46,13 +48,10 @@ if ($tool -in "移除", "remove") {
     # Write-Output "        新版本辅助修改: sundry new"
     Write-Output "        查看清单: sundry cat"
     Write-Output "        同步本地: sundry sync"
+    Write-Output "        格式化字符串: sundry repr"
     Write-Output "    其他 Sundry 命令:"
     Write-Output "        查看版本: sundry ver"
     Write-Output "        查看帮助: sundry help"
-    $flag = 1
-} else {
-    Write-Warning "无效的调用"
-    Write-Output "可用调用: [remove/移除] [ignore/忽略] [ver/版本]"
     $flag = 1
 }
 

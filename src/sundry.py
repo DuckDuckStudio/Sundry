@@ -26,12 +26,14 @@ def main():
         tool_path = "sync.exe"
     elif tool == "cat":
         tool_path = "cat.exe"
+    elif tool == "repr":
+        tool_path = "repr.exe"
     # ==========================================
     elif tool in ["ver", "版本", "version", "Version", "--version", "--ver", "-v"]:
         print(f"版本: {version}")
         print(f"安装在: {script_path}")
         return 0
-    elif tool in ["h", "help", "-h", "-help", "--help", "/?", "帮助"]:
+    else:
         print("Sundry 使用帮助")
         print("    移除软件包版本: sundry remove [软件包标识符] [软件包版本] [跳过检查(只接受true)/理由(默认为GitHub Action中返回404)]")
         # print("    修改检测忽略字段: sundry ignore [add/remove/list] [忽略字段] [理由]")
@@ -44,14 +46,11 @@ def main():
         # print("        新版本辅助修改: sundry new")
         print("        查看清单: sundry cat")
         print("        同步本地: sundry sync")
+        print("        格式化字符串: sundry repr")
         print("    其他 Sundry 命令:")
         print("        查看版本: sundry ver")
         print("        查看帮助: sundry help")
         return 0
-    else:
-        print("无效的调用")
-        print("可用调用: [remove/移除] [ignore/忽略] [ver/版本]")
-        return 1
 
     subprocess.run([f"{script_path}\\{tool_path}"] + args, check=True)
     return 0

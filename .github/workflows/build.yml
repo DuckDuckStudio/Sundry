@@ -109,10 +109,10 @@ jobs:
           cp -v src/fun.txt Release/pack
           cp -v LICENSE Release/pack
           echo ========================================
-          pyinstaller --onefile --distpath="Release/pack" --name="sundry.exe" "src/sundry.py"
-          pyinstaller --onefile --distpath="Release/pack" --name="config.exe" "src/config.py"
-          pyinstaller --onefile --distpath="Release/pack" --name="remove.exe" "src/remove.py"
-          pyinstaller --onefile --distpath="Release/pack" --name="sync.exe" "src/sync.py"
+          for script in $(find src -name "*.py"); do
+            name=$(basename "$script" .py)
+            pyinstaller --onefile --distpath="Release/pack" --name="$name.exe" "$script"
+          done
           echo ========================================
           7z a -t7z Release/Sundry.7z Release/pack
           7z a -tzip Release/Sundry.zip Release/pack
