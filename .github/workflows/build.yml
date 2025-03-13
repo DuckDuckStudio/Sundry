@@ -110,6 +110,7 @@ jobs:
           cp -v LICENSE Release/pack
           echo ========================================
           for script in $(find src -name "*.py"); do
+            echo "正在打包 $script ..."
             name=$(basename "$script" .py)
             pyinstaller --onefile --distpath="Release/pack" --name="$name.exe" "$script"
           done
