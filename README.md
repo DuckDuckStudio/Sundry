@@ -20,6 +20,10 @@ sundry config init
 
 > 题外话: 这个配置文件就是我将其从我自己的工具变为这里的工具的方法 XD  
 
+> [!TIP]  
+> 在 **1.0.12** 之前，配置文件在程序目录下的 `config.json` 中；在 **1.0.12** 之后，配置文件在用户目录下的 `.config/DuckStudio/Sundry/config.json` 中。 - 这是为更新时不覆盖配置文件考虑的，如果配置文件不对，请再次使用 `sundry config init`。  
+> ~~由于作者实在是太懒了~~，在卸载 Sundry 之后不会移除配置文件。    
+
 (可选) 初始化完配置文件后用以下命令确认下:  
 ```bash
 sundry config show

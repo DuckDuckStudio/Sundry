@@ -6,9 +6,6 @@ test/
 # WIP
 verify/
 
-# User
-config.json
-
 # IDE
 .idea/
 .vscode/

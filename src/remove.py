@@ -14,7 +14,7 @@ from translate import Translator
 init(autoreset=True)
 
 # 配置文件路径
-配置文件 = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), "config.json")
+配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
 
 if os.path.exists(配置文件):
     try:
