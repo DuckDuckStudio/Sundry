@@ -72,7 +72,7 @@ try:
         subprocess.run(["git", "fetch", "origin"], check=True) # 拉取远程修改
         print(f"{Fore.BLUE}  已获取远程修改")
     except subprocess.CalledProcessError as e:
-        print(f"{Fore.RED}✕{Fore.RESET} 拉取远程修改失败:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{Fore.YELLOW}⚠{Fore.RESET} 拉取远程修改失败:\n{Fore.YELLOW}{e}{Fore.RESET}")
         # 不影响...不影响
 
     try:
