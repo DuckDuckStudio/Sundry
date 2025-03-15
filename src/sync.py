@@ -58,7 +58,8 @@ try:
                 print(f"{Fore.BLUE}  已获取上游修改")
                 subprocess.run(["git", "checkout", "upstream/master"], check=True) # 签出到上游 master 分支
                 print(f"{Fore.BLUE}  已签出到上游 master 分支")
-                # git switch -c master
+                subprocess.run(["git", "branch", "-D", "master"], check=True) # 移除旧的 master 分支
+                print(f"{Fore.BLUE}  已移除旧 master 分支")
                 subprocess.run(["git", "switch", "-c", "master"], check=True) # 创建并签出到 master 分支
                 print(f"{Fore.BLUE}  已创建并签出到 master 分支")
             except subprocess.CalledProcessError as e:
