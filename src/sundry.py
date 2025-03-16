@@ -52,8 +52,8 @@ def main():
         print("        查看帮助: sundry help")
         return 0
 
-    subprocess.run([f"{script_path}\\{tool_path}"] + args, check=True)
-    return 0
+    result = subprocess.run([f"{script_path}/{tool_path}"] + args)
+    return result.returncode
 
 if __name__ == "__main__":
     sys.exit(main())
