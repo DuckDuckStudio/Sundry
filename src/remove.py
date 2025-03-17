@@ -24,14 +24,14 @@ def 创建拉取请求(分支名, 版本文件夹, 理由):
             "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
-            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/), please apply any changes requests directly🙏.\n{理由}\n{手动验证结果}\n\n---\n"
+            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {版本号}, please apply any changes requests directly🙏.\n{理由}\n{手动验证结果}\n\n---\n"
         }
     else:
         数据 = {
             "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
-            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/), please apply any changes requests directly🙏.\n{理由}\n\n---\n"
+            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {版本号}, please apply any changes requests directly🙏.\n{理由}\n\n---\n"
         }
     response = requests.post(api, headers=请求头, json=数据)
     if response.status_code == 201:
@@ -54,6 +54,8 @@ def read_token():
         return "error"
 
 def main():
+    global 版本号, 软件包标识符, 手动验证结果, github_token, owner
+
     init(autoreset=True)
 
     # 配置文件路径
