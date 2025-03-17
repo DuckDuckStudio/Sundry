@@ -26,10 +26,11 @@ namespace sundry.Command
                 // 获取 winget-pkgs
                 while (true)
                 {
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("? 您的本地 winget-");
+                    Print.PrintInfo("您的本地 winget-", true);
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("pkgs 仓库在哪里: ");
+                    Console.Write("pkgs");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write(" 仓库在哪里: ");
                     Console.ResetColor();
                     string? wingetPkgs = Console.ReadLine()?.Replace("\\", "/");
                     if (Directory.Exists(wingetPkgs))
@@ -46,10 +47,11 @@ namespace sundry.Command
                 // 获取 winget-tools
                 while (true)
                 {
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("? 您的本地 winget-");
+                    Print.PrintInfo("您的本地 winget-", true);
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("tools 仓库在哪里: ");
+                    Console.Write("tools");
+                    Console.ForegroundColor = ConsoleColor.Blue;
+                    Console.Write(" 仓库在哪里: ");
                     Console.ResetColor();
                     string? wingetTools = Console.ReadLine()?.Replace("\\", "/");
                     if (Directory.Exists(wingetTools))
@@ -118,10 +120,11 @@ namespace sundry.Command
                 }
 
                 // 获取 Git 提交签名
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.Write("? 是否要为 Git 提交签名: (默认为");
+                Print.PrintInfo("是否要为 Git 提交签名: (默认为", true);
                 Console.ForegroundColor = ConsoleColor.Yellow;
-                Console.WriteLine("否): ");
+                Console.Write("否");
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.Write("): ");
                 Console.ResetColor();
                 string? signInput = Console.ReadLine()?.ToLower();
                 bool signature = signInput == "y" || signInput == "yes" || signInput == "要" || signInput == "是";
@@ -195,7 +198,9 @@ namespace sundry.Command
         // 确认是否覆盖配置文件
         private static bool AskToOverwrite()
         {
-            Print.PrintWarning("已经存在了一份配置文件，要覆盖它吗: ");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.Write("已经存在了一份配置文件，要覆盖它吗: ");
+            Console.ResetColor();
             string? input = Console.ReadLine()?.ToLower();
             return input == "y" || input == "yes" || input == "要" || input == "覆盖" || input == "force";
         }

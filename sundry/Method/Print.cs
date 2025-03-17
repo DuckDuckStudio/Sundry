@@ -13,14 +13,14 @@
         public static void PrintError(string Error)
         {
             Console.ForegroundColor = ConsoleColor.Red;
-            Console.WriteLine("✕" + Error);
+            Console.WriteLine("✕ " + Error);
             Console.ResetColor();
         }
 
         public static void PrintWarning(string Warning)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("⚠" + Warning);
+            Console.WriteLine("⚠ " + Warning);
             Console.ResetColor();
         }
 
@@ -29,11 +29,11 @@
             Console.ForegroundColor = ConsoleColor.Blue;
             if (ask)
             {
-                Console.Write("?" + Info); // 不换行
+                Console.Write("? " + Info); // 不换行
             }
             else
             {
-                Console.WriteLine("[!]" + Info);
+                Console.WriteLine("[!] " + Info);
             }
             Console.ResetColor();
         }
@@ -41,7 +41,7 @@
         public static void PrintSuccess(string Success)
         {
             Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("✓" + Success);
+            Console.WriteLine("✓ " + Success);
             Console.ResetColor();
         }
 
