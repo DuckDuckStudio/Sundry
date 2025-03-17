@@ -16,8 +16,7 @@ def main():
         else:
             return repr_text(sys.argv[1], sys.argv[2])
     else:
-        print(f"{Fore.RED}✕ 请按照以下格式传入参数:")
-        print(f"{Fore.BLUE}sundry repr <文件路径/文本内容> [编码(默认 UTF-8)]{Fore.RESET}")
+        print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
 def repr_file(path, encode="utf-8"):
