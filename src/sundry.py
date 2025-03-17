@@ -10,9 +10,8 @@ def main():
         tool = sys.argv[1].lower()
         args = sys.argv[2:]
     except IndexError:
-        print("无效的调用")
-        print("可用调用: [remove/移除] [ignore/忽略] [ver/版本]")
-        return 1
+        tool = "help"
+
     script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     version = "develop"
 
@@ -52,7 +51,7 @@ def main():
         print("        查看帮助: sundry help")
         return 0
 
-    result = subprocess.run([f"{script_path}/{tool_path}"] + args)
+    result = subprocess.run([os.path.join(script_path, tool_path)] + args)
     return result.returncode
 
 if __name__ == "__main__":
