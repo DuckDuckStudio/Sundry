@@ -1,4 +1,5 @@
 ﻿using sundry.Command;
+using sundry.Method;
 
 namespace sundry
 {
@@ -43,19 +44,14 @@ namespace sundry
                         }
                         else
                         {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("✕ 请提供文件路径或文本内容");
-                            Console.ResetColor();
+                            Print.PrintError("请提供文件路径或文本内容");
                         }
                         break;
                     case "config":
                         if (args.Length < 2)
                         {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("✕ 缺少参数");
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine("[!] 运行 sundry --help 来获取命令帮助");
-                            Console.ResetColor();
+                            Print.PrintError("缺少参数");
+                            Print.PrintInfo("运行 sundry --help 来获取命令帮助");
                             Environment.Exit(2);
                         }
 
@@ -75,11 +71,8 @@ namespace sundry
                         }
                         else
                         {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine($"✕ 无效的操作: {args[1]}");
-                            Console.ForegroundColor = ConsoleColor.Blue;
-                            Console.WriteLine("[!] 运行 sundry --help 来获取命令帮助");
-                            Console.ResetColor();
+                            Print.PrintError($"无效的操作: {args[1]}");
+                            Print.PrintInfo("运行 sundry --help 来获取命令帮助");
                             Environment.Exit(2);
                         }
                         break;
@@ -87,17 +80,13 @@ namespace sundry
                     // ...更多命令...
 
                     default:
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("无效的命令。");
-                        Console.ResetColor();
+                        Print.PrintError("无效的命令。");
                         break;
                 }
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("请提供一个命令。");
-                Console.ResetColor();
+                Print.PrintError("请提供一个命令。");
             }
         }
     }

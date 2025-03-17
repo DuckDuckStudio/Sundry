@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using sundry.Method;
 
 namespace sundry.Command
 {
@@ -20,30 +21,22 @@ namespace sundry.Command
             }
             catch (UnauthorizedAccessException)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("✕ 没有权限");
-                Console.ResetColor();
+                Print.PrintError("没有权限");
                 return 1;
             }
             catch (FileNotFoundException)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("✕ 文件不存在");
-                Console.ResetColor();
+                Print.PrintError("文件不存在");
                 return 1;
             }
             catch (ArgumentException e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"✕ 编码错误: {e.Message}");
-                Console.ResetColor();
+                Print.PrintError($"编码错误: {e.Message}");
                 return 1;
             }
             catch (Exception e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"✕ 未知错误: {e.Message}");
-                Console.ResetColor();
+                Print.PrintError($"未知错误: {e.Message}");
                 return 1;
             }
         }
@@ -64,16 +57,12 @@ namespace sundry.Command
             }
             catch (ArgumentException e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"✕ 编码错误: {e.Message}");
-                Console.ResetColor();
+                Print.PrintError($"编码错误: {e.Message}");
                 return 1;
             }
             catch (Exception e)
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine($"✕ 未知错误: {e.Message}");
-                Console.ResetColor();
+                Print.PrintError($"未知错误: {e.Message}");
                 return 1;
             }
         }

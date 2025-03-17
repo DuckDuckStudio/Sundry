@@ -1,4 +1,5 @@
-﻿using System.Text.Json;
+﻿using sundry.Method;
+using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Text.RegularExpressions;
 
@@ -38,9 +39,7 @@ namespace sundry.Command
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("✕ 指定的路径不存在");
-                        Console.ResetColor();
+                        Print.PrintError("指定的路径不存在");
                     }
                 }
 
@@ -60,18 +59,14 @@ namespace sundry.Command
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("✕ 指定的路径不存在");
-                        Console.ResetColor();
+                        Print.PrintError("指定的路径不存在");
                     }
                 }
 
                 // 获取 fork 仓库
                 while (true)
                 {
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.Write("? 您的 winget-pkgs 仓库的 fork 仓库是什么: ");
-                    Console.ResetColor();
+                    Print.PrintInfo("您的 winget-pkgs 仓库的 fork 仓库是什么: ", true);
                     string? fork = Console.ReadLine();
 
                     // 定义一个 GitHub 仓库 URL 正则表达式，用来验证 URL 是否有效
@@ -108,23 +103,17 @@ namespace sundry.Command
                             }
                             else
                             {
-                                Console.ForegroundColor = ConsoleColor.Red;
-                                Console.WriteLine("✕ 指定的 fork 仓库不存在或没有权限访问");
-                                Console.ResetColor();
+                                Print.PrintError("指定的 fork 仓库不存在或没有权限访问");
                             }
                         }
                         else
                         {
-                            Console.ForegroundColor = ConsoleColor.Red;
-                            Console.WriteLine("✕ 请输入正确的 fork 仓库格式，例如: owner/repo");
-                            Console.ResetColor();
+                            Print.PrintError("请输入正确的 fork 仓库格式，例如: owner/repo");
                         }
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("✕ 请输入正确的 fork 仓库格式，例如: owner/repo");
-                        Console.ResetColor();
+                        Print.PrintError("请输入正确的 fork 仓库格式，例如: owner/repo");
                     }
                 }
 
@@ -143,9 +132,7 @@ namespace sundry.Command
                 JsonSerializerOptions options = new() { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
                 await File.WriteAllTextAsync(configFilePath, JsonSerializer.Serialize(config, options));
 
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.WriteLine("✓ 成功初始化配置文件");
-                Console.ResetColor();
+                Print.PrintSuccess("成功初始化配置文件");
             }
         }
 
@@ -162,20 +149,14 @@ namespace sundry.Command
                 }
                 catch (JsonException e)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"✕ 读取配置文件失败，配置文件不是有效的 json 字段:\n{e.Message}");
-                    Console.ForegroundColor = ConsoleColor.Blue;
-                    Console.WriteLine("[!] 请考虑运行 sundry config init 来覆盖现有的配置文件");
-                    Console.ResetColor();
+                    Print.PrintError($"读取配置文件失败，配置文件不是有效的 json 字段:\n{e.Message}");
+                    Print.PrintInfo("请考虑运行 sundry config init 来覆盖现有的配置文件");
                 }
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("✕ 配置文件不存在");
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine("[!] 运行 sundry config init 来初始化配置文件");
-                Console.ResetColor();
+                Print.PrintError("配置文件不存在");
+                Print.PrintInfo("运行 sundry config init 来初始化配置文件");
             }
         }
 
@@ -192,40 +173,29 @@ namespace sundry.Command
                     {
                         jsonObject[entry] = value;
                         File.WriteAllText(configFilePath, jsonObject.ToString());
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.WriteLine($"✓ 成功更新 {entry} 为 {value}");
-                        Console.ResetColor();
+                        Print.PrintSuccess($"成功更新 {entry} 为 {value}");
                     }
                     else
                     {
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.WriteLine("✕ 更新条目失败: 配置文件内容为空");
-                        Console.ResetColor();
+                        Print.PrintError("更新条目失败: 配置文件内容为空");
                     }
                 }
                 catch (JsonException e)
                 {
-                    Console.ForegroundColor = ConsoleColor.Red;
-                    Console.WriteLine($"✕ 更新条目失败: \n{e.Message}");
-                    Console.ResetColor();
+                    Print.PrintError($"更新条目失败: \n{e.Message}");
                 }
             }
             else
             {
-                Console.ForegroundColor = ConsoleColor.Red;
-                Console.WriteLine("✕ 配置文件不存在");
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine("[!] 运行 sundry config init 来初始化配置文件");
-                Console.ResetColor();
+                Print.PrintError("配置文件不存在");
+                Print.PrintInfo("运行 sundry config init 来初始化配置文件");
             }
         }
 
         // 确认是否覆盖配置文件
         private static bool AskToOverwrite()
         {
-            Console.ForegroundColor = ConsoleColor.Yellow;
-            Console.WriteLine("⚠ 已经存在了一份配置文件，要覆盖它吗[Y/N]: ");
-            Console.ResetColor();
+            Print.PrintWarning("已经存在了一份配置文件，要覆盖它吗: ");
             string? input = Console.ReadLine()?.ToLower();
             return input == "y" || input == "yes" || input == "要" || input == "覆盖" || input == "force";
         }
