@@ -1,5 +1,4 @@
 import os
-import sys
 import json
 import requests
 from pygments import highlight
@@ -115,29 +114,26 @@ def 修改配置项(条目, 值):
         print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
 
 # 主程序
-def main():
+def main(args):
     try:
-        if len(sys.argv) < 2:
+        if len(args) < 2:
             print(f"{Fore.RED}✕{Fore.RESET} 缺少参数")
             print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry --help 来获取命令帮助")
             return 2
 
-        if sys.argv[1] == "init":
+        if args[1] == "init":
             初始化配置文件()
-        elif sys.argv[1] == "show":
+        elif args[1] == "show":
             展示配置文件()
-        elif len(sys.argv) == 3:
-            条目 = sys.argv[1]
-            值 = sys.argv[2]
+        elif len(args) == 3:
+            条目 = args[1]
+            值 = args[2]
             修改配置项(条目, 值)
         else:
-            print(f"{Fore.RED}✕{Fore.RESET} 无效的操作: {sys.argv[1]}")
+            print(f"{Fore.RED}✕{Fore.RESET} 无效的操作: {args[1]}")
             print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry --help 来获取命令帮助")
             return 2
         return 0
     except KeyboardInterrupt:
         print(f"\n{Fore.RED}✕{Fore.RESET} 操作取消")
         return 2
-
-if __name__ == "__main__":
-    sys.exit(main())

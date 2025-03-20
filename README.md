@@ -1,16 +1,11 @@
 # Sundry
-sundry 是一个 WinGet 本地清单管理工具，让您更方便的移除清单、修改清单，还可以辅助更新清单。  
+sundry 是一个 WinGet 本地清单管理工具，让您更方便地移除清单、修改清单，还可以辅助更新清单。  
 
 ## 代码说明
 ### 为什么有些简介中的功能在发行版中没有
 简介中的功能我都在本地写好了，这个工具本来是我自己本地用的，传之前需要一段时间修改。  
-#### 当前公开版实现
-- [x] 配置文件及其处理
-- [x] 版本清单移除
-- [x] 一些新的命令 - 例如 repr、sync 等
 #### 接下来
-- [ ] 版本清单修改
-- [ ] [winget-tools](https://github.com/DuckDuckStudio/winget-tools) 检测忽略
+- [ ] C# 重构 - https://github.com/DuckDuckStudio/Sundry/pull/5
 
 ## 使用说明
 当您获取本工具后，请先使用这个命令初始化配置文件:  

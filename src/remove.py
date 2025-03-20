@@ -1,6 +1,5 @@
 import os
 import csv
-import sys
 import json
 import shutil
 import keyring
@@ -53,7 +52,7 @@ def read_token():
         print(f"✕ 读取Token时出错:\n{e}")
         return "error"
 
-def main():
+def main(args):
     global 版本号, 软件包标识符, 手动验证结果, github_token, owner
 
     init(autoreset=True)
@@ -71,43 +70,43 @@ def main():
                 if (not os.path.exists(winget_pkgs目录)):
                     print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{winget_pkgs目录}{Fore.RESET} 不存在")
                     print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
-                    sys.exit(3)
+                    return 1
             else:
                 print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"winget-pkgs\" 为空{Fore.RESET}")
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
-                sys.exit(3)
+                return 1
             # ========================================
             if 配置数据["fork"]:
                 try:
                     owner, repo = 配置数据["fork"].split("/")
                 except Exception as e:
                     print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败: {Fore.RED}解析 fork 配置项失败{Fore.RESET}\n{Fore.RED}{e}{Fore.RESET}")
-                    sys.exit(3)
+                    return 1
             else:
                 print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"fork\" 为空{Fore.RESET}")
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config fork [所有者/仓库名] 来修改配置文件中的值")
-                sys.exit(3)
+                return 1
             # ========================================
             if 配置数据["signature"]:
                 是否签名 = 配置数据["signature"]
             else:
                 print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"signature\" 为空{Fore.RESET}")
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config signature [true/false] 来修改配置文件中的值")
-                sys.exit(3)
+                return 1
             # ========================================
             if 配置数据["version"]:
                 版本号 = 配置数据["version"]
             else:
                 print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"version\" 为空{Fore.RESET}")
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
-                sys.exit(3)
+                return 1
         except Exception as e:
             print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
-            sys.exit(3)
+            return 1
     else:
         print(f"{Fore.RED}✕{Fore.RESET} 配置文件不存在")
         print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
-        sys.exit(3)
+        return 1
 
     # 目录路径
     跳过检查 = False
@@ -116,30 +115,30 @@ def main():
     手动验证结果 = None
 
     # 尝试从参数中获取软件包标识符和版本
-    if (3 <= len(sys.argv) <= 5):
-        软件包标识符 = sys.argv[1]
-        软件包版本 = sys.argv[2]
-        if (4 <= len(sys.argv) <= 5):
-            if ((isinstance(sys.argv[3], bool)) or (sys.argv[3].lower() in ["true"])):
+    if (3 <= len(args) <= 5):
+        软件包标识符 = args[1]
+        软件包版本 = args[2]
+        if (4 <= len(args) <= 5):
+            if ((isinstance(args[3], bool)) or (args[3].lower() in ["true"])):
                 # bool 值视为是否跳过检查开关
                 跳过检查 = True # 不接受传 False
-                if (len(sys.argv) == 5):
+                if (len(args) == 5):
                     # 如果需同时传递开关和新理由，则使用
                     # sundry remove [标识符] [版本] True [新理由]
-                    理由 = sys.argv[4]
+                    理由 = args[4]
             else:
                 # 其他值视为理由
-                理由 = sys.argv[3]
+                理由 = args[3]
     else:
         print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
-        sys.exit(1)
+        return 1
 
     清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'))
 
     # 确保清单存在
     if not os.path.exists(清单目录):
         print(f"{Fore.RED}清单目录不存在: {清单目录}")
-        sys.exit(1)
+        return 1
 
     github_token = read_token()
 
@@ -195,7 +194,7 @@ def main():
                 input("您确定没有重复的拉取请求?")
         except KeyboardInterrupt:
             print(f"\n{Fore.RED}已取消操作，没有修改任何文件")
-            sys.exit(0)
+            return 0
     else:
         print(f"{Fore.YELLOW}⚠ 已跳过相关检查")
         理由 = 理由.replace(" and has been automatically verified", "")
@@ -247,6 +246,3 @@ def main():
         subprocess.run(["git", "branch", "-D", branch], check=True)
     print(f"{Fore.GREEN}工作区清理完成")
     return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
