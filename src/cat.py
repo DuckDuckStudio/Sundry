@@ -74,7 +74,10 @@ def main(args):
         # 获取区域
         if (len(args) == 4):
             if (清单类型 == "locale"):
-                区域设置 = args[3]
+                if (args[3]):
+                    区域设置 = args[3]
+                else:
+                    print(f"{Fore.RED}✕{Fore.RESET} 缺少第 4 参数 - 你需要告诉我你要获取哪个区域的清单")
             else:
                 print(f"{Fore.RED}✕{Fore.RESET} 清单类型为 {Fore.BLUE}{清单类型}{Fore.RESET} 时，不应传入第 4 参数")
                 return 1
