@@ -60,10 +60,10 @@ def main(args):
     # NOTE: 前面已经判断过 winget_pkgs目录 是否存在了
 
     # 尝试从参数中获取软件包标识符和版本
-    if (4 <= len(args) <= 5):
-        软件包标识符 = args[1]
-        软件包版本 = args[2]
-        清单类型 = args[3].lower()
+    if (3 <= len(args) <= 4):
+        软件包标识符 = args[0]
+        软件包版本 = args[1]
+        清单类型 = args[2].lower()
         # 格式化 清单类型
         if (清单类型 in ["locale", "区域", "区域设置", "l"]):
             清单类型 = "locale"
@@ -72,9 +72,9 @@ def main(args):
         elif (清单类型 in ["version", "ver", "v", "版本"]):
             清单类型 = "version"
         # 获取区域
-        if (len(args) == 5):
+        if (len(args) == 4):
             if (清单类型 == "locale"):
-                区域设置 = args[4]
+                区域设置 = args[3]
             else:
                 print(f"{Fore.RED}✕{Fore.RESET} 清单类型为 {Fore.BLUE}{清单类型}{Fore.RESET} 时，不应传入第 4 参数")
                 return 1

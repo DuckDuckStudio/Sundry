@@ -115,20 +115,20 @@ def main(args):
     手动验证结果 = None
 
     # 尝试从参数中获取软件包标识符和版本
-    if (3 <= len(args) <= 5):
-        软件包标识符 = args[1]
-        软件包版本 = args[2]
-        if (4 <= len(args) <= 5):
-            if ((isinstance(args[3], bool)) or (args[3].lower() in ["true"])):
+    if (2 <= len(args) <= 4):
+        软件包标识符 = args[0]
+        软件包版本 = args[1]
+        if (3 <= len(args) <= 4):
+            if ((isinstance(args[2], bool)) or (args[2].lower() in ["true"])):
                 # bool 值视为是否跳过检查开关
                 跳过检查 = True # 不接受传 False
-                if (len(args) == 5):
+                if (len(args) == 4):
                     # 如果需同时传递开关和新理由，则使用
                     # sundry remove [标识符] [版本] True [新理由]
-                    理由 = args[4]
+                    理由 = args[3]
             else:
                 # 其他值视为理由
-                理由 = args[3]
+                理由 = args[2]
     else:
         print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1

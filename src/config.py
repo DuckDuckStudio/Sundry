@@ -116,21 +116,21 @@ def 修改配置项(条目, 值):
 # 主程序
 def main(args):
     try:
-        if len(args) < 2:
+        if len(args) < 1:
             print(f"{Fore.RED}✕{Fore.RESET} 缺少参数")
             print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry --help 来获取命令帮助")
             return 2
 
-        if args[1] == "init":
+        if args[0] == "init":
             初始化配置文件()
-        elif args[1] == "show":
+        elif args[0] == "show":
             展示配置文件()
-        elif len(args) == 3:
-            条目 = args[1]
-            值 = args[2]
+        elif len(args) == 2:
+            条目 = args[0]
+            值 = args[1]
             修改配置项(条目, 值)
         else:
-            print(f"{Fore.RED}✕{Fore.RESET} 无效的操作: {args[1]}")
+            print(f"{Fore.RED}✕{Fore.RESET} 无效的操作: {args[0]}")
             print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry --help 来获取命令帮助")
             return 2
         return 0

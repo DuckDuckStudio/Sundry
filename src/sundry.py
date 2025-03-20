@@ -1,9 +1,6 @@
 import os
 import sys
 
-# 这是打包后使用的
-# 对于源码，请查看 sundry.ps1
-
 def main():
     try:
         tool = sys.argv[1].lower()
