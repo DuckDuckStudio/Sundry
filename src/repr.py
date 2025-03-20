@@ -1,20 +1,19 @@
 import os
-import sys
 from colorama import Fore, init
 
-def main():
+def main(args):
     init(autoreset=True)
 
-    if (len(sys.argv) == 2):
-        if os.path.exists(sys.argv[1]):
-            return repr_file(sys.argv[1])
+    if (len(args) == 2):
+        if os.path.exists(args[1]):
+            return repr_file(args[1])
         else:
-            return repr_text(sys.argv[1])
-    elif (len(sys.argv) == 3):
-        if os.path.exists(sys.argv[1]):
-            return repr_file(sys.argv[1], sys.argv[2])
+            return repr_text(args[1])
+    elif (len(args) == 3):
+        if os.path.exists(args[1]):
+            return repr_file(args[1], args[2])
         else:
-            return repr_text(sys.argv[1], sys.argv[2])
+            return repr_text(args[1], args[2])
     else:
         print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
@@ -47,6 +46,3 @@ def repr_text(text, encode="utf-8"):
     except Exception as e:
         print(f"{Fore.RED}✕{Fore.RESET} 未知错误: {Fore.RED}{e}{Fore.RESET}")
         return 1
-
-if __name__ == "__main__":
-    sys.exit(main())

@@ -1,6 +1,5 @@
 import os
 import sys
-import subprocess
 
 # 这是打包后使用的
 # 对于源码，请查看 sundry.ps1
@@ -11,22 +10,26 @@ def main():
         args = sys.argv[2:]
     except IndexError:
         tool = "help"
+        args = []
 
     script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     version = "develop"
 
     if tool in ["移除", "remove"]:
-        tool_path = "remove.exe"
-    elif tool in ["忽略", "ignore"]:
-        tool_path = "ignore.exe"
+        import remove
+        return remove.main(args)
     elif tool in ["config", "配置"]:
-        tool_path = "config.exe"
-    elif tool in ["sync", "同步", "syncronize", "sync-fork"]:
-        tool_path = "sync.exe"
+        import config
+        return config.main(args)
+    elif tool in ["sync", "同步", "synchronize", "sync-fork"]:
+        import sync
+        return sync.main()
     elif tool == "cat":
-        tool_path = "cat.exe"
+        import cat
+        return cat.main(args)
     elif tool == "repr":
-        tool_path = "repr.exe"
+        import repr
+        return repr.main(args)
     # ==========================================
     elif tool in ["ver", "版本", "version", "Version", "--version", "--ver", "-v"]:
         print(f"版本: {version}")
@@ -49,9 +52,6 @@ def main():
         print("        查看版本: sundry ver")
         print("        查看帮助: sundry help")
         return 0
-
-    result = subprocess.run([os.path.join(script_path, tool_path)] + args)
-    return result.returncode
 
 if __name__ == "__main__":
     sys.exit(main())
