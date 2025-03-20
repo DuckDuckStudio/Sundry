@@ -7,9 +7,6 @@ from colorama import init, Fore
 def main():
     init(autoreset=True)
 
-    # 不计划添加推送到远程功能，因为我有个 GitHub Action 正在帮我做此事
-    # 如果您想要推送到远程，运行结束后自己 git push (--force) 一下
-
     try:
         # 配置文件路径
         配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
@@ -84,6 +81,14 @@ def main():
             else:
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 已取消操作")
                 return 3
+
+        try:
+            # 推送 master
+            subprocess.run(["git", "push", "origin", "master"], check=True)
+            print(f"{Fore.BLUE}  已推送 master 分支")
+        except subprocess.CalledProcessError as e:
+            print(f"{Fore.RED}✕{Fore.RESET} 推送 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
+            return 1
 
         print(f"{Fore.GREEN}✓{Fore.RESET} 同步完成")
     except KeyboardInterrupt:
