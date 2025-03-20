@@ -4,16 +4,16 @@ from colorama import Fore, init
 def main(args):
     init(autoreset=True)
 
-    if (len(args) == 2):
-        if os.path.exists(args[1]):
-            return repr_file(args[1])
+    if (len(args) == 1):
+        if os.path.exists(args[0]):
+            return repr_file(args[0])
         else:
-            return repr_text(args[1])
-    elif (len(args) == 3):
-        if os.path.exists(args[1]):
-            return repr_file(args[1], args[2])
+            return repr_text(args[0])
+    elif (len(args) == 2):
+        if os.path.exists(args[0]):
+            return repr_file(args[0], args[1])
         else:
-            return repr_text(args[1], args[2])
+            return repr_text(args[0], args[1])
     else:
         print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
