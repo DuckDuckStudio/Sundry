@@ -110,7 +110,6 @@ def main(args):
 
     # 目录路径
     跳过检查 = False
-    附加检查 = False # 即这是对 winget-tools 中出现错误的 URL 的附加检查
     理由 = "It returns a 404 status code in GitHub Action and has been automatically verified."
     手动验证结果 = None
 
@@ -152,12 +151,10 @@ def main(args):
             print("======= 此软件包版本在 winget 上的信息 =======")
             subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
             print("======= 确认 =======")
-            if not 附加检查:
-                input("您在 winget-tools 中验证过域了吗?")
             t = input("您手动访问过每个安装程序链接了吗?").lower()
-            if 附加检查 or (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]):
+            if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]):
                 webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/manifests/{软件包标识符[0].lower()}/{'/'.join(软件包标识符.split('.'))}/{软件包版本}/{软件包标识符}.installer.yaml")
-            if 附加检查 or (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]) or (t in ["手动", "m", "manually"]):
+            if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]) or (t in ["手动", "m", "manually"]):
                 if not 手动验证结果:
                     手动验证结果 = input("手动验证结果: ")
                     if 手动验证结果:
