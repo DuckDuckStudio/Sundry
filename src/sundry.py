@@ -15,6 +15,9 @@ def main():
     if tool in ["移除", "remove"]:
         import remove
         return remove.main(args)
+    elif tool in ["ignore", "忽略"]:
+        import ignore
+        return ignore.main(args)
     elif tool in ["config", "配置"]:
         import config
         return config.main(args)

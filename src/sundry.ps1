@@ -11,8 +11,8 @@ $sundry = Join-Path $Script_Path "sundry.py"
 
 if ($tool -in "移除", "remove") {
     $command = "remove"
-# } elseif ($tool -in "忽略", "ignore") {
-#     $command = "ignore"
+} elseif ($tool -in "忽略", "ignore") {
+    $command = "ignore"
 } elseif ($tool -in "config", "配置") {
     $command = "config"
 # } elseif ($tool -in "修改", "modify", "change", "changes") {
