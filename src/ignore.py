@@ -1,13 +1,12 @@
 import os
 import re
-import sys
 import json
 import keyring
 import requests
 import subprocess
 from colorama import init, Fore
 
-def main():
+def main(args):
     init(autoreset=True)
 
     # 配置文件路径
@@ -23,41 +22,41 @@ def main():
                 if (not os.path.exists(winget_tools目录)):
                     print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{winget_tools目录}{Fore.RESET} 不存在")
                     print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-tools [路径] 来修改配置文件中的值")
-                    sys.exit(3)
+                    return 1
             else:
                 print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"winget-tools\" 为空{Fore.RESET}")
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-tools [路径] 来修改配置文件中的值")
-                sys.exit(3)
+                return 1
         except Exception as e:
             print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
-            sys.exit(3)
+            return 1
     else:
         print(f"{Fore.RED}✕{Fore.RESET} 配置文件不存在")
         print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
-        sys.exit(3)
+        return 1
 
     os.chdir(winget_tools目录)
     检测程序 = os.path.join(winget_tools目录, "auto_script", "check", "checker", "Program.cs")
 
     # 使用时传入2个参数，即需要忽略的字段和理由
-    if len(sys.argv) == 4:
-        if (sys.argv[1] in ["add", "添加", "新增", "加", "新"]):
+    if len(args) == 3:
+        if (args[0] in ["add", "添加", "新增", "加", "新"]):
             操作 = "add"
-        elif (sys.argv[1] in ["remove", "移除", "移", "除", "删", "删除"]):
+        elif (args[0] in ["remove", "移除", "移", "除", "删", "删除"]):
             操作 = "remove"
         else:
             print(f"{Fore.RED}✕ 请按照以下格式传入参数:{Fore.RESET}")
             print(f"{Fore.BLUE}    sundry ignore [add/remove] [忽略字段] [理由]{Fore.RESET}")
-            sys.exit(1)
+            return 1
         # ===========
-        忽略字段 = sys.argv[2]
-        理由 = sys.argv[3]
-    elif (sys.argv[1] in ["list", "--list", "列", "列出", "现有", "now"]):
+        忽略字段 = args[1]
+        理由 = args[2]
+    elif (args[0] in ["list", "--list", "列", "列出", "现有", "now"]):
         操作 = "list"
     else:
         print(f"{Fore.RED}✕ 请按照以下格式传入参数:")
         print(f"{Fore.BLUE}sundry ignore [add/remove/list] [忽略字段] [理由]")
-        sys.exit(1)
+        return 1
 
     # 同步
     try:
@@ -68,7 +67,7 @@ def main():
         print(f"{Fore.BLUE}INFO{Fore.RESET}     已拉取远程修改")
     except subprocess.CalledProcessError as e:
         print(f"{Fore.RED}✕{Fore.RESET} 同步失败:\n{Fore.RED}{e}{Fore.RESET}")
-        sys.exit(1)
+        return 1
     # 签出新分支
     # 将忽略字段格式化为git分支接受的字符
     # 1. 只保留字母数字字符和 -、_ 符号
@@ -174,7 +173,7 @@ def 移除忽略字段(检测程序路径, 忽略字段, 格式化忽略字段):
         subprocess.run(["git", "checkout", "main"], check=True) # 签回
         subprocess.run(["git", "branch", "-D", f"Ignore-{格式化忽略字段}"], check=True)
         print(f"{Fore.GREEN}✓{Fore.RESET} 工作区清理完毕")
-        sys.exit(2)
+        return 1
 
     with open(检测程序路径, 'w', encoding='utf-8') as file:
         file.writelines(lines)
