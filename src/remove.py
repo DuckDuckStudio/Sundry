@@ -144,6 +144,8 @@ def main(args, Sundry版本号):
             subprocess.run(["winget", "show", "--versions", 软件包标识符], check=True)
             print("======= 此软件包版本在 winget 上的信息 =======")
             subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
+            import cat
+            cat.main([软件包标识符, 软件包版本, "installer"])
             print("======= 确认 =======")
             t = input("您手动访问过每个安装程序链接了吗?").lower()
             if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]):
