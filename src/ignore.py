@@ -6,7 +6,7 @@ import requests
 import subprocess
 from colorama import init, Fore
 
-def main(args):
+def main(args, Sundry版本号):
     init(autoreset=True)
 
     # 配置文件路径
@@ -95,7 +95,7 @@ def main(args):
         subprocess.run(["git", "commit", "-m", f"[Auto] 自动忽略追加 - {格式化忽略字段}"], check=True)
         subprocess.run(["git", "push", "--set-upstream", "origin", f"Ignore-{格式化忽略字段}"], check=True)
         print(f"{Fore.GREEN}✓{Fore.RESET} 成功推送到远程")
-        创建拉取请求(忽略字段, 格式化忽略字段)
+        创建拉取请求(忽略字段, 格式化忽略字段, Sundry版本号)
     elif (操作 == "remove"):
         print(f"{Fore.BLUE}INFO{Fore.RESET} 开始移除...")
         方式 = 移除忽略字段(检测程序, 忽略字段, 格式化忽略字段)
@@ -107,7 +107,7 @@ def main(args):
         subprocess.run(["git", "commit", "-m", f"[Auto] 自动忽略移除 - {格式化忽略字段}"], check=True)
         subprocess.run(["git", "push", "--set-upstream", "origin", f"Ignore-{格式化忽略字段}"], check=True)
         print(f"{Fore.GREEN}✓{Fore.RESET} 成功推送到远程")
-        创建拉取请求(忽略字段, 格式化忽略字段, 理由)
+        创建拉取请求(忽略字段, 格式化忽略字段, Sundry版本号, 理由)
     elif (操作 == "list"):
         print(f"{Fore.BLUE}INFO{Fore.RESET} 现有忽略条目:")
         列出忽略字段(检测程序)
@@ -210,7 +210,7 @@ def read_token():
         return "error"
 
 # 创建拉取请求
-def 创建拉取请求(忽略字段, 格式化忽略字段, 理由=None):
+def 创建拉取请求(忽略字段, 格式化忽略字段, Sundry版本号, 理由=None):
     github_token = read_token()
     api = "https://api.github.com/repos/DuckDuckStudio/winget-tools/pulls"
     请求头 = {
@@ -224,7 +224,7 @@ def 创建拉取请求(忽略字段, 格式化忽略字段, 理由=None):
             "title": f"[Auto] 自动忽略追加 - {格式化忽略字段}",
             "head": f"DuckDuckStudio:Ignore-{格式化忽略字段}",
             "base": "main",
-            "body": f"### 此 PR 由 [Sundry](https://github.com/DuckDuckStudio/Sundry/) 创建，用于向检查代码**添加**忽略字段 `{忽略字段}`"
+            "body": f"### 此 PR 由 [Sundry](https://github.com/DuckDuckStudio/Sundry/) {Sundry版本号} 创建，用于向检查代码**添加**忽略字段 `{忽略字段}`"
         }
     else:
         # 移除创建的 PR 会带理由
@@ -232,7 +232,7 @@ def 创建拉取请求(忽略字段, 格式化忽略字段, 理由=None):
             "title": f"[Auto] 自动忽略移除 - {格式化忽略字段}",
             "head": f"DuckDuckStudio:Ignore-{格式化忽略字段}",
             "base": "main",
-            "body": f"### 此 PR 由 [Sundry](https://github.com/DuckDuckStudio/Sundry/) 创建，用于向检查代码**移除**忽略字段 `{忽略字段}`\n理由: {理由}"
+            "body": f"### 此 PR 由 [Sundry](https://github.com/DuckDuckStudio/Sundry/) {Sundry版本号} 创建，用于向检查代码**移除**忽略字段 `{忽略字段}`\n理由: {理由}"
         }
     # =======================
     response = requests.post(api, headers=请求头, json=数据)
