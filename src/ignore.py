@@ -237,7 +237,7 @@ def 创建拉取请求(忽略字段, 格式化忽略字段, Sundry版本号, 理
     # =======================
     response = requests.post(api, headers=请求头, json=数据)
     if response.status_code == 201:
-        print(f"{Fore.GREEN}✓{Fore.RESET} 拉取请求创建成功: {response.json()["html_url"]}")
+        print(f"{Fore.GREEN}✓ 拉取请求创建成功: {response.json()["html_url"]}{Fore.RESET}")
         subprocess.run(["gh", "pr", "edit", f"{response.json()["html_url"]}", "--add-label", "auto"], check=True)
         subprocess.run(["gh", "pr", "merge", f"{response.json()["html_url"]}", "--auto", "--squash"], check=True)
         print(f"{Fore.GREEN}✓{Fore.RESET} 拉取请求标记成功: {response.json()["html_url"]}")
