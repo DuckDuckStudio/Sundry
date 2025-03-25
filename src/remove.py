@@ -11,7 +11,7 @@ from colorama import init, Fore
 from translate import Translator
 
 # 创建拉取请求
-def 创建拉取请求(分支名, 版本文件夹, 理由):
+def 创建拉取请求(分支名, 版本文件夹, 理由, Sundry版本号):
     global github_token, owner, 手动验证结果, 软件包标识符
     api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
     请求头 = {
@@ -23,14 +23,14 @@ def 创建拉取请求(分支名, 版本文件夹, 理由):
             "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
-            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {版本号}, please apply any changes requests directly🙏.\n{理由}\n{手动验证结果}\n\n---\n"
+            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {Sundry版本号}, please apply any changes requests directly🙏.\n{理由}\n{手动验证结果}\n\n---\n"
         }
     else:
         数据 = {
             "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
-            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {版本号}, please apply any changes requests directly🙏.\n{理由}\n\n---\n"
+            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {Sundry版本号}, please apply any changes requests directly🙏.\n{理由}\n\n---\n"
         }
     response = requests.post(api, headers=请求头, json=数据)
     if response.status_code == 201:
@@ -52,8 +52,8 @@ def read_token():
         print(f"✕ 读取Token时出错:\n{e}")
         return "error"
 
-def main(args):
-    global 版本号, 软件包标识符, 手动验证结果, github_token, owner
+def main(args, Sundry版本号):
+    global 软件包标识符, 手动验证结果, github_token, owner
 
     init(autoreset=True)
 
@@ -94,12 +94,6 @@ def main(args):
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config signature [true/false] 来修改配置文件中的值")
                 return 1
             # ========================================
-            if 配置数据["version"]:
-                版本号 = 配置数据["version"]
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"version\" 为空{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
-                return 1
         except Exception as e:
             print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
             return 1
@@ -150,6 +144,8 @@ def main(args):
             subprocess.run(["winget", "show", "--versions", 软件包标识符], check=True)
             print("======= 此软件包版本在 winget 上的信息 =======")
             subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
+            import cat
+            cat.main([软件包标识符, 软件包版本, "installer"])
             print("======= 确认 =======")
             t = input("您手动访问过每个安装程序链接了吗?").lower()
             if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]):
@@ -227,7 +223,7 @@ def main(args):
     while (not 理由):
         理由 = input("移除此软件包版本的理由: ")
 
-    创建拉取请求(f"Remove-{软件包标识符}-{软件包版本}", 软件包版本, 理由)
+    创建拉取请求(f"Remove-{软件包标识符}-{软件包版本}", 软件包版本, 理由, Sundry版本号)
 
     print(f"{Fore.GREEN} 成功移除 {软件包标识符} 版本 {软件包版本}")
     print(f"{Fore.BLUE}开始清理工作区")
