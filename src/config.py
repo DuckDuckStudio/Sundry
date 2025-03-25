@@ -6,13 +6,8 @@ from pygments.formatters import TerminalFormatter
 from pygments.lexers import JsonLexer
 from colorama import init, Fore
 
-init(autoreset=True)
-
-# 配置文件路径
-配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
-
 # 初始化配置文件
-def 初始化配置文件():
+def 初始化配置文件(配置文件):
     if not os.path.exists(配置文件) or (input(f"{Fore.YELLOW}⚠{Fore.RESET} 已经存在了一份配置文件，要覆盖它吗[Y/N]: ").lower() in ["y", "yes", "要", "覆盖", "force"]):
         默认配置 = '''{
     "version": "develop",
@@ -76,7 +71,7 @@ def 初始化配置文件():
         print(f"{Fore.GREEN}✓{Fore.RESET} 成功初始化配置文件")
 
 # 展示现有配置
-def 展示配置文件():
+def 展示配置文件(配置文件):
     if os.path.exists(配置文件):
         try:
             with open(配置文件, "r", encoding="utf-8") as f:
@@ -92,7 +87,7 @@ def 展示配置文件():
         print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
 
 # 修改配置文件中的某一项
-def 修改配置项(条目, 值):
+def 修改配置项(条目, 值, 配置文件):
     if os.path.exists(配置文件):
         try:
             with open(配置文件, "r", encoding="utf-8") as f:
@@ -115,6 +110,11 @@ def 修改配置项(条目, 值):
 
 # 主程序
 def main(args):
+    init(autoreset=True)
+
+    # 配置文件路径
+    配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
+
     try:
         if len(args) < 1:
             print(f"{Fore.RED}✕{Fore.RESET} 缺少参数")
@@ -122,13 +122,13 @@ def main(args):
             return 2
 
         if args[0] == "init":
-            初始化配置文件()
+            初始化配置文件(配置文件)
         elif args[0] == "show":
-            展示配置文件()
+            展示配置文件(配置文件)
         elif len(args) == 2:
             条目 = args[0]
             值 = args[1]
-            修改配置项(条目, 值)
+            修改配置项(条目, 值, 配置文件)
         else:
             print(f"{Fore.RED}✕{Fore.RESET} 无效的操作: {args[0]}")
             print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry --help 来获取命令帮助")
