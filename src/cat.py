@@ -10,6 +10,8 @@ def 读取和输出(清单文件):
         print(f"{Fore.RED}✕{Fore.RESET} 清单文件不存在")
         return 1
     try:
+        print(f"{Fore.GREEN}✓{Fore.RESET} 清单文件位于 {Fore.BLUE}{清单文件}{Fore.RESET}\n")
+
         # 读取清单文件
         with open(清单文件, 'r', encoding='utf-8') as file:
             清单内容 = file.read()
