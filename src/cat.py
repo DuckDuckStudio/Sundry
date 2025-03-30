@@ -99,4 +99,4 @@ def main(args):
     if (清单类型 == "version"):
         清单文件 = os.path.join(清单目录, f"{软件包标识符}.yaml")
     
-    return 读取和输出(清单文件)
+    return 读取和输出(os.path.normpath(清单文件))
