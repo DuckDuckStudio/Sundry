@@ -73,16 +73,16 @@ def main(args):
             清单类型 = "installer"
         elif (清单类型 in ["version", "ver", "v", "版本"]):
             清单类型 = "version"
+        else:
+            print(f"{Fore.RED}✕{Fore.RESET} 清单类型不正确")
+            print(f"{Fore.BLUE}[!]{Fore.RESET} 清单类型必须是 {Fore.BLUE}installer version locale{Fore.RESET} 中的一种")
+            return 1
         # 获取区域
-        if (len(args) == 4):
-            if (清单类型 == "locale"):
-                if (args[3]):
-                    区域设置 = args[3]
-                else:
-                    print(f"{Fore.RED}✕{Fore.RESET} 缺少第 4 参数 - 你需要告诉我你要获取哪个区域的清单")
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 清单类型为 {Fore.BLUE}{清单类型}{Fore.RESET} 时，不应传入第 4 参数")
+        if (清单类型 == "locale"):
+            if (len(args) != 4):
+                print(f"{Fore.RED}✕{Fore.RESET} 请告诉我您需要查看哪个区域的清单")
                 return 1
+            区域设置 = args[3]
     else:
         print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
