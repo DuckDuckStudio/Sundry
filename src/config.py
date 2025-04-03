@@ -66,6 +66,8 @@ def 初始化配置文件(配置文件):
             默认配置["signature"] = True
         else:
             默认配置["signature"] = False
+        if not os.path.exists(os.path.dirname(配置文件)):
+            os.makedirs(os.path.dirname(配置文件), exist_ok=True)
         with open(配置文件, "w", encoding="utf-8") as f:
             json.dump(默认配置, f, indent=4, ensure_ascii=False)
         print(f"{Fore.GREEN}✓{Fore.RESET} 成功初始化配置文件")
