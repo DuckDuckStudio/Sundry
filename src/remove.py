@@ -88,9 +88,9 @@ def main(args, Sundry版本号):
                 return 1
             # ========================================
             if 配置数据["signature"]:
-                是否签名 = 配置数据["signature"]
+                是否签名 = True if 配置数据["signature"] == "yes" else False
             else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"signature\" 为空{Fore.RESET}")
+                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"signature\" 为空或假值{Fore.RESET}")
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config signature [true/false] 来修改配置文件中的值")
                 return 1
             # ========================================

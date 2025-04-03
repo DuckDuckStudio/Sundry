@@ -14,7 +14,7 @@ def 初始化配置文件(配置文件):
     "winget-pkgs": "",
     "winget-tools": "",
     "fork": "",
-    "signature": false
+    "signature": ""
 }
 '''
         默认配置 = json.loads(默认配置)
@@ -63,9 +63,9 @@ def 初始化配置文件(配置文件):
             else:
                 print(f"{Fore.RED}✕{Fore.RESET} 请输入正确的 fork 仓库格式，例如: owner/repo")
         if input(f"{Fore.BLUE}?{Fore.RESET} 是否要为 Git 提交签名: (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in ["y", "yes", "要", "是", "true"]:
-            默认配置["signature"] = True
+            默认配置["signature"] = "yes"
         else:
-            默认配置["signature"] = False
+            默认配置["signature"] = "no"
         if not os.path.exists(os.path.dirname(配置文件)):
             os.makedirs(os.path.dirname(配置文件), exist_ok=True)
         with open(配置文件, "w", encoding="utf-8") as f:
