@@ -102,7 +102,6 @@ def main(args, Sundry版本号):
         print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
         return 1
 
-    # 目录路径
     跳过检查 = False
     理由 = "It returns a 404 status code in GitHub Action and has been automatically verified."
     手动验证结果 = None

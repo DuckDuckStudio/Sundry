@@ -21,6 +21,7 @@ def 初始化配置文件(配置文件):
         while True:
             默认配置["winget-pkgs"] = input(f"{Fore.BLUE}?{Fore.RESET} 您的本地 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库在哪里: ")
             # 清除可能的多余反斜杠 (\\ 或 \ -> /)
+            默认配置["winget-pkgs"] = os.path.normpath(默认配置["winget-pkgs"])
             默认配置["winget-pkgs"] = 默认配置["winget-pkgs"].replace("\\\\", "/").replace("\\", "/")
             if os.path.exists(默认配置["winget-pkgs"]):
                 break
@@ -29,6 +30,7 @@ def 初始化配置文件(配置文件):
         while True:
             默认配置["winget-tools"] = input(f"{Fore.BLUE}?{Fore.RESET} 您的本地 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库在哪里: ")
             # 清除可能的多余反斜杠 (\\ 或 \ -> /)
+            默认配置["winget-tools"] = os.path.normpath(默认配置["winget-tools"])
             默认配置["winget-tools"] = 默认配置["winget-tools"].replace("\\\\", "/").replace("\\", "/")
             if os.path.exists(默认配置["winget-tools"]):
                 break
