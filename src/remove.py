@@ -175,12 +175,12 @@ def main(args, Sundry版本号):
                     格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
                     理由 = f"{理由}\n\n{格式化审查者} PTAL"
 
-            print(f"{Fore.BLUE}使用 winget 验证...")
-            结果 = subprocess.run(["winget", "download", "--accept-source-agreements", "--accept-package-agreements", "--source", "winget", "--id", 软件包标识符, "--version", 软件包版本, "--exact", "--download-directory", tempfile.gettempdir()], capture_output=True, check=False, text=True)
-            if 结果.returncode == 0:
+            try:
+                print(f"{Fore.BLUE}使用 winget 验证...")
+                subprocess.run(["winget", "download", "--accept-source-agreements", "--accept-package-agreements", "--source", "winget", "--id", 软件包标识符, "--version", 软件包版本, "--exact", "--download-directory", tempfile.gettempdir()], check=True)
                 input(f"{Fore.YELLOW}⚠ 看起来此软件包可以被 winget 正常下载，您还是想要移除此软件包版本吗:")
-            else:
-                print(f"{Fore.GREEN}使用 winget 验证证实确实存在问题 ({结果.returncode})")
+            except subprocess.CalledProcessError as e:
+                print(f"{Fore.GREEN}使用 winget 验证证实确实存在问题 ({e.returncode})")
                 print(f"{Fore.BLUE}查重...")
                 print("======= 打开的 =======")
                 subprocess.run(["gh", "pr", "list", "-S", 软件包标识符, "--repo", "microsoft/winget-pkgs"], check=True) # 为什么不自己写请求？老子懒得再去处理它什么的分页什么的速率！
