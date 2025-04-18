@@ -15,9 +15,6 @@ def main():
     if tool in ["移除", "remove"]:
         import remove
         return remove.main(args, version)
-    elif tool in ["ignore", "忽略"]:
-        import ignore
-        return ignore.main(args, version)
     elif tool in ["config", "配置"]:
         import config
         return config.main(args)
@@ -38,7 +35,6 @@ def main():
     else:
         print("Sundry 使用帮助")
         print("    移除软件包版本: sundry remove <软件包标识符> <软件包版本> [跳过检查(只接受true)/理由(默认为GitHub Action中返回404)]")
-        print("    修改检测忽略字段: sundry ignore <add/remove/list> [忽略字段] [理由]")
         print("    修改 Sundry 配置:")
         print("        初始化: sundry config init")
         print("        修改值: sundry config <条目> <值>")
