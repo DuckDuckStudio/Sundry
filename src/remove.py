@@ -1,5 +1,6 @@
 import os
 import csv
+import time
 import json
 import shutil
 import keyring
@@ -204,8 +205,9 @@ def main(args, Sundry版本号):
     subprocess.run(["git", "fetch", "origin"], check=True) # 拉取远程修改
     subprocess.run(["git", "rebase", "upstream/master"], check=True) # 变基合并上游修改
     print(f"{Fore.BLUE}  已拉取上游修改")
-    subprocess.run(["git", "checkout", "-b", f"Remove-{软件包标识符}-{软件包版本}"], check=True) # 创建并切换到新的分支
-    print(f"{Fore.BLUE}  已签出新分支 Remove-{软件包标识符}-{软件包版本}")
+    新分支名 = f"Remove-{软件包标识符}-{软件包版本}-{int(time.time())}"
+    subprocess.run(["git", "checkout", "-b", 新分支名], check=True) # 创建并切换到新的分支
+    print(f"{Fore.BLUE}  已签出新分支 {新分支名}")
 
     shutil.rmtree(os.path.join(清单目录, 软件包版本))
     print(f"{Fore.BLUE}  已移除软件包 {软件包标识符} 版本 {软件包版本}")
@@ -223,7 +225,7 @@ def main(args, Sundry版本号):
     while (not 理由):
         理由 = input("移除此软件包版本的理由: ")
 
-    创建拉取请求(f"Remove-{软件包标识符}-{软件包版本}", 软件包版本, 理由, Sundry版本号)
+    创建拉取请求(新分支名, 软件包版本, 理由, Sundry版本号)
 
     print(f"{Fore.GREEN} 成功移除 {软件包标识符} 版本 {软件包版本}")
     print(f"{Fore.BLUE}开始清理工作区")

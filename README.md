@@ -4,8 +4,6 @@ sundry 是一个 WinGet 本地清单管理工具，让您更方便地移除清�
 ## 代码说明
 ### 为什么有些简介中的功能在发行版中没有
 简介中的功能我都在本地写好了，这个工具本来是我自己本地用的，传之前需要一段时间修改。  
-#### 接下来
-- [ ] C# 重构 - https://github.com/DuckDuckStudio/Sundry/pull/5
 
 ## 使用说明
 当您获取本工具后，请先使用这个命令初始化配置文件:  
@@ -39,4 +37,3 @@ sundry help
 - https://github.com/microsoft/winget-pkgs/pull/232363 (Remove)
 - https://github.com/microsoft/winget-pkgs/pull/229554 (Modify)
 - https://github.com/microsoft/winget-pkgs/pull/223814 (New version)
-- https://github.com/DuckDuckStudio/winget-tools/pulls?q=is%3Apr+is%3Aclosed+label%3Aauto (winget-tools)
