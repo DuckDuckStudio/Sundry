@@ -141,10 +141,14 @@ def main(args, Sundry版本号):
     if not 跳过检查:
         try:
             print(f"{Fore.BLUE}开始预先检查")
-            print("======= 此软件包现有的所有版本 =======")
-            subprocess.run(["winget", "show", "--versions", 软件包标识符], check=True)
-            print("======= 此软件包版本在 winget 上的信息 =======")
-            subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
+            try:
+                print("======= 此软件包现有的所有版本 =======")
+                subprocess.run(["winget", "show", "--versions", 软件包标识符], check=True)
+                print("======= 此软件包版本在 winget 上的信息 =======")
+                subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
+            except subprocess.CalledProcessError as e:
+                print(f"{Fore.RED}✕{Fore.RESET} 获取软件包信息失败: {Fore.RED}{e}{Fore.RESET}")
+                return 1
             import cat
             cat.main([软件包标识符, 软件包版本, "installer"])
             print("======= 确认 =======")
