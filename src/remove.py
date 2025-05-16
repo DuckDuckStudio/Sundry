@@ -157,13 +157,14 @@ def main(args, Sundry版本号):
                 webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/manifests/{软件包标识符[0].lower()}/{'/'.join(软件包标识符.split('.'))}/{软件包版本}/{软件包标识符}.installer.yaml")
             if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]) or (t in ["手动", "m", "manually"]):
                 if not 手动验证结果:
-                    手动验证结果 = input("手动验证结果: ")
+                    手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
                     if 手动验证结果:
                         # 自动将手动验证结果翻译为英文
                         手动验证结果 = Translator(from_lang='zh', to_lang='en').translate(手动验证结果)
-                        if input(f"自动翻译结果: {Fore.BLUE}{手动验证结果}{Fore.RESET} 正确吗? ") in ["否", "n", "no", "不"]:
-                            手动验证结果 = input("手动验证结果: ")
-                        手动验证结果 = f"Manual Verification: {手动验证结果} (auto-translate)"
+                        手动验证结果 = f"{手动验证结果} (auto-translate)"
+                        if input(f"自动翻译结果: {Fore.BLUE}{手动验证结果}{Fore.RESET} 正确吗? ").lower() not in ["正确", "对", "y", "对的", "yes", ""]: # 空字符串代表直接 Enter
+                            手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
+                        手动验证结果 = f"Manual Verification:\n{手动验证结果}"
 
             with open(os.path.join(winget_pkgs目录, "Tools", "Auth.csv"), mode='r', encoding='utf-8') as file:
                 csv_reader = csv.DictReader(file)
