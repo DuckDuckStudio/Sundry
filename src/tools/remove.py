@@ -7,13 +7,13 @@ import tempfile
 import requests
 import subprocess
 import webbrowser
-from typing import Optional
 from colorama import init, Fore
 from translate import Translator
 from function.github.token import read_token
 
 # 创建拉取请求
-def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str, owner: str, 软件包标识符: str, 手动验证结果: Optional[str]=None):
+def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str):
+    global owner, 手动验证结果, 软件包标识符
     github_token = read_token()
 
     api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
@@ -52,7 +52,9 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str, owner:
 
     return response.json()["html_url"]
 
-def main(args: list[str]) -> int:
+def main(args: list[str]):
+    global 软件包标识符, 手动验证结果, owner
+
     init(autoreset=True)
 
     # 配置文件路径
@@ -83,6 +85,15 @@ def main(args: list[str]) -> int:
             else:
                 print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"pkgs-repo\" 为空{Fore.RESET}")
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config pkgs-repo [所有者/仓库名] 来修改配置文件中的值")
+                return 1
+            # ========================================
+            if 配置数据["signature"]:
+                是否签名 = True if 配置数据["signature"] == "yes" else False
+            else:
+                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"signature\" 为空或假值{Fore.RESET}")
+                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config signature [true/false] 来修改配置文件中的值")
+                return 1
+            # ========================================
         except Exception as e:
             print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
             return 1
@@ -112,8 +123,7 @@ def main(args: list[str]) -> int:
                 # 其他值视为理由
                 理由 = args[2]
     else:
-        print(f"{Fore.RED}✕ 请按照以下格式传入参数:")
-        print(f"{Fore.BLUE}sundry remove [软件包标识符] [版本] [跳过检查(只接受true)/理由(默认为GitHub Action中返回404)]")
+        print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
     清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'))
@@ -140,7 +150,8 @@ def main(args: list[str]) -> int:
             except subprocess.CalledProcessError as e:
                 print(f"{Fore.RED}✕{Fore.RESET} 获取软件包信息失败: {Fore.RED}{e}{Fore.RESET}")
                 return 1
-            subprocess.run(["powershell", "sundry", "cat", 软件包标识符, 软件包版本, "i"], check=True)
+            import cat
+            cat.main([软件包标识符, 软件包版本, "installer"])
             print("======= 确认 =======")
             t = input("您手动访问过每个安装程序链接了吗?").lower()
             if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]):
@@ -151,7 +162,6 @@ def main(args: list[str]) -> int:
                     if 手动验证结果:
                         # 自动将手动验证结果翻译为英文
                         手动验证结果 = Translator(from_lang='zh', to_lang='en').translate(手动验证结果)
-                        # 添加 ' (auto-translate)' 后缀
                         手动验证结果 = f"{手动验证结果} (auto-translate)"
                         if input(f"自动翻译结果: {Fore.BLUE}{手动验证结果}{Fore.RESET} 正确吗? ").lower() not in ["正确", "对", "y", "对的", "yes", ""]: # 空字符串代表直接 Enter
                             手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
@@ -186,7 +196,7 @@ def main(args: list[str]) -> int:
                 input("您确定没有重复的拉取请求?")
         except KeyboardInterrupt:
             print(f"\n{Fore.RED}已取消操作，没有修改任何文件")
-            return 1
+            return 0
     else:
         print(f"{Fore.YELLOW}⚠ 已跳过相关检查")
         理由 = 理由.replace(" and has been automatically verified", "")
@@ -209,7 +219,7 @@ def main(args: list[str]) -> int:
     print(f"{Fore.BLUE}  已移除软件包 {软件包标识符} 版本 {软件包版本}")
 
     subprocess.run(["git", "add", 清单目录], check=True) # 暂存修改
-    if 手动验证结果:
+    if 是否签名:
         subprocess.run(["git", "commit", "-S", "-m", f"Remove version: {软件包标识符} version {软件包版本} (Auto)"], check=True)
     else:
         subprocess.run(["git", "commit", "-m", f"Remove version: {软件包标识符} version {软件包版本} (Auto)"], check=True)
@@ -221,7 +231,7 @@ def main(args: list[str]) -> int:
     while (not 理由):
         理由 = input("移除此软件包版本的理由: ")
 
-    创建拉取请求(新分支名, 软件包版本, 理由, owner, 软件包标识符, 手动验证结果)
+    创建拉取请求(新分支名, 软件包版本, 理由)
 
     print(f"{Fore.GREEN} 成功移除 {软件包标识符} 版本 {软件包版本}")
     print(f"{Fore.BLUE}开始清理工作区")
