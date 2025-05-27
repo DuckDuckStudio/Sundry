@@ -64,7 +64,6 @@ def main(args: list[str]):
             # ========================================
             if 配置数据["pkgs-repo"]:
                 try:
-                    owner: str
                     owner, _ = 配置数据["pkgs-repo"].split("/")
                 except Exception as e:
                     print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败: {Fore.RED}解析 pkgs-repo 配置项失败{Fore.RESET}\n{Fore.RED}{e}{Fore.RESET}")
