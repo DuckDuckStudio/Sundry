@@ -87,8 +87,7 @@ def main(args: list[str]):
                 return 1
             区域设置 = args[3]
     else:
-        print(f"{Fore.RED}✕ 请按照以下格式传入参数:")
-        print(f"{Fore.BLUE}sundry cat [软件包标识符] [版本] [清单类型] [区域设置(如果是locale类型)]{Fore.RESET}")
+        print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
     清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'), 软件包版本)
