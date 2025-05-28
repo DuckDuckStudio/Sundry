@@ -150,7 +150,7 @@ def main(args: list[str]):
             except subprocess.CalledProcessError as e:
                 print(f"{Fore.RED}✕{Fore.RESET} 获取软件包信息失败: {Fore.RED}{e}{Fore.RESET}")
                 return 1
-            import cat
+            import tools.cat as cat
             cat.main([软件包标识符, 软件包版本, "installer"])
             print("======= 确认 =======")
             t = input("您手动访问过每个安装程序链接了吗?").lower()
