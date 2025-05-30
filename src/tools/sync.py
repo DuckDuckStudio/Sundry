@@ -16,7 +16,7 @@ def main():
                     配置数据 = json.load(f)
                 
                 if 配置数据["winget-pkgs"]:
-                    winget_pkgs目录 = 配置数据["winget-pkgs"]
+                    winget_pkgs目录 = os.path.normpath(配置数据["winget-pkgs"])
                     if (not os.path.exists(winget_pkgs目录)):
                         print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{winget_pkgs目录}{Fore.RESET} 不存在")
                         print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")

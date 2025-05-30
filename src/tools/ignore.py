@@ -153,7 +153,7 @@ def main(args: list[str]):
                 配置数据 = json.load(f)
             
             if 配置数据["winget-tools"]:
-                winget_tools目录 = 配置数据["winget-tools"]
+                winget_tools目录 = os.path.normpath(配置数据["winget-tools"])
                 if (not os.path.exists(winget_tools目录)):
                     print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{winget_tools目录}{Fore.RESET} 不存在")
                     print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-tools [路径] 来修改配置文件中的值")

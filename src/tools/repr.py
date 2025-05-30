@@ -18,9 +18,9 @@ def main(args: list[str]):
         print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
-def repr_file(path, encode="utf-8"):
+def repr_file(path: str, encode="utf-8"):
     try:
-        with open(path, "r", encoding=encode) as f:
+        with open(os.path.normpath(path), "r", encoding=encode) as f:
             print(f"{Fore.CYAN}{repr(f.read())}")
         return 0
     except PermissionError:
@@ -36,7 +36,7 @@ def repr_file(path, encode="utf-8"):
         print(f"{Fore.RED}✕{Fore.RESET} 未知错误: {Fore.RED}{e}{Fore.RESET}")
         return 1
 
-def repr_text(text, encode="utf-8"):
+def repr_text(text: str, encode="utf-8"):
     try:
         print(f"{Fore.CYAN}{repr(text.encode(encode))}")
         return 0
