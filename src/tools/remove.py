@@ -3,17 +3,19 @@ import csv
 import time
 import json
 import shutil
-import keyring
 import tempfile
 import requests
 import subprocess
 import webbrowser
 from colorama import init, Fore
 from translate import Translator
+from function.github.token import read_token
 
 # 创建拉取请求
-def 创建拉取请求(分支名, 版本文件夹, 理由, Sundry版本号):
-    global github_token, owner, 手动验证结果, 软件包标识符
+def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str):
+    global owner, 手动验证结果, 软件包标识符
+    github_token = read_token()
+
     api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
     请求头 = {
         "Authorization": f"token {github_token}",
@@ -24,37 +26,34 @@ def 创建拉取请求(分支名, 版本文件夹, 理由, Sundry版本号):
             "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
-            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {Sundry版本号}, please apply any changes requests directly🙏.\n{理由}\n{手动验证结果}\n\n---\n"
+            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n{手动验证结果}\n\n---\n"
         }
     else:
         数据 = {
             "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
-            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) {Sundry版本号}, please apply any changes requests directly🙏.\n{理由}\n\n---\n"
+            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n\n---\n"
         }
-    response = requests.post(api, headers=请求头, json=数据)
-    if response.status_code == 201:
-        print(f"  {Fore.GREEN}成功创建拉取请求：{response.json()["html_url"]}")
-    else:
-        input(f"  {Fore.RED}拉取请求创建失败：{response.status_code} - {response.text}")
 
-# GitHub 访问令牌
-def read_token():
-    # 凭据 github-access-token.glm
-    try:
-        token = keyring.get_password("github-access-token.glm", "github-access-token")
-        if token is None:
-            print(f"你可能还没设置glm的Token, 请尝试使用以下命令设置Token:\n    glm config --token <YOUR-TOKEN>\n")
-            return "error"
-        # else:
-        return token
-    except Exception as e:
-        print(f"✕ 读取Token时出错:\n{e}")
-        return "error"
+    while (True):
+        response = requests.post(api, headers=请求头, json=数据)
+        if response.status_code == 201:
+            print(f"    {Fore.GREEN}拉取请求创建成功: {response.json()["html_url"]}")
+            break
+        else:
+            print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
+            try:
+                if input(f"{Fore.BLUE}?{Fore.RESET} 我应该重试吗[Y/N]: ").lower() not in ["y", "yes", "应该", "要", "重试", "retry"]:
+                    return 1
+                print("正在重试...")
+            except KeyboardInterrupt:
+                return 1
 
-def main(args, Sundry版本号):
-    global 软件包标识符, 手动验证结果, github_token, owner
+    return response.json()["html_url"]
+
+def main(args: list[str]):
+    global 软件包标识符, 手动验证结果, owner
 
     init(autoreset=True)
 
@@ -77,15 +76,15 @@ def main(args, Sundry版本号):
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
                 return 1
             # ========================================
-            if 配置数据["fork"]:
+            if 配置数据["pkgs-repo"]:
                 try:
-                    owner, repo = 配置数据["fork"].split("/")
+                    owner, _ = 配置数据["pkgs-repo"].split("/")
                 except Exception as e:
-                    print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败: {Fore.RED}解析 fork 配置项失败{Fore.RESET}\n{Fore.RED}{e}{Fore.RESET}")
+                    print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败: {Fore.RED}解析 pkgs-repo 配置项失败{Fore.RESET}\n{Fore.RED}{e}{Fore.RESET}")
                     return 1
             else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"fork\" 为空{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config fork [所有者/仓库名] 来修改配置文件中的值")
+                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"pkgs-repo\" 为空{Fore.RESET}")
+                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config pkgs-repo [所有者/仓库名] 来修改配置文件中的值")
                 return 1
             # ========================================
             if 配置数据["signature"]:
@@ -113,7 +112,7 @@ def main(args, Sundry版本号):
         软件包标识符 = args[0]
         软件包版本 = args[1]
         if (3 <= len(args) <= 4):
-            if ((isinstance(args[2], bool)) or (args[2].lower() in ["true"])):
+            if ((isinstance(args[2], bool)) or (args[2].lower() == "true")):
                 # bool 值视为是否跳过检查开关
                 跳过检查 = True # 不接受传 False
                 if (len(args) == 4):
@@ -131,10 +130,12 @@ def main(args, Sundry版本号):
 
     # 确保清单存在
     if not os.path.exists(清单目录):
-        print(f"{Fore.RED}清单目录不存在: {清单目录}")
+        print(f"{Fore.RED}软件包清单目录不存在: {清单目录}")
         return 1
 
-    github_token = read_token()
+    if not os.path.exists(os.path.join(清单目录, 软件包版本)):
+        print(f"{Fore.RED}软件包版本清单文件不存在: {os.path.join(清单目录, 软件包版本)}")
+        return 1
 
     # 入口
     os.chdir(winget_pkgs目录)
@@ -149,7 +150,7 @@ def main(args, Sundry版本号):
             except subprocess.CalledProcessError as e:
                 print(f"{Fore.RED}✕{Fore.RESET} 获取软件包信息失败: {Fore.RED}{e}{Fore.RESET}")
                 return 1
-            import cat
+            import tools.cat as cat
             cat.main([软件包标识符, 软件包版本, "installer"])
             print("======= 确认 =======")
             t = input("您手动访问过每个安装程序链接了吗?").lower()
@@ -219,9 +220,9 @@ def main(args, Sundry版本号):
 
     subprocess.run(["git", "add", 清单目录], check=True) # 暂存修改
     if 是否签名:
-        subprocess.run(["git", "commit", "-S", "-m", f"Remove version: {软件包标识符} version {软件包版本}"], check=True)
+        subprocess.run(["git", "commit", "-S", "-m", f"Remove version: {软件包标识符} version {软件包版本} (Auto)"], check=True)
     else:
-        subprocess.run(["git", "commit", "-m", f"Remove version: {软件包标识符} version {软件包版本}"], check=True)
+        subprocess.run(["git", "commit", "-m", f"Remove version: {软件包标识符} version {软件包版本} (Auto)"], check=True)
     print(f"{Fore.BLUE}  已提交修改")
 
     subprocess.run(["git", "push"], check=True)
@@ -230,7 +231,7 @@ def main(args, Sundry版本号):
     while (not 理由):
         理由 = input("移除此软件包版本的理由: ")
 
-    创建拉取请求(新分支名, 软件包版本, 理由, Sundry版本号)
+    创建拉取请求(新分支名, 软件包版本, 理由)
 
     print(f"{Fore.GREEN} 成功移除 {软件包标识符} 版本 {软件包版本}")
     print(f"{Fore.BLUE}开始清理工作区")

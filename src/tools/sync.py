@@ -20,18 +20,18 @@ def main():
                     if (not os.path.exists(winget_pkgs目录)):
                         print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{winget_pkgs目录}{Fore.RESET} 不存在")
                         print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
-                        return 3
+                        return 1
                 else:
                     print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"winget-pkgs\" 为空{Fore.RESET}")
                     print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
-                    return 3
+                    return 1
             except Exception as e:
                 print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
-                return 3
+                return 1
         else:
             print(f"{Fore.RED}✕{Fore.RESET} 配置文件不存在")
             print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
-            return 3
+            return 1
 
         # NOTE: 前面已经判断过 winget_pkgs目录 是否存在了
 
@@ -53,7 +53,7 @@ def main():
                 print(f"{Fore.RED}✕{Fore.RESET} 获取上游修改失败:\n{Fore.RED}{e}{Fore.RESET}")
                 if input(f"{Fore.BLUE}[!]{Fore.RESET} 是否重试？(默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in ["y", "yes", "要", "是", "true", ""]:
                     print(f"{Fore.BLUE}[!]{Fore.RESET} 已取消操作")
-                    return 3
+                    return 1
 
         try:
             subprocess.run(["git", "fetch", "origin"], check=True) # 拉取远程修改
@@ -80,7 +80,7 @@ def main():
                     return 1
             else:
                 print(f"{Fore.BLUE}[!]{Fore.RESET} 已取消操作")
-                return 3
+                return 1
 
         try:
             # 推送 master
@@ -93,8 +93,8 @@ def main():
         print(f"{Fore.GREEN}✓{Fore.RESET} 同步完成")
     except KeyboardInterrupt:
         print(f"{Fore.RED}✕{Fore.RESET} 用户已取消操作")
-        return 2
+        return 1
     except Exception as e:
         print(f"{Fore.RED}✕{Fore.RESET} 同步失败:\n{Fore.RED}{e}{Fore.RESET}")
-        return 3
+        return 1
     return 0

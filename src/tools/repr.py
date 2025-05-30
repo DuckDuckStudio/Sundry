@@ -1,7 +1,7 @@
 import os
 from colorama import Fore, init
 
-def main(args):
+def main(args: list[str]):
     init(autoreset=True)
 
     if (len(args) == 1):

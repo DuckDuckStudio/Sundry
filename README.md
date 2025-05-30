@@ -7,6 +7,7 @@ sundry 是一个 WinGet 本地清单管理工具，让您更方便地移除清�
 
 ## 使用说明
 当您获取本工具后，请先使用这个命令初始化配置文件:  
+
 ```bash
 sundry config init
 ```
@@ -18,16 +19,19 @@ sundry config init
 > ~~由于作者实在是太懒了~~，在卸载 Sundry 之后不会移除配置文件。    
 
 (可选) 初始化完配置文件后用以下命令确认下:  
+
 ```bash
 sundry config show
 ```
 
 (可选) 如果有任何地方不对，请使用这个命令修改对应值:  
+
 ```bash
 sundry config [条目] [值]
 ```
 
 更多可用命令可以使用此命令查看:  
+
 ```bash
 sundry help
 ```
