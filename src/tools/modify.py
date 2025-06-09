@@ -332,19 +332,26 @@ def 修改版本(版本文件夹):
     for line in 验证结果.stdout or []:
         if line.endswith("\n"):
             line = line.rstrip('\n') # 去除空行
-        写入日志(f"    {line}")
+        # 处理警告
+        if ("Manifest Warning" in line) or ("警告" in line):
+            写入日志(f"    {line}", "WARNING")
+            print(f"{Fore.YELLOW}{line}{Fore.RESET}")
+        else:
+            写入日志(f"    {line}")
+            print(f"{Fore.BLUE}{line}{Fore.RESET}")
 
     # 逐行读取并处理错误输出
     for line in 验证结果.stderr or []:
         if line.endswith("\n"):
             line = line.rstrip('\n') # 去除空行
         写入日志(f"    {line}", "ERROR")
+        print(f"{Fore.RED}{line}{Fore.RESET}")
 
     # 等待进程结束并获取返回码
     验证结果.wait()
 
     if (验证结果.returncode != 0):
-        input(f"{Fore.RED}清单验证出现错误，请检查清单并修改您的自动化{Fore.RESET}")
+        input(f"{Fore.RED}清单验证出现错误，请检查您的清单{Fore.RESET}")
         写入日志("Manifest Error Fixed.")
     else:
         print(f"{Fore.GREEN}  清单验证成功")
