@@ -1,4 +1,4 @@
-requests==2.32.3 # 请求 GitHub API
+requests==2.32.4 # 请求 GitHub API
 keyring==25.6.0 # 读取 Token
 colorama==0.4.6 # 输出颜色
 translate==3.6.1 # 翻译手动验证结果
