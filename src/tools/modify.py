@@ -338,7 +338,8 @@ def 修改版本(版本文件夹):
             print(f"{Fore.YELLOW}{line}{Fore.RESET}")
         else:
             写入日志(f"    {line}")
-            print(f"{Fore.BLUE}{line}{Fore.RESET}")
+            if ("清单验证成功" not in line): # 避免和下面的输出重复
+                print(f"{Fore.BLUE}{line}{Fore.RESET}")
 
     # 逐行读取并处理错误输出
     for line in 验证结果.stderr or []:
