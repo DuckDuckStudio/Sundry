@@ -119,7 +119,16 @@ def main(args: list[str]):
     # 获取所有版本号文件夹
     while True:
         try:
-            版本文件夹s = [folder for folder in os.listdir(清单目录) if os.path.isdir(os.path.join(清单目录, folder))]
+            版本文件夹s = []
+            for 文件夹 in os.listdir(清单目录):
+                if os.path.isdir(os.path.join(清单目录, 文件夹)):
+                    for 文件 in os.listdir(os.path.join(清单目录, 文件夹)):
+                        if os.path.isdir(文件):
+                            # 如果这个版本文件夹下面还有目录，则代表这可能是类似 Nightly 版本的软件包的标识符的一部分
+                            break
+                    else:
+                        # 如果前面的 for 没有 break，则执行
+                        版本文件夹s.append(文件夹)
             print(f"找到以下版本文件夹: {版本文件夹s}")
             写入日志(f"Found the following version folder: {版本文件夹s}")
             break
@@ -136,6 +145,15 @@ def main(args: list[str]):
                     日志文件.write("~~ End of logging ~~\n")
                 print(f"{Fore.BLUE}[INFO]{Fore.RESET} 日志已关闭，正在退出...")
                 return 1
+
+    # 确保有获取到至少一个版本文件夹
+    if not 版本文件夹s:
+        print(f"{Fore.RED}✕{Fore.RESET} 没有找到任何版本文件夹，请检查参数是否正确。")
+        写入日志("No version folder found.", "ERROR")
+        with open(os.path.join(程序所在目录, 日志文件路径), 'a') as 日志文件: # 追加写入
+            日志文件.write("~~ End of logging ~~\n")
+        print(f"{Fore.BLUE}[INFO]{Fore.RESET} 日志已关闭，正在退出...")
+        return 1
 
     # 遍历所有版本并进行处理
     for 版本文件夹 in 版本文件夹s:
