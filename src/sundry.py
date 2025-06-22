@@ -12,6 +12,7 @@ def main():
     script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     version = "develop"
 
+    # 开源的
     if tool in ["移除", "remove"]:
         import tools.remove as remove
         return remove.main(args)
@@ -21,14 +22,6 @@ def main():
     elif tool in ["忽略", "检查忽略", "ignore"]:
         import tools.ignore as ignore
         return ignore.main(args)
-    # ==========================================
-    # elif tool in ["更新", "update", "new", "新", "新版本"]:
-    #     import tools.update as update
-    #     return update.main(args)
-    # ==========================================
-    elif tool in ["config", "配置"]:
-        import tools.config as config
-        return config.main(args)
     elif tool in ["sync", "同步", "synchronize", "sync-fork"]:
         import tools.sync as sync
         return sync.main()
@@ -38,7 +31,23 @@ def main():
     elif tool == "repr":
         import tools.repr
         return tools.repr.main(args)
-    # ==========================================
+    # 未开源的
+    # elif tool in ["更新", "update", "new", "新", "新版本"]:
+    #     import tools.update as update
+    #     return update.main(args)
+    # 维护
+    elif tool in ["config", "配置"]:
+        import tools.maintain.config as config
+        return config.main(args)
+    elif tool in ["还原", "revert"]:
+        import tools.maintain.revert as revert
+        return revert.main(args)
+    elif tool in ["fun"]:
+        import tools.maintain.fun as fun
+        # 将 script_path 作为 args 的第一个参数
+        args.insert(0, script_path)
+        return fun.main(args)
+    # 其他
     elif tool in ["ver", "版本", "version", "Version", "--version", "--ver", "-v"]:
         print(f"版本: {version}")
         print(f"安装在: {script_path}")
@@ -49,13 +58,19 @@ def main():
         # print("    新版本辅助修改: sundry new <软件包标识符> <版本> [解决的议题(没有则使用urls占位)] <urls...>")
         # print("    多版本辅助修改: sundry change (多改)")
         print("    单版本辅助修改: sundry modify <软件包标识符> <版本> [理由/解决的议题] (单改)")
-        print("    修改 Sundry 配置:")
-        print("        初始化: sundry config init")
-        print("        修改值: sundry config <条目> <值>")
+        print("    winget-tools 检查忽略: sundry ignore <add/remove/edit/list> [忽略字段] [理由]")
         print("    其他辅助命令:")
-        print("        查看清单: sundry cat <软件包标识符> <版本> <清单类型> [区域设置(如果是locale类型)]")
+        print("        查看清单: sundry cat <软件包标识符> <版本> [清单类型] [区域设置(如果是locale类型)]")
         print("        同步本地: sundry sync")
         print("        格式化字符串: sundry repr <文件路径/文本内容> [编码(默认 UTF-8)]")
+        print("    维护:")
+        print("        配置:")
+        print("            初始化: sundry config init")
+        print("            修改值: sundry config <条目> <值>")
+        print("        仓库:")
+        print("            还原本地仓库修改: sundry revert <仓库> <是否已提交> <是否丢弃>")
+        print("        其他维护命令:")
+        print("            fun.txt: sundry fun <random/list/edit/add/remove/import> [参数...]")
         print("    其他 Sundry 命令:")
         print("        查看版本: sundry ver")
         print("        查看帮助: sundry help")

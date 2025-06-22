@@ -204,9 +204,7 @@ def main(args: list[str]):
         忽略字段 = "edit" # 签出分支时的占位符
         操作 = "edit"
     else:
-        print(f"{Fore.RED}✕ 请按照以下格式传入参数:")
-        print(f"{Fore.BLUE}sundry ignore <add/remove/edit/list> [忽略字段] [理由]{Fore.RESET}")
-        return 1
+        print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
 
     # 同步
     try:
