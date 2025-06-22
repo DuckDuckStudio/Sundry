@@ -30,7 +30,7 @@ def main(args: list[str]) -> int:
     else:
         print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
-    
+
 def 编辑fun(fun位置: str) -> int:
     try:
         if not os.path.exists(fun位置):
@@ -42,7 +42,7 @@ def 编辑fun(fun位置: str) -> int:
     except FileNotFoundError:
         print(f"{Fore.RED}✕{Fore.RESET} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
         return 1
-    
+
 def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
     try:
         if not os.path.exists(导入fun文件):
@@ -83,7 +83,7 @@ def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
     except Exception as e:
         print(f"{Fore.RED}✕{Fore.RESET} 导入 {Fore.BLUE}{导入fun文件}{Fore.RESET} 到 {Fore.BLUE}{原fun文件}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
-    
+
 def 移除fun(fun位置: str, 条目: str) -> int:
     try:
         if not os.path.exists(fun位置):

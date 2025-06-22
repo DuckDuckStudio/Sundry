@@ -8,13 +8,18 @@ from typing import Optional, Union
 from colorama import init, Fore
 from function.github.token import read_token
 
-def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> bool:
+def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> Union[bool, str]:
     with open(检测程序路径, 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
     # 找到 HashSet<string> excludedDomains = 的行
     start_index = next(i for i, line in enumerate(lines) if 'HashSet<string> excludedDomains =' in line)
     end_index = next(i for i, line in enumerate(lines[start_index:]) if '];' in line) + start_index
+
+    # 确保没有重复
+    if 忽略字段 in ''.join(lines[start_index:end_index]):
+        print(f"{Fore.YELLOW}⚠ 该忽略字段已存在{Fore.RESET}")
+        return "skip"
 
     # 查找是否已有相同理由的行
     found = False
@@ -233,7 +238,14 @@ def main(args: list[str]):
         print(f"{Fore.BLUE}INFO{Fore.RESET} 开始追加...")
 
         方式 = 追加忽略字段(检测程序, 忽略字段, 理由)
-        if 方式:
+
+        if 方式 == "skip":
+            # 签回
+            subprocess.run(["git", "checkout", "main"], check=True)
+            subprocess.run(["git", "branch", "-D", 新分支名], check=True)
+            # 直接 return
+            return 0
+        elif 方式:
             方式 = "同行追加"
         else:
             方式 = "新行追加"
