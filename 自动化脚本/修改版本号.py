@@ -39,7 +39,7 @@ print(f"[INFO] 新版本号: {新版本号}")
 
 # 文件路径和替换规则
 文件和替换规则 = [
-    (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))), "src", "tools", "config.py"), '"version": "develop",', f'"version": "{新版本号}",'),
+    (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))), "src", "tools", "maintain", "config.py"), '"version": "develop",', f'"version": "{新版本号}",'),
     (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))), "src", "sundry.py"), 'version = "develop"', f'version = "{新版本号}"'),
     (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))), "installer.iss"), 'develop', 新版本号)
 ]
