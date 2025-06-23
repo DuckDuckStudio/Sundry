@@ -167,7 +167,7 @@ def main(args: list[str]):
             return 修改配置项(条目, 值, 配置文件)
         else:
             print(f"{Fore.RED}✕{Fore.RESET} 无效的操作: {args[0]}")
-            print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry --help 来获取命令帮助")
+            print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry help 来获取命令帮助")
             return 1
     except KeyboardInterrupt:
         print(f"\n{Fore.RED}✕{Fore.RESET} 操作取消")

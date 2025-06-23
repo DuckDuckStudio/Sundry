@@ -17,9 +17,9 @@ body:
       label: 选择一个问题类别
       description: 你遇到了什么样的问题?
       options:
+        - 使用问题
         - 安装问题
         - 依赖问题
-        - 使用问题
         - 其他
     validations:
       required: true
@@ -37,26 +37,7 @@ body:
       required: true
   - type: textarea
     attributes:
-      label: 实际行为
-      placeholder: 你遇到的情况是什么样的
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: 预期行为
-      placeholder: 正常情况下应该是什么样的
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: 确认相关信息
-      description: 有没有一些其他信息？例如您安装的库？等等。
-      render: raw
-    validations:
-      required: true
-  - type: textarea
-    attributes:
-      label: 屏幕截图或日志
-      description: 请上传你记录的日志/屏幕截图，因为它们将帮助我们找到问题的根本原因。如果有复现视频最好了！
+      label: 其他信息
+      description: 例如你记录的日志/屏幕截图，它们将帮助我们找到问题的根本原因。
     validations:
       required: true
