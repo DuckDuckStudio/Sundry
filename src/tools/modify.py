@@ -33,8 +33,7 @@ def main(args: list[str]):
         else:
             解决 = ""
     else:
-        print(f"{Fore.RED}✕ 请按照以下格式传入参数:")
-        print(f"{Fore.BLUE}sundry modify <软件包标识符> <版本> [解决的 Issue]")
+        print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
     
     # 路径
