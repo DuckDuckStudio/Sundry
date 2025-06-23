@@ -12,7 +12,7 @@ def main(args: list[str]) -> int:
             return 获取fun(fun位置, 随机=True)
         elif (len(args) == 2) and (args[1] in ["获取", "读取", "get", "list"]):
             return 获取fun(fun位置, 随机=False)
-        elif (len(args) == 1) and (args[1] in ["编辑", "edit", "打开", "open"]):
+        elif (len(args) == 2) and (args[1] in ["编辑", "edit", "打开", "open"]):
             return 编辑fun(fun位置)
         else:
             print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
@@ -48,7 +48,7 @@ def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
         if not os.path.exists(导入fun文件):
             raise FileNotFoundError()
         with open(导入fun文件, 'r', encoding='utf-8') as file:
-            导入fun = file.readlines()
+            导入fun: list[str] = file.readlines()
             if not 导入fun:
                 print(f"{Fore.YELLOW}WARN{Fore.RESET} {Fore.BLUE}{导入fun文件}{Fore.RESET} (导入) {Fore.YELLOW}为空{Fore.RESET}")
                 return 0
@@ -58,9 +58,15 @@ def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
     except Exception as e:
         print(f"{Fore.RED}✕{Fore.RESET} 读取 {Fore.BLUE}{导入fun文件}{Fore.RESET} (导入) 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
-    # 去重
+    # 去重但保持原始顺序
     try:
-        导入fun = list(set(导入fun))
+        已有fun: set[str] = set()
+        去重后的导入fun: list[str] = []
+        for line in 导入fun:
+            if line not in 已有fun:
+                已有fun.add(line)
+                去重后的导入fun.append(line)
+        导入fun = 去重后的导入fun
     except Exception as e:
         print(f"{Fore.RED}✕{Fore.RESET} 对 {Fore.BLUE}{导入fun}{Fore.RESET} 去重时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
