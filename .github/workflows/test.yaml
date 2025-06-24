@@ -179,6 +179,7 @@ jobs:
           cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
+          ls
           cd "$GITHUB_WORKSPACE"
           python ./Release/src/sundry.py revert tools n y
           echo =================================================================
