@@ -104,6 +104,7 @@ jobs:
             \"tools-repo\": \"DuckDuckStudio/winget-tools\",
             \"signature\": \"no\"
           }" > "$HOME/.config/DuckStudio/Sundry/config.json"
+          cat "$HOME/.config/DuckStudio/Sundry/config.json"
 
       - name: 测试 - Sundry 基本命令
         env:
