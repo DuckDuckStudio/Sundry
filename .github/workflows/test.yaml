@@ -42,18 +42,7 @@ jobs:
         # 环境配置的依赖文件中含有打包所需依赖
         run: |
           pip install -r "requirements.txt"
-          pip install pyinstaller
           pip list
-          Write-Host "=================UPX===================="
-          $upx_url = (Invoke-WebRequest -Uri https://api.github.com/repos/upx/upx/releases/latest).Content | ConvertFrom-Json | Select-Object -ExpandProperty assets | Where-Object { $_.name -like "*win64.zip" } | Select-Object -ExpandProperty browser_download_url
-          Write-Host "[INFO] Latest UPX download URL: $upx_url"
-          Invoke-WebRequest -Uri $upx_url -OutFile "upx-latest.zip"
-          7z x "upx-latest.zip" -o"upx"
-          $upx_version = (Get-ChildItem -Path "upx" -Directory | Sort-Object Name -Descending | Select-Object -First 1).Name
-          Move-Item "upx\$upx_version\*" "upx" -Verbose
-          Remove-Item "upx\$upx_version" -Verbose -Recurse
-          Remove-Item "upx-latest.zip" -Verbose
-          tree /a /f
 
       - name: 复制许可文件
         shell: pwsh
@@ -71,21 +60,6 @@ jobs:
           cp -rv src/ Release
           cp -v LICENSE Release/src
           cp -v requirements.txt Release/src
-          # 压缩源码到 Release，7z 和 zip
-          7z a -t7z Release/Sundry-src.7z Release/src
-          7z a -tzip Release/Sundry-src.zip Release/src
-
-      - name: 构建 Sundry.exe
-        shell: bash
-        env:
-          PYTHONIOENCODING: utf-8
-        # 这里是直接打包过去的，不用管 sundry.ps1
-        run: |
-          mkdir Release/pack
-          cp -v src/fun.txt Release/pack
-          cp -v LICENSE Release/pack
-          echo ========================================
-          pyinstaller --onefile --distpath="Release/pack" --name="sundry.exe" "src/sundry.py" --upx-dir="upx"
 
       - name: Checkout winget-pkgs
         uses: actions/checkout@v4.2.2
@@ -121,7 +95,7 @@ jobs:
           #     "tools-repo": "DuckDuckStudio/winget-tools",
           #     "signature": "no"
           # }
-          mkdir -p "$GITHUB_WORKSPACE/.config/DuckStudio/Sundry"
+          mkdir -p "$HOME/.config/DuckStudio/Sundry"
           echo "{
             \"version\": \"123.456.789\",
             \"winget-pkgs\": \"$GITHUB_WORKSPACE/winget-pkgs\",
@@ -129,46 +103,46 @@ jobs:
             \"pkgs-repo\": \"DuckDuckStudio/winget-pkgs\",
             \"tools-repo\": \"DuckDuckStudio/winget-tools\",
             \"signature\": \"no\"
-          }" > "$GITHUB_WORKSPACE/.config/DuckStudio/Sundry/config.json"
+          }" > "$HOME/.config/DuckStudio/Sundry/config.json"
 
       - name: 测试 - Sundry 基本命令
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
-          ./Release/pack/sundry.exe help
-          ./Release/pack/sundry.exe ver
+          python ./Release/src/sundry.py help
+          python ./Release/src/sundry.py ver
 
       - name: 测试 - logs-analyse
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
-        run: ./Release/pack/sundry.exe logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" n y
+        run: python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" n y
 
       - name: 测试 - cat
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
-          ./Release/pack/sundry.exe cat DuckStudio.Sundry 1.2.3
-          ./Release/pack/sundry.exe cat DuckDuckStudio.Sundry 1.2.3 all
-          ./Release/pack/sundry.exe cat DuckDuckStudio.Sundry 1.2.3 i
-          ./Release/pack/sundry.exe cat DuckDuckStudio.Sundry 1.2.3 l zh-CN
-          ./Release/pack/sundry.exe cat DuckDuckStudio.Sundry 1.2.3 v
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3
+          python ./Release/src/sundry.py cat DuckDuckStudio.Sundry 1.2.3 all
+          python ./Release/src/sundry.py cat DuckDuckStudio.Sundry 1.2.3 i
+          python ./Release/src/sundry.py cat DuckDuckStudio.Sundry 1.2.3 l zh-CN
+          python ./Release/src/sundry.py cat DuckDuckStudio.Sundry 1.2.3 v
 
       - name: 测试 - sync
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
-        run: ./Release/pack/sundry.exe sync
+        run: python ./Release/src/sundry.py sync
 
       - name: 测试 - repr
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
-          ./Release/pack/sundry.exe repr ./Release/pack/fun.txt
-          ./Release/pack/sundry.exe repr "每个人一天 18 公斤的凤梨，吃个两个礼拜，很难吗？一颗就 3 公斤，很难吗？一点都不难，我们怕什么？
+          python ./Release/src/sundry.py repr ./Release/pack/fun.txt
+          python ./Release/src/sundry.py repr "每个人一天 18 公斤的凤梨，吃个两个礼拜，很难吗？一颗就 3 公斤，很难吗？一点都不难，我们怕什么？
           不要，不要，同时吃太多凤梨会死的，应付不过来了，求求你慢点，呜哦哦，要头昏眼花了哦齁哦哦哦哦哦哦"
 
       - name: 测试 - config
@@ -176,10 +150,10 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
-          ./Release/pack/sundry.exe config show
-          ./Release/pack/sundry.exe config signature yes
-          ./Release/pack/sundry.exe config show
-          ./Release/pack/sundry.exe config signature no # 还原
+          python ./Release/src/sundry.py config show
+          python ./Release/src/sundry.py config signature yes
+          python ./Release/src/sundry.py config show
+          python ./Release/src/sundry.py config signature no # 还原
 
       - name: 测试 - revert
         env:
@@ -190,13 +164,13 @@ jobs:
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           cd "$GITHUB_WORKSPACE"
-          ./Release/pack/sundry.exe revert pkgs n y
+          python ./Release/src/sundry.py revert pkgs n y
 
           cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           cd "$GITHUB_WORKSPACE"
-          ./Release/pack/sundry.exe revert tools n y
+          python ./Release/src/sundry.py revert tools n y
 
           cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
@@ -205,7 +179,7 @@ jobs:
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           cd "$GITHUB_WORKSPACE"
-          ./Release/pack/sundry.exe revert all n y
+          python ./Release/src/sundry.py revert all n y
 
           cd "$GITHUB_WORKSPACE/winget-pkgs"
           git checkout -b Ciallo
@@ -213,7 +187,7 @@ jobs:
           git add .
           git commit -m "测试提交"
           cd "$GITHUB_WORKSPACE"
-          ./Release/pack/sundry.exe revert pkgs y y
+          python ./Release/src/sundry.py revert pkgs y y
 
           cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
@@ -221,7 +195,7 @@ jobs:
           git add .
           git commit -m "测试提交"
           cd "$GITHUB_WORKSPACE"
-          ./Release/pack/sundry.exe revert tools y y
+          python ./Release/src/sundry.py revert tools y y
 
           cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
@@ -234,27 +208,20 @@ jobs:
           git add .
           git commit -m "测试提交"
           cd "$GITHUB_WORKSPACE"
-          ./Release/pack/sundry.exe revert all y y
+          python ./Release/src/sundry.py revert all y y
 
       - name: 测试 - fun
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
-          ./Release/pack/sundry.exe fun
-          ./Release/pack/sundry.exe fun random
-          ./Release/pack/sundry.exe fun list
-          ./Release/pack/sundry.exe fun add "什么玩意儿"
-          ./Release/pack/sundry.exe fun list
-          ./Release/pack/sundry.exe fun remove "什么玩意儿"
-          ./Release/pack/sundry.exe fun list
+          python ./Release/src/sundry.py fun
+          python ./Release/src/sundry.py fun random
+          python ./Release/src/sundry.py fun list
+          python ./Release/src/sundry.py fun add "什么玩意儿"
+          python ./Release/src/sundry.py fun list
+          python ./Release/src/sundry.py fun remove "什么玩意儿"
+          python ./Release/src/sundry.py fun list
           echo "你以为你是谁啊？！" > "test.txt"
-          ./Release/pack/sundry.exe fun import "test.txt"
-          ./Release/pack/sundry.exe fun list
-
-      - name: 上传构建文件
-        uses: actions/upload-artifact@v4
-        with:
-          name: Release
-          path: Release/**
-          retention-days: 7
+          python ./Release/src/sundry.py fun import "test.txt"
+          python ./Release/src/sundry.py fun list
