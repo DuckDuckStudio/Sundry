@@ -98,8 +98,8 @@ jobs:
           mkdir -p "$HOME/.config/DuckStudio/Sundry"
           echo "{
             \"version\": \"123.456.789\",
-            \"winget-pkgs\": \"D:/a/Sundry/Sundry/winget-pkgs/",
-            \"winget-tools\": \"D:/a/Sundry/Sundry/winget-tools/",
+            \"winget-pkgs\": \"D:/a/Sundry/Sundry/winget-pkgs/\",
+            \"winget-tools\": \"D:/a/Sundry/Sundry/winget-tools/\",
             \"pkgs-repo\": \"DuckDuckStudio/winget-pkgs\",
             \"tools-repo\": \"DuckDuckStudio/winget-tools\",
             \"signature\": \"no\"
