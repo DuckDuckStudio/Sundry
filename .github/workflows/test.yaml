@@ -136,10 +136,10 @@ jobs:
         shell: bash
         run: |
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3
-          python ./Release/src/sundry.py cat DuckDuckStudio.Sundry 1.2.3 all
-          python ./Release/src/sundry.py cat DuckDuckStudio.Sundry 1.2.3 i
-          python ./Release/src/sundry.py cat DuckDuckStudio.Sundry 1.2.3 l zh-CN
-          python ./Release/src/sundry.py cat DuckDuckStudio.Sundry 1.2.3 v
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 all
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 i
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 l zh-CN
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 v
 
       - name: 测试 - sync
         env:
