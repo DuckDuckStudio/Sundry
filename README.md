@@ -30,7 +30,7 @@ sundry config [条目] [值]
 
 ## 可用命令
 
-> Sundry [1.2.7](https://github.com/DuckDuckStudio/Sundry/releases/tag/1.2.7)
+> Sundry [1.2.8](https://github.com/DuckDuckStudio/Sundry/releases/tag/1.2.8)
 
 <details>
   <summary><code>sundry help</code></summary>
