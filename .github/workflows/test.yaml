@@ -146,6 +146,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: python ./Release/src/sundry.py sync
+        continue-on-error: true # 403
 
       - name: 测试 - repr
         env:
