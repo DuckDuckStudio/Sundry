@@ -1,6 +1,7 @@
 .venv/
 test.*
 test/
+!.github/workflows/test.yaml
 *.log
 
 # WIP
