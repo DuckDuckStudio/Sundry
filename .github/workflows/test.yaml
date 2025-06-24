@@ -61,13 +61,13 @@ jobs:
           cp -v LICENSE Release/src
           cp -v requirements.txt Release/src
 
-      - name: Checkout winget-pkgs
+      - name: 签出 winget-pkgs
         uses: actions/checkout@v4.2.2
         with:
           repository: DuckDuckStudio/winget-pkgs
           path: winget-pkgs
 
-      - name: Checkout winget-tools
+      - name: 签出 winget-tools
         uses: actions/checkout@v4.2.2
         with:
           repository: DuckDuckStudio/winget-tools
