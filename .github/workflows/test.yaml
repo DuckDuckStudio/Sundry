@@ -113,6 +113,16 @@ jobs:
           python ./Release/src/sundry.py help
           python ./Release/src/sundry.py ver
 
+      - name: 测试 - config
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          python ./Release/src/sundry.py config show
+          python ./Release/src/sundry.py config signature yes
+          python ./Release/src/sundry.py config show
+          python ./Release/src/sundry.py config signature no # 还原
+
       - name: 测试 - logs-analyse
         env:
           PYTHONIOENCODING: utf-8
@@ -144,16 +154,6 @@ jobs:
           python ./Release/src/sundry.py repr ./Release/pack/fun.txt
           python ./Release/src/sundry.py repr "每个人一天 18 公斤的凤梨，吃个两个礼拜，很难吗？一颗就 3 公斤，很难吗？一点都不难，我们怕什么？
           不要，不要，同时吃太多凤梨会死的，应付不过来了，求求你慢点，呜哦哦，要头昏眼花了哦齁哦哦哦哦哦哦"
-
-      - name: 测试 - config
-        env:
-          PYTHONIOENCODING: utf-8
-        shell: bash
-        run: |
-          python ./Release/src/sundry.py config show
-          python ./Release/src/sundry.py config signature yes
-          python ./Release/src/sundry.py config show
-          python ./Release/src/sundry.py config signature no # 还原
 
       - name: 测试 - revert
         env:
