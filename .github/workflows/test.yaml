@@ -14,7 +14,7 @@ on:
 permissions: {}
 
 jobs:
-  build:
+  test:
     runs-on: windows-latest
 
     steps:
@@ -23,6 +23,8 @@ jobs:
 
       - name: 配置 Python
         uses: actions/setup-python@v5
+        env:
+          PYTHONIOENCODING: utf-8
         with:
           python-version: 3.x
 
@@ -85,17 +87,27 @@ jobs:
           echo ========================================
           pyinstaller --onefile --distpath="Release/pack" --name="sundry.exe" "src/sundry.py" --upx-dir="upx"
 
+      - name: Checkout winget-pkgs
+        uses: actions/checkout@v4.2.2
+        with:
+          repository: DuckDuckStudio/winget-pkgs
+          path: winget-pkgs
+
+      - name: Checkout winget-tools
+        uses: actions/checkout@v4.2.2
+        with:
+          repository: DuckDuckStudio/winget-tools
+          path: winget-tools
+
       - name: 配置前
         shell: bash
         run: |
           git config --global user.name "Sundry Test Workflow"
           git config --global user.email "SundryTestWorkflow@example.com"
-          git clone https://github.com/DuckDuck/winget-pkgs.git "$HOME/winget-pkgs"
-          cd "$HOME/winget-pkgs"
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
           git remote add upstream https://github.com/microsoft/winget-pkgs.git
           git fetch upstream
           cd "$GITHUB_WORKSPACE"
-          git clone https://github.com/DuckDuckStudio/winget-tools.git "$HOME/winget-tools"
 
       - name: 配置 Sundry
         shell: bash
@@ -109,27 +121,33 @@ jobs:
           #     "tools-repo": "DuckDuckStudio/winget-tools",
           #     "signature": "no"
           # }
-          mkdir -p "$HOME/.config/DuckStudio/Sundry"
+          mkdir -p "$GITHUB_WORKSPACE/.config/DuckStudio/Sundry"
           echo "{
             \"version\": \"123.456.789\",
-            \"winget-pkgs\": \"$HOME/winget-pkgs\",
-            \"winget-tools\": \"$HOME/winget-tools\",
+            \"winget-pkgs\": \"$GITHUB_WORKSPACE/winget-pkgs\",
+            \"winget-tools\": \"$GITHUB_WORKSPACE/winget-tools\",
             \"pkgs-repo\": \"DuckDuckStudio/winget-pkgs\",
             \"tools-repo\": \"DuckDuckStudio/winget-tools\",
             \"signature\": \"no\"
-          }" > "$HOME/.config/DuckStudio/Sundry/config.json"
+          }" > "$GITHUB_WORKSPACE/.config/DuckStudio/Sundry/config.json"
 
       - name: 测试 - Sundry 基本命令
+        env:
+          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           ./Release/pack/sundry.exe help
           ./Release/pack/sundry.exe ver
 
       - name: 测试 - logs-analyse
+        env:
+          PYTHONIOENCODING: utf-8
         shell: bash
         run: ./Release/pack/sundry.exe logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" n y
 
       - name: 测试 - cat
+        env:
+          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           ./Release/pack/sundry.exe cat DuckStudio.Sundry 1.2.3
@@ -139,10 +157,14 @@ jobs:
           ./Release/pack/sundry.exe cat DuckDuckStudio.Sundry 1.2.3 v
 
       - name: 测试 - sync
+        env:
+          PYTHONIOENCODING: utf-8
         shell: bash
         run: ./Release/pack/sundry.exe sync
 
       - name: 测试 - repr
+        env:
+          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           ./Release/pack/sundry.exe repr ./Release/pack/fun.txt
@@ -150,6 +172,8 @@ jobs:
           不要，不要，同时吃太多凤梨会死的，应付不过来了，求求你慢点，呜哦哦，要头昏眼花了哦齁哦哦哦哦哦哦"
 
       - name: 测试 - config
+        env:
+          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           ./Release/pack/sundry.exe config show
@@ -158,30 +182,32 @@ jobs:
           ./Release/pack/sundry.exe config signature no # 还原
 
       - name: 测试 - revert
+        env:
+          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
-          cd "$HOME/winget-pkgs"
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           cd "$GITHUB_WORKSPACE"
           ./Release/pack/sundry.exe revert pkgs n y
 
-          cd "$HOME/winget-tools"
+          cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           cd "$GITHUB_WORKSPACE"
           ./Release/pack/sundry.exe revert tools n y
 
-          cd "$HOME/winget-tools"
+          cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
-          cd "$HOME/winget-pkgs"
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           cd "$GITHUB_WORKSPACE"
           ./Release/pack/sundry.exe revert all n y
 
-          cd "$HOME/winget-pkgs"
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           git add .
@@ -189,7 +215,7 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           ./Release/pack/sundry.exe revert pkgs y y
 
-          cd "$HOME/winget-tools"
+          cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           git add .
@@ -197,12 +223,12 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           ./Release/pack/sundry.exe revert tools y y
 
-          cd "$HOME/winget-tools"
+          cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           git add .
           git commit -m "测试提交"
-          cd "$HOME/winget-pkgs"
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           git add .
@@ -211,6 +237,8 @@ jobs:
           ./Release/pack/sundry.exe revert all y y
 
       - name: 测试 - fun
+        env:
+          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           ./Release/pack/sundry.exe fun
