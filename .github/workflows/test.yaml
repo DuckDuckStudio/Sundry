@@ -112,6 +112,7 @@ jobs:
         shell: bash
         run: |
           python ./Release/src/sundry.py help
+          echo =================================================================
           python ./Release/src/sundry.py ver
 
       - name: 测试 - config
@@ -120,8 +121,10 @@ jobs:
         shell: bash
         run: |
           python ./Release/src/sundry.py config show
+          echo =================================================================
           python ./Release/src/sundry.py config signature yes
           python ./Release/src/sundry.py config show
+          echo =================================================================
           python ./Release/src/sundry.py config signature no # 还原
 
       - name: 测试 - logs-analyse
@@ -136,9 +139,13 @@ jobs:
         shell: bash
         run: |
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3
+          echo =================================================================
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 all
+          echo =================================================================
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 i
+          echo =================================================================
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 l zh-CN
+          echo =================================================================
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 v
 
       - name: 测试 - sync
@@ -154,6 +161,7 @@ jobs:
         shell: bash
         run: |
           python ./Release/src/sundry.py repr ./Release/pack/fun.txt
+          echo =================================================================
           python ./Release/src/sundry.py repr "每个人一天 18 公斤的凤梨，吃个两个礼拜，很难吗？一颗就 3 公斤，很难吗？一点都不难，我们怕什么？
           不要，不要，同时吃太多凤梨会死的，应付不过来了，求求你慢点，呜哦哦，要头昏眼花了哦齁哦哦哦哦哦哦"
 
@@ -167,13 +175,13 @@ jobs:
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           cd "$GITHUB_WORKSPACE"
           python ./Release/src/sundry.py revert pkgs n y
-
+          echo =================================================================
           cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           cd "$GITHUB_WORKSPACE"
           python ./Release/src/sundry.py revert tools n y
-
+          echo =================================================================
           cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
@@ -182,7 +190,7 @@ jobs:
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
           cd "$GITHUB_WORKSPACE"
           python ./Release/src/sundry.py revert all n y
-
+          echo =================================================================
           cd "$GITHUB_WORKSPACE/winget-pkgs"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
@@ -190,7 +198,7 @@ jobs:
           git commit -m "测试提交"
           cd "$GITHUB_WORKSPACE"
           python ./Release/src/sundry.py revert pkgs y y
-
+          echo =================================================================
           cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
@@ -198,7 +206,7 @@ jobs:
           git commit -m "测试提交"
           cd "$GITHUB_WORKSPACE"
           python ./Release/src/sundry.py revert tools y y
-
+          echo =================================================================
           cd "$GITHUB_WORKSPACE/winget-tools"
           git checkout -b Ciallo
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "test.txt" # 创建一些测试文件
@@ -218,12 +226,17 @@ jobs:
         shell: bash
         run: |
           python ./Release/src/sundry.py fun
+          echo =================================================================
           python ./Release/src/sundry.py fun random
+          echo =================================================================
           python ./Release/src/sundry.py fun list
+          echo =================================================================
           python ./Release/src/sundry.py fun add "什么玩意儿"
           python ./Release/src/sundry.py fun list
+          echo =================================================================
           python ./Release/src/sundry.py fun remove "什么玩意儿"
           python ./Release/src/sundry.py fun list
+          echo =================================================================
           echo "你以为你是谁啊？！" > "test.txt"
           python ./Release/src/sundry.py fun import "test.txt"
           python ./Release/src/sundry.py fun list
