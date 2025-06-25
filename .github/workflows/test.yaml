@@ -1,0 +1,246 @@
+name: Test Run
+
+on:
+  # 拉取请求
+  pull_request:
+    paths:
+      - 'src/**'
+      - 'installer.iss'
+      - 'requirements.txt'
+      - '.github/workflows/test.yaml'
+  # main 有新提交 push
+  # 且限制要是 src/ 或 installer.iss 或 requirements.txt 这些文件有变更
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'installer.iss'
+      - 'requirements.txt'
+      - '.github/workflows/test.yaml'
+  # 手动触发
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  test:
+    runs-on: windows-latest
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@v4
+
+      - name: 配置 Python
+        uses: actions/setup-python@v5
+        env:
+          PYTHONIOENCODING: utf-8
+        with:
+          python-version: 3.x
+
+      - name: 更新版本号
+        env:
+          PYTHONIOENCODING: utf-8
+        # 前面已经配置过 Python 了，这个脚本只用 os 和 sys 这两个标准库，不用再装依赖
+        run: |
+          python "自动化脚本/修改版本号.py" "123.456.789"
+
+      - name: 安装依赖
+        shell: bash
+        env:
+          PYTHONIOENCODING: utf-8
+        run: |
+          pip install -r "requirements.txt"
+          pip list
+
+      - name: 整理源码
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          cp -v LICENSE src/LICENSE
+          mkdir Release
+          mkdir Release/src
+          cp -rv src/ Release
+          cp -v LICENSE Release/src
+          cp -v requirements.txt Release/src
+
+      - name: 签出 winget-pkgs
+        uses: actions/checkout@v4.2.2
+        with:
+          repository: DuckDuckStudio/winget-pkgs
+          path: winget-pkgs
+
+      - name: 签出 winget-tools
+        uses: actions/checkout@v4.2.2
+        with:
+          repository: DuckDuckStudio/winget-tools
+          path: winget-tools
+
+      - name: 配置前
+        shell: bash
+        run: |
+          git config --global user.name "Sundry Test Workflow"
+          git config --global user.email "SundryTestWorkflow@example.com"
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
+          git remote add upstream https://github.com/microsoft/winget-pkgs.git
+          git fetch upstream
+          cd "$GITHUB_WORKSPACE"
+
+      - name: 配置 Sundry
+        shell: bash
+        run: |
+          # 创建用户目录下的 .config/DuckStudio/Sundry/config.json，并写入
+          # {
+          #     "version": "123.456.789",
+          #     "winget-pkgs": "上面克隆的位置",
+          #     "winget-tools": "上面克隆的位置",
+          #     "pkgs-repo": "DuckDuckStudio/winget-pkgs",
+          #     "tools-repo": "DuckDuckStudio/winget-tools",
+          #     "signature": "no"
+          # }
+          mkdir -p "$HOME/.config/DuckStudio/Sundry"
+          echo "{
+            \"version\": \"123.456.789\",
+            \"winget-pkgs\": \"D:/a/Sundry/Sundry/winget-pkgs/\",
+            \"winget-tools\": \"D:/a/Sundry/Sundry/winget-tools/\",
+            \"pkgs-repo\": \"DuckDuckStudio/winget-pkgs\",
+            \"tools-repo\": \"DuckDuckStudio/winget-tools\",
+            \"signature\": \"no\"
+          }" > "$HOME/.config/DuckStudio/Sundry/config.json"
+          cat "$HOME/.config/DuckStudio/Sundry/config.json"
+
+      - name: 测试 - Sundry 基本命令
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          python ./Release/src/sundry.py help
+          echo =================================================================
+          python ./Release/src/sundry.py ver
+
+      - name: 测试 - config
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          python ./Release/src/sundry.py config show
+          echo =================================================================
+          python ./Release/src/sundry.py config signature yes
+          python ./Release/src/sundry.py config show
+          echo =================================================================
+          python ./Release/src/sundry.py config signature no # 还原
+
+      - name: 测试 - logs-analyse
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" n y
+
+      - name: 测试 - cat
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3
+          echo =================================================================
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 all
+          echo =================================================================
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 i
+          echo =================================================================
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 l zh-CN
+          echo =================================================================
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 v
+
+      - name: 测试 - sync
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: python ./Release/src/sundry.py sync
+        continue-on-error: true # 403
+
+      - name: 测试 - repr
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          python ./Release/src/sundry.py repr D:/a/Sundry/Sundry/fun.txt
+          echo =================================================================
+          python ./Release/src/sundry.py repr "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+          BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
+
+      - name: 测试 - revert
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
+          git checkout -b Ciallo
+          echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "ffffffffff.txt" # 创建一些测试文件
+          cd "$GITHUB_WORKSPACE"
+          python ./Release/src/sundry.py revert pkgs n y
+          echo =================================================================
+          cd "$GITHUB_WORKSPACE/winget-tools"
+          git checkout -b Ciallo
+          echo "https://www.bilibili.com/video/BV1nKNyzREiY/" > "ffffffffff.txt" # 创建一些测试文件
+          cd "$GITHUB_WORKSPACE"
+          python ./Release/src/sundry.py revert tools n y
+          echo =================================================================
+          cd "$GITHUB_WORKSPACE/winget-tools"
+          git checkout -b Ciallo
+          echo "【19号来的，19号被抓的。去了三个地方，一分钱没拿到】https://www.bilibili.com/video/BV1rfKwzGEJu/" > "ffffffffff.txt" # 创建一些测试文件
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
+          git checkout -b Ciallo
+          echo "【大脑里有像电视屏幕的东西？3天记3年单词？】https://www.bilibili.com/video/BV17yKGzYEVq/" > "ffffffffff.txt" # 创建一些测试文件
+          cd "$GITHUB_WORKSPACE"
+          python ./Release/src/sundry.py revert all n y
+          echo =================================================================
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
+          git checkout -b Ciallo
+          echo "【晚安~玛卡巴卡~】https://www.bilibili.com/video/BV1FiKgzcEh9/" > "ffffffffff.txt" # 创建一些测试文件
+          git add .
+          git commit -m "https://www.bilibili.com/video/BV1GUjbzcE2J/"
+          cd "$GITHUB_WORKSPACE"
+          python ./Release/src/sundry.py revert pkgs y y
+          echo =================================================================
+          cd "$GITHUB_WORKSPACE/winget-tools"
+          git checkout -b Ciallo
+          echo "https://www.bilibili.com/video/BV1G3EFzDELZ/" > "ffffffffff.txt" # 创建一些测试文件
+          git add .
+          git commit -m "https://www.bilibili.com/video/BV1CKJNzpEBL/"
+          cd "$GITHUB_WORKSPACE"
+          python ./Release/src/sundry.py revert tools y y
+          echo =================================================================
+          cd "$GITHUB_WORKSPACE/winget-tools"
+          git checkout -b Ciallo
+          echo "那我问你，你头顶怎么尖尖的！" > "ffffffffff.txt" # 创建一些测试文件
+          git add .
+          git commit -m "每个人一天 18 公斤的凤梨，吃个两个礼拜，很难吗？一颗就 3 公斤，很难吗？一点都不难，我们怕什么？"
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
+          git checkout -b Ciallo
+          echo "不要，不要，同时吃太多凤梨会死的，应付不过来了，求求你慢点，呜哦哦，要头昏眼花了哦齁哦哦哦哦哦哦" > "ffffffffff.txt" # 创建一些测试文件
+          git add .
+          git commit -m "唉乌蒙吃。"
+          cd "$GITHUB_WORKSPACE"
+          python ./Release/src/sundry.py revert all y y
+
+      - name: 测试 - fun
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          python ./Release/src/sundry.py fun
+          echo =================================================================
+          python ./Release/src/sundry.py fun random
+          echo =================================================================
+          python ./Release/src/sundry.py fun list
+          echo =================================================================
+          python ./Release/src/sundry.py fun add "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+          python ./Release/src/sundry.py fun list
+          echo =================================================================
+          python ./Release/src/sundry.py fun remove "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+          python ./Release/src/sundry.py fun list
+          echo =================================================================
+          echo "你以为你是谁啊？！" > "ffffffffff.txt"
+          python ./Release/src/sundry.py fun import "ffffffffff.txt"
+          python ./Release/src/sundry.py fun list
