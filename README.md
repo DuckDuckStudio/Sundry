@@ -1,4 +1,7 @@
 # Sundry
+
+[![GitHub Release](https://img.shields.io/github/release/DuckDuckStudio/Sundry)](https://github.com/DuckDuckStudio/Sundry/releases/latest) ![GitHub Release 下载](https://img.shields.io/github/downloads/DuckDuckStudio/Sundry/total.svg)  
+
 sundry 是一个 WinGet 本地清单管理工具，让您更方便地移除清单、修改清单，还可以辅助更新清单。  
 
 ## 使用说明
