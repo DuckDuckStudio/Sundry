@@ -11,6 +11,8 @@ on:
   # main 有新提交 push
   # 且限制要是 src/ 或 installer.iss 或 requirements.txt 这些文件有变更
   push:
+    branches:
+      - main
     paths:
       - 'src/**'
       - 'installer.iss'
