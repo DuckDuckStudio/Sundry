@@ -166,10 +166,10 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
-          python ./Release/src/sundry.py repr ./Release/pack/fun.txt
+          python ./Release/src/sundry.py repr D:/a/Sundry/Sundry/fun.txt
           echo =================================================================
-          python ./Release/src/sundry.py repr "每个人一天 18 公斤的凤梨，吃个两个礼拜，很难吗？一颗就 3 公斤，很难吗？一点都不难，我们怕什么？
-          不要，不要，同时吃太多凤梨会死的，应付不过来了，求求你慢点，呜哦哦，要头昏眼花了哦齁哦哦哦哦哦哦"
+          python ./Release/src/sundry.py repr "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+          BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 
       - name: 测试 - revert
         env:
@@ -217,10 +217,10 @@ jobs:
           git checkout -b Ciallo
           echo "那我问你，你头顶怎么尖尖的！" > "ffffffffff.txt" # 创建一些测试文件
           git add .
-          git commit -m "龙卷风摧毁停车场！"
+          git commit -m "每个人一天 18 公斤的凤梨，吃个两个礼拜，很难吗？一颗就 3 公斤，很难吗？一点都不难，我们怕什么？"
           cd "$GITHUB_WORKSPACE/winget-pkgs"
           git checkout -b Ciallo
-          echo "梭哈是一种智慧" > "ffffffffff.txt" # 创建一些测试文件
+          echo "不要，不要，同时吃太多凤梨会死的，应付不过来了，求求你慢点，呜哦哦，要头昏眼花了哦齁哦哦哦哦哦哦" > "ffffffffff.txt" # 创建一些测试文件
           git add .
           git commit -m "唉乌蒙吃。"
           cd "$GITHUB_WORKSPACE"
