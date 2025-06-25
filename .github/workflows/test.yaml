@@ -1,9 +1,19 @@
 name: Test Run
 
 on:
-  # 有新提交 push 时，不限哪个分支
-  # 但限制要是 src/ 或 installer.iss 或 requirements.txt 这些文件有变更
+  # 拉取请求
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'src/**'
+      - 'installer.iss'
+      - 'requirements.txt'
+  # main 有新提交 push
+  # 且限制要是 src/ 或 installer.iss 或 requirements.txt 这些文件有变更
   push:
+    branches:
+      - main
     paths:
       - 'src/**'
       - 'installer.iss'
