@@ -46,7 +46,7 @@ jobs:
           python "自动化脚本/修改版本号.py" "123.456.789"
 
       - name: 安装依赖
-        shell: pwsh
+        shell: bash
         env:
           PYTHONIOENCODING: utf-8
         # 环境配置的依赖文件中含有打包所需依赖
@@ -54,17 +54,13 @@ jobs:
           pip install -r "requirements.txt"
           pip list
 
-      - name: 复制许可文件
-        shell: pwsh
-        run: |
-          Copy-Item -Path "LICENSE" -Destination "src/LICENSE" -Verbose
-
       - name: 整理源码
         # 整理文件 > 压缩文件 > 清理工作目录
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          cp -v LICENSE src/LICENSE
           mkdir Release
           mkdir Release/src
           cp -rv src/ Release
