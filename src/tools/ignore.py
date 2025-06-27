@@ -98,6 +98,9 @@ def 编辑忽略字段(检测程序路径: str) -> None:
 # 创建拉取请求
 def 创建拉取请求(分支名: str, owner: str, 忽略字段: Optional[str] = None, 格式化忽略字段: Optional[str] = None, 理由: Optional[str] = None) -> Union[str, int]:
     github_token = read_token()
+    if not github_token:
+        print(f"{Fore.RED}✕{Fore.RESET} 拉取请求创建失败: Token 读取失败")
+        return 0
     api = f"https://api.github.com/repos/{owner}/winget-tools/pulls"
     请求头 = {
         "Authorization": f"token {github_token}",

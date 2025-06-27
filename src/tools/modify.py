@@ -207,6 +207,9 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 审查="") -> Union
     # 不带 @ 的字符串 -> 在 PR body 中引用首个拉取请求
     global 解决
     github_token = read_token()
+    if not github_token:
+        print(f"{Fore.RED}✕{Fore.RESET} 拉取请求创建失败: Token 读取失败")
+        return 1
     api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
     请求头 = {
         "Authorization": f"token {github_token}",
