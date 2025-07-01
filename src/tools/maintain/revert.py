@@ -107,7 +107,7 @@ def 还原(哪个仓库: str, 仓库路径: str, 是否已提交: bool, 是否�
         if ((not 是否已提交) and 是否丢弃):
             # 提交丢弃内容
             subprocess.run(["git", "add", "."], check=True)
-            subprocess.run(["git", "commit", "-m", "丢弃"], check=True)
+            subprocess.run(["git", "commit", "--no-gpg-sign", "-m", "丢弃"], check=True)
 
         # 签回主分支
         主分支 = "master" if 哪个仓库 == "pkgs" else "main"
