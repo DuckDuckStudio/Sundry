@@ -149,6 +149,14 @@ jobs:
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
           python ./Release/src/sundry.py logs-analyse cleanup
 
+      - name: 测试 - ignore
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py ignore list"
+          python ./Release/src/sundry.py ignore list
+
       - name: 测试 - cat
         env:
           PYTHONIOENCODING: utf-8
