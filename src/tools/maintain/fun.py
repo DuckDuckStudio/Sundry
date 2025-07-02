@@ -156,8 +156,8 @@ def 获取fun(fun位置: str, 随机: bool) -> int:
                     随机句子 = None
                     while True: # 避免空行
                         随机句子 = random.choice(lines).strip().replace("\\n", "\n") # 多行好玩的
-                        # 检查是否以 http:// 或 https:// 开头
-                        if 随机句子 and (not 随机句子.startswith(("http://", "https://"))):
+                        # 检查是否包含 http:// 或 https://
+                        if 随机句子 and ("http://" not in 随机句子) and ("https://" not in 随机句子):
                             break
                     print(随机句子)
                 else:
