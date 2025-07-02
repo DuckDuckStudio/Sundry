@@ -70,12 +70,14 @@ jobs:
         with:
           repository: DuckDuckStudio/winget-pkgs
           path: winget-pkgs
+          fetch-depth: 0
 
       - name: 签出 winget-tools
         uses: actions/checkout@v4.2.2
         with:
           repository: DuckDuckStudio/winget-tools
           path: winget-tools
+          fetch-depth: 0
 
       - name: 配置前
         shell: bash
