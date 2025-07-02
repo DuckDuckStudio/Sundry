@@ -117,6 +117,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          # 运行测试
           echo "[DEBUG] 运行 python ./Release/src/sundry.py help"
           python ./Release/src/sundry.py help
           echo =================================================================
@@ -128,6 +129,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          # 运行测试
           echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
           python ./Release/src/sundry.py config show
           echo =================================================================
@@ -144,6 +146,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          # 运行测试
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464\" n y"
           python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" y y
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
@@ -154,6 +157,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          # 运行测试
           echo "[DEBUG] 运行 python ./Release/src/sundry.py ignore list"
           python ./Release/src/sundry.py ignore list
 
@@ -162,6 +166,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          # 运行测试
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9"
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9
           echo =================================================================
@@ -182,6 +187,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          # 运行测试
           echo "[DEBUG] 模拟本地记录落后..."
           cd "$GITHUB_WORKSPACE/winget-pkgs"
           git reset --hard HEAD~666
@@ -195,6 +201,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          # 运行测试
           echo "[DEBUG] 运行 python ./Release/src/sundry.py repr D:/a/Sundry/Sundry/fun.txt"
           python ./Release/src/sundry.py repr D:/a/Sundry/Sundry/fun.txt
           echo =================================================================
@@ -207,6 +214,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          # 运行测试
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
           cd "$GITHUB_WORKSPACE/winget-pkgs"
           echo "[DEBUG] 运行 git checkout -b Ciallo"
@@ -306,6 +314,7 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          # 运行测试
           echo "[DEBUG] 运行 python ./Release/src/sundry.py fun"
           python ./Release/src/sundry.py fun
           echo =================================================================
