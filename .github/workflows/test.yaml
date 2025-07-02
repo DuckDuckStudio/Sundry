@@ -170,6 +170,15 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          echo "模拟本地记录落后..."
+          cd "$GITHUB_WORKSPACE/winget-pkgs"
+          git reset HEAD~666
+          git checkout -b 丢弃
+          git add .
+          git commit -m "丢弃"
+          git checkout master
+          git branch -D 丢弃
+          cd "$GITHUB_WORKSPACE"
           echo "运行 python ./Release/src/sundry.py sync"
           python ./Release/src/sundry.py sync
         continue-on-error: true # 403
