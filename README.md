@@ -33,7 +33,7 @@ sundry config [条目] [值]
 
 ## 可用命令
 
-> Sundry [1.2.8](https://github.com/DuckDuckStudio/Sundry/releases/tag/1.2.8)
+> Sundry [1.3.0](https://github.com/DuckDuckStudio/Sundry/releases/tag/1.3.0)
 
 <details>
   <summary><code>sundry help</code></summary>
@@ -110,14 +110,16 @@ sundry config [条目] [值]
 - 作用: **分析 [Azure Validation Pipeline Run](https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=验证管道日志在哪看？) 失败时的日志，来自动查找具体哪里失败了。**
 - 用法: `sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]`
 - 示例:
-  > 这里的 Azure Validation Pipeline Run 是 https://github.com/microsoft/winget-pkgs/pull/267849#issuecomment-2998878757 的。
-  - 最少参数: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464"` (需要用户输入)
-  - 不保留日志文件: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" n`
-  - 保留日志文件: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" y` (运行后将打开日志文件所在目录)
-  - 不显示一般错误/异常: 默认，不需要传递额外参数。
-  - 显示一般错误/异常: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" 占位 y`
-  - 保留日志文件且不显示一般错误/异常: 默认不显示一般错误/异常，同保留日志文件的示例。
-  - 保留日志文件且显示一般错误/异常: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" y y`
+  - 分析日志
+    > 这里的 Azure Validation Pipeline Run 是 https://github.com/microsoft/winget-pkgs/pull/267849#issuecomment-2998878757 的。
+    - 最少参数: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464"` (需要用户输入)
+    - 不保留日志文件: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" n`
+    - 保留日志文件: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" y` (运行后将打开日志文件所在目录)
+    - 不显示一般错误/异常: 默认，不需要传递额外参数。
+    - 显示一般错误/异常: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" 占位 y`
+    - 保留日志文件且不显示一般错误/异常: 默认不显示一般错误/异常，同保留日志文件的示例。
+    - 保留日志文件且显示一般错误/异常: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" y y`
+  - 清理之前下载的日志: `sundry logs-analyse cleanup`
 
 </details>
 
