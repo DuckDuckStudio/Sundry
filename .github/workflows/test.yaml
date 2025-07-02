@@ -115,8 +115,10 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          echo "运行 python ./Release/src/sundry.py help"
           python ./Release/src/sundry.py help
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py ver"
           python ./Release/src/sundry.py ver
 
       - name: 测试 - config
@@ -124,39 +126,52 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          echo "运行 python ./Release/src/sundry.py config show"
           python ./Release/src/sundry.py config show
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py config signature yes"
           python ./Release/src/sundry.py config signature yes
+          echo "运行 python ./Release/src/sundry.py config show"
           python ./Release/src/sundry.py config show
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py config signature no"
           python ./Release/src/sundry.py config signature no # 还原
 
       - name: 测试 - logs-analyse
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
-        run: python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" n y
+        run: |
+          echo "运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464\" n y"
+          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" n y
 
       - name: 测试 - cat
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3"
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 all"
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 all
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 i"
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 i
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 l zh-CN"
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 l zh-CN
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 v"
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 v
 
       - name: 测试 - sync
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
-        run: python ./Release/src/sundry.py sync
+        run: |
+          echo "运行 python ./Release/src/sundry.py sync"
+          python ./Release/src/sundry.py sync
         continue-on-error: true # 403
 
       - name: 测试 - repr
@@ -164,8 +179,10 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          echo "运行 python ./Release/src/sundry.py repr D:/a/Sundry/Sundry/fun.txt"
           python ./Release/src/sundry.py repr D:/a/Sundry/Sundry/fun.txt
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py repr <多行字符>"
           python ./Release/src/sundry.py repr "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
           BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 
@@ -174,54 +191,98 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          echo "运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
           cd "$GITHUB_WORKSPACE/winget-pkgs"
+          echo "运行 git checkout -b Ciallo"
           git checkout -b Ciallo
+          echo "运行 echo <文本> > ffffffffff.txt"
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "ffffffffff.txt" # 创建一些测试文件
+          echo "运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
+          echo "运行 python ./Release/src/sundry.py revert pkgs n y"
           python ./Release/src/sundry.py revert pkgs n y
           echo =================================================================
+          echo "运行 cd \$GITHUB_WORKSPACE/winget-tools"
           cd "$GITHUB_WORKSPACE/winget-tools"
+          echo "运行 git checkout -b Ciallo"
           git checkout -b Ciallo
+          echo "运行 echo <文本> > ffffffffff.txt"
           echo "https://www.bilibili.com/video/BV1nKNyzREiY/" > "ffffffffff.txt" # 创建一些测试文件
+          echo "运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
+          echo "运行 python ./Release/src/sundry.py revert tools n y"
           python ./Release/src/sundry.py revert tools n y
           echo =================================================================
+          echo "运行 cd \$GITHUB_WORKSPACE/winget-tools"
           cd "$GITHUB_WORKSPACE/winget-tools"
+          echo "运行 git checkout -b Ciallo"
           git checkout -b Ciallo
+          echo "运行 echo <文本> > ffffffffff.txt"
           echo "【19号来的，19号被抓的。去了三个地方，一分钱没拿到】https://www.bilibili.com/video/BV1rfKwzGEJu/" > "ffffffffff.txt" # 创建一些测试文件
+          echo "运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
           cd "$GITHUB_WORKSPACE/winget-pkgs"
+          echo "运行 git checkout -b Ciallo"
           git checkout -b Ciallo
+          echo "运行 echo <文本> > ffffffffff.txt"
           echo "【大脑里有像电视屏幕的东西？3天记3年单词？】https://www.bilibili.com/video/BV17yKGzYEVq/" > "ffffffffff.txt" # 创建一些测试文件
+          echo "运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
+          echo "运行 python ./Release/src/sundry.py revert all n y"
           python ./Release/src/sundry.py revert all n y
           echo =================================================================
+          echo "运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
           cd "$GITHUB_WORKSPACE/winget-pkgs"
+          echo "运行 git checkout -b Ciallo"
           git checkout -b Ciallo
+          echo "运行 echo <文本> > ffffffffff.txt"
           echo "【晚安~玛卡巴卡~】https://www.bilibili.com/video/BV1FiKgzcEh9/" > "ffffffffff.txt" # 创建一些测试文件
+          echo "运行 git add ."
           git add .
+          echo "运行 git commit -m <文本>"
           git commit -m "https://www.bilibili.com/video/BV1GUjbzcE2J/"
+          echo "运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
+          echo "运行 python ./Release/src/sundry.py revert pkgs y y"
           python ./Release/src/sundry.py revert pkgs y y
           echo =================================================================
+          echo "运行 cd \$GITHUB_WORKSPACE/winget-tools"
           cd "$GITHUB_WORKSPACE/winget-tools"
+          echo "运行 git checkout -b Ciallo"
           git checkout -b Ciallo
+          echo "运行 echo <文本> > ffffffffff.txt"
           echo "https://www.bilibili.com/video/BV1G3EFzDELZ/" > "ffffffffff.txt" # 创建一些测试文件
+          echo "运行 git add ."
           git add .
+          echo "运行 git commit -m <文本>"
           git commit -m "https://www.bilibili.com/video/BV1CKJNzpEBL/"
+          echo "运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
+          echo "运行 python ./Release/src/sundry.py revert tools y y"
           python ./Release/src/sundry.py revert tools y y
           echo =================================================================
+          echo "运行 cd \$GITHUB_WORKSPACE/winget-tools"
           cd "$GITHUB_WORKSPACE/winget-tools"
+          echo "运行 git checkout -b Ciallo"
           git checkout -b Ciallo
+          echo "运行 echo <文本> > ffffffffff.txt"
           echo "那我问你，你头顶怎么尖尖的！" > "ffffffffff.txt" # 创建一些测试文件
+          echo "运行 git add ."
           git add .
+          echo "运行 git commit -m <文本>"
           git commit -m "每个人一天 18 公斤的凤梨，吃个两个礼拜，很难吗？一颗就 3 公斤，很难吗？一点都不难，我们怕什么？"
+          echo "运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
           cd "$GITHUB_WORKSPACE/winget-pkgs"
+          echo "运行 git checkout -b Ciallo"
           git checkout -b Ciallo
+          echo "运行 echo <文本> > ffffffffff.txt"
           echo "不要，不要，同时吃太多凤梨会死的，应付不过来了，求求你慢点，呜哦哦，要头昏眼花了哦齁哦哦哦哦哦哦" > "ffffffffff.txt" # 创建一些测试文件
+          echo "运行 git add ."
           git add .
+          echo "运行 git commit -m <文本>"
           git commit -m "唉乌蒙吃。"
+          echo "运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
+          echo "运行 python ./Release/src/sundry.py revert all y y"
           python ./Release/src/sundry.py revert all y y
 
       - name: 测试 - fun
@@ -229,18 +290,28 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
+          echo "运行 python ./Release/src/sundry.py fun"
           python ./Release/src/sundry.py fun
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py fun random"
           python ./Release/src/sundry.py fun random
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py fun list"
           python ./Release/src/sundry.py fun list
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py fun add <文本>"
           python ./Release/src/sundry.py fun add "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+          echo "运行 python ./Release/src/sundry.py fun list"
           python ./Release/src/sundry.py fun list
           echo =================================================================
+          echo "运行 python ./Release/src/sundry.py fun remove <文本>"
           python ./Release/src/sundry.py fun remove "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+          echo "运行 python ./Release/src/sundry.py fun list"
           python ./Release/src/sundry.py fun list
           echo =================================================================
+          echo "运行 echo \"你以为你是谁啊？！\" > ffffffffff.txt"
           echo "你以为你是谁啊？！" > "ffffffffff.txt"
+          echo "运行 python ./Release/src/sundry.py fun import ffffffffff.txt"
           python ./Release/src/sundry.py fun import "ffffffffff.txt"
+          echo "运行 python ./Release/src/sundry.py fun list"
           python ./Release/src/sundry.py fun list
