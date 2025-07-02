@@ -95,6 +95,7 @@ def main(args: list[str]):
         print(f"{Fore.RED}✕{Fore.RESET} 清单目录不存在")
         return 1
 
+    清单文件: list[str] | str
     if (清单类型 == "all"):
         # 设置清单文件为清单目录下的所有 yaml 文件
         清单文件 = []
