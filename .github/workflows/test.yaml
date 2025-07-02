@@ -150,20 +150,20 @@ jobs:
           PYTHONIOENCODING: utf-8
         shell: bash
         run: |
-          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3
+          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9
           echo =================================================================
-          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 all"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 all
+          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 all"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 all
           echo =================================================================
-          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 i"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 i
+          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 i"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 i
           echo =================================================================
-          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 l zh-CN"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 l zh-CN
+          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 l zh-CN"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 l zh-CN
           echo =================================================================
-          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 v"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.3 v
+          echo "运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 v"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 v
 
       - name: 测试 - sync
         env:
