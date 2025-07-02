@@ -14,17 +14,30 @@ def main(args: list[str]) -> int:
     if len(args) < 1:
         print(f"{Fore.RED}✕{Fore.RESET} 请提供 Azure Pipline Url")
         return 1
-    
-    print(f"{Fore.BLUE}INFO{Fore.RESET} 正在验证提供的 Azure Pipline Url...")
 
     azure_url = args[0]
-    if azure_url.startswith("https://github.com/"):
-        # 无效和 return 在下面的 if
-        print(f"{Fore.YELLOW}Hint{Fore.RESET} 请提供 Validation Pipeline Run 的 URL 而不是 GitHub 的 URL")
-    
-    if not azure_url.startswith("https://dev.azure.com/"):
-        print(f"{Fore.RED}✕{Fore.RESET} 无效的 Azure Pipline Url")
-        return 1
+    if azure_url.lower() not in ["cleanup", "清理", "清理日志"]:
+        print(f"{Fore.BLUE}INFO{Fore.RESET} 正在验证提供的 Azure Pipline Url...")
+
+        if azure_url.startswith("https://github.com/"):
+            # 无效和 return 在下面的 if
+            print(f"{Fore.YELLOW}Hint{Fore.RESET} 请提供 Validation Pipeline Run 的 URL 而不是 GitHub 的 URL")
+        
+        if not azure_url.startswith("https://dev.azure.com/"):
+            print(f"{Fore.RED}✕{Fore.RESET} 无效的 Azure Pipline Url")
+            return 1
+    else:
+        try:
+            # 移除 os.path.join(os.environ["TEMP"], "Sundry", "AzurePiplines", "Logs") 文件夹
+            shutil.rmtree(os.path.join(os.environ["TEMP"], "Sundry", "AzurePiplines", "Logs"))
+            print(f"{Fore.GREEN}✓{Fore.RESET} 成功清理日志文件目录。")
+            return 0
+        except FileNotFoundError:
+            print(f"{Fore.BLUE}INFO{Fore.RESET} 日志文件目录不存在，无需清理。")
+            return 0
+        except Exception as e:
+            print(f"{Fore.RED}✕{Fore.RESET} 清理日志文件目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+            return 1
     
     # 从 URL 中提取 buildId
     build_id = azure_url.split("buildId=")[-1].replace("&view=results", "")
