@@ -258,7 +258,7 @@ def 修改版本(版本文件夹):
     subprocess.run(["git", "checkout", "-b", 新分支], check=True) # 创建并切换到新的分支
 
     # 遍历该版本文件夹中的所有文件
-    for root, dirs, files in os.walk(版本文件夹路径):
+    for root, _, files in os.walk(版本文件夹路径):
         for file in files:
             清单文件路径 = os.path.join(root, file)
             
@@ -285,28 +285,22 @@ def 修改版本(版本文件夹):
                         写入日志(f"    Replace schema references: {清单中的旧清单版本号}.schema.json -> {新清单版本号}.schema.json")
                         清单文件内容 = 清单文件内容.replace(f"{清单中的旧清单版本号}.schema.json", f"{新清单版本号}.schema.json")
 
-                # 替换创建工具
+                # 替换工具注释
                 '''
-                判断`清单文件内容`第一行是否以`#`开头
-                如果是，再判断`清单文件内容`第一行是否以`# yaml-language-server`开头
-                    如果是，在`清单文件内容`第一行前面追加一行`# Created with Sundry.`
-                    如果不是，将`清单文件内容`第一行替换为`# Created with Sundry.`
-                如果不是以`#`开头，在`清单文件内容`第一行前面追加三行`# Created with Sundry.`与`# yaml-language-server: $schema=...`与一个空行。
+                判断是否 `清单文件内容`为空 或 第一行以`#`开头
+                    如果是，在`清单文件内容`第一行前面追加三行`# Modified with Sundry.`与`# yaml-language-server: $schema=...`与一个空行。
+                否则，`清单文件内容`有内容且第一行以`#`开头
+                    再判断`清单文件内容`第一行是否以`# yaml-language-server`开头
+                        如果是，在`清单文件内容`第一行前面追加一行`# Modified with Sundry.`
+                        如果不是，将`清单文件内容`第一行替换为`# Modified with Sundry.`
                 '''
+
                 # 按行分割文件内容
                 lines = 清单文件内容.splitlines()
 
-                # 判断第一行是否以#开头
-                if lines[0].startswith("#"):
-                    # 判断第一行是否以# yaml-language-server开头
-                    if lines[0].startswith("# yaml-language-server"):
-                        # 如果是，追加一行
-                        lines.insert(0, "# Created with Sundry.")
-                    else:
-                        # 否则，替换第一行
-                        lines[0] = "# Created with Sundry."
-                else:
-                    # 否则，第一行前面追加三行
+                if (not lines) or (not lines[0].startswith("#")): # DuckDuckStudio/Sundry#28
+                    # 如果清单文件内容为空或第一行不是以#开头
+                    # 第一行前面追加三行
                     lines.insert(0, "")
                     if 'installer' in file: # 安装程序清单
                         lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.{新清单版本号}.schema.json")
@@ -317,7 +311,16 @@ def 修改版本(版本文件夹):
                             lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.{新清单版本号}.schema.json")
                     else: # 版本清单
                         lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.{新清单版本号}.schema.json")
-                    lines.insert(0, "# Created with Sundry.")
+                    lines.insert(0, "# Modified with Sundry.")
+                # 否则第一行是#开头
+                else:
+                    # 判断第一行是否以# yaml-language-server开头
+                    if lines[0].startswith("# yaml-language-server"):
+                        # 如果是，追加一行
+                        lines.insert(0, "# Modified with Sundry.")
+                    else:
+                        # 否则，替换第一行
+                        lines[0] = "# Modified with Sundry."
 
                 # 将修改后的内容重新合并为一个字符串并赋值回清单文件内容
                 清单文件内容 = "\n".join(lines)
