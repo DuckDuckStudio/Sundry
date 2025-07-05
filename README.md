@@ -253,7 +253,7 @@ sundry config [条目] [值]
 </details>
 
 ## 自己构建
-仓库下有一个[构建流](https://github.com/DuckDuckStudio/Sundry/blob/main/.github/workflows/build.yml)，你可以 fork 后直接运行，它会将结果上传为工件。  
+仓库下有一个[构建流](https://github.com/DuckDuckStudio/Sundry/blob/main/.github/workflows/build.yaml)，你可以 fork 后直接运行，它会将结果上传为工件。  
 大概步骤是:  
 1. `cd` 到项目所在目录
 2. 更新代码中的版本号
