@@ -47,7 +47,7 @@ def main(args: list[str]) -> int:
     response = requests.get(api_url)
 
     if response.status_code != 200:
-        print(f"{Fore.RED}✕{Fore.RESET} 无法获取构建信息: {api_url} 响应 {Fore.RED}{response.status_code}{Fore.RESET}")
+        print(f"{Fore.RED}✕{Fore.RESET} 无法获取运行信息: {api_url} 响应 {Fore.RED}{response.status_code}{Fore.RESET}")
         return 1
     
     build_info = response.json()
@@ -78,21 +78,26 @@ def main(args: list[str]) -> int:
             print(f"{Fore.RED}✕{Fore.RESET} 下载位置下存在同名文件")
             return 1
         else:
-            # 移除它
-            os.remove(logs_zip_path)
+            try:
+                # 移除它
+                os.remove(logs_zip_path)
+            except Exception as e:
+                print(f"{Fore.RED}✕{Fore.RESET} 移除同名日志文件时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+                return 1
         
     # 如果解压后的位置存在同名目录
     if os.path.exists(logs_dir):
         if input(f"{Fore.BLUE}?{Fore.RESET} 解压位置下{Fore.YELLOW}已存在同名日志目录{Fore.RESET} {Fore.BLUE}{logs_dir}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() not in ["y", "yes", "是", ""]:
-            print(f"{Fore.RED}✕{Fore.RESET} 解压位置下存在同名目录")
+            print(f"{Fore.RED}✕{Fore.RESET} 解压位置下存在同名日志目录")
             return 1
         else:
-            # 移除它
-            shutil.rmtree(logs_dir)
-            # 再建个空的
-            os.makedirs(logs_dir, exist_ok=True)
-    else:
-        os.makedirs(logs_dir, exist_ok=True)
+            try:
+                # 移除它
+                shutil.rmtree(logs_dir)
+            except Exception as e:
+                print(f"{Fore.RED}✕{Fore.RESET} 移除同名日志目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+                return 1
+    os.makedirs(logs_dir, exist_ok=True)
         
     # 下载日志文件
     print(f"{Fore.BLUE}INFO{Fore.RESET} 正在下载日志文件到 {logs_zip_path}...")
@@ -116,7 +121,7 @@ def main(args: list[str]) -> int:
 
     # =============================================
 
-    # 看看解压后的日志文件夹中有没有 .png 文件，有则输出位置
+    # 看看解压后的日志文件夹中有没有 *.png 文件，有则输出位置
     png_files: list[str] = []
     for root, _, files in os.walk(logs_dir):
         for file in files:
