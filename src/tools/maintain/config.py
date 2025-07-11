@@ -59,8 +59,7 @@ def 获取用户输入(键: str):
                 print(f"{Fore.RED}✕{Fore.RESET} 请输入正确的仓库格式，例如: owner/repo")
     # 签名输入
     elif 键 in 提示消息["签名"]:
-        答案 = input(提示消息["签名"][键]).lower()
-        if 答案 in ["y", "yes", "要", "是", "true"]:
+        if input(提示消息["签名"][键]).lower() in ["y", "yes", "要", "是", "true"]:
             return "yes"
         else:
             return "no"
