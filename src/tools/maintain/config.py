@@ -15,11 +15,14 @@ def 获取用户输入(键: str):
             "winget-tools": f"{Fore.BLUE}?{Fore.RESET} 您的本地 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库在哪里: "
         },
         "仓库": {
-            "pkgs-repo": f"{Fore.BLUE}?{Fore.RESET} 您的远程 winget-pkgs 仓库是什么: ",
-            "tools-repo": f"{Fore.BLUE}?{Fore.RESET} 您的远程 winget-tools 仓库是什么: "
+            "pkgs-repo": f"{Fore.BLUE}?{Fore.RESET} 您的远程 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库是什么: ",
+            "tools-repo": f"{Fore.BLUE}?{Fore.RESET} 您的远程 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库是什么: "
         },
         "签名": {
-            "signature": f"{Fore.BLUE}?{Fore.RESET} 是否要为 Git 提交签名: (默认为{Fore.YELLOW}否{Fore.RESET}): "
+            "signature": f"{Fore.BLUE}?{Fore.RESET} 是否要为 Git 提交签名？(默认为{Fore.YELLOW}否{Fore.RESET}): "
+        },
+        "i18n": {
+            "lang": f"{Fore.BLUE}?{Fore.RESET} 你希望 Sundry 使用哪种语言运行？[{Fore.GREEN}zh-CN(默认){Fore.RESET}, en-US]: "
         }
     }
 
@@ -63,8 +66,22 @@ def 获取用户输入(键: str):
             return "yes"
         else:
             return "no"
+    # Sundry-Locale i18n 分支兼容
+    # i18n输入
+    elif 键 in 提示消息["i18n"]:
+        while True:
+            答案 = input(提示消息["i18n"][键]).lower()
+            if 答案 not in ["", "zh-cn", "en-us"]:
+                print(f"{Fore.RED}✕{Fore.RESET} 不支持的语言，请在 [] 中的语言中选择一种")
+            else:
+                语言映射 = {
+                    "": "zh-CN",
+                    "zh-cn": "zh-CN",
+                    "en-us": "en-US",
+                }
+                return 语言映射.get(答案, "zh-CN")
     else:
-        return input(f"{Fore.BLUE}?{Fore.RESET} 请输入 {键}: ")
+        return input(f"{Fore.BLUE}?{Fore.RESET} 请输入 {键} 的值: ")
 
 # 初始化配置文件
 def 初始化配置文件(配置文件: str):
@@ -84,6 +101,16 @@ def 初始化配置文件(配置文件: str):
             if 键 == "version":
                 continue
             默认配置[键] = 获取用户输入(键)
+
+        if input(f"{Fore.BLUE}? (可选){Fore.RESET} 是否要让配置文件兼容 Sundry-old 和 Sundry-Locale (i18n 分支)？(默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in ["y", "yes", "要", "是", "true"]:
+            # 往默认配置中添加 key "fork" 值同 "pkgs-repo"
+            # Sundry-old 兼容
+            默认配置["fork"] = 默认配置["pkgs-repo"]
+            # 往默认配置中添加 key "lang" 值 问用户
+            # Sundry-Locale i18n 分支兼容
+            默认配置["lang"] = 获取用户输入("lang")
+
+        # =========================================
 
         if not os.path.exists(os.path.dirname(配置文件)):
             os.makedirs(os.path.dirname(配置文件), exist_ok=True)
@@ -166,7 +193,7 @@ def main(args: list[str]):
             return 修改配置项(条目, 值, 配置文件)
         else:
             print(f"{Fore.RED}✕{Fore.RESET} 无效的操作: {args[0]}")
-            print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry help 来获取命令帮助")
+            print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry --help 来获取命令帮助")
             return 1
     except KeyboardInterrupt:
         print(f"\n{Fore.RED}✕{Fore.RESET} 操作取消")
