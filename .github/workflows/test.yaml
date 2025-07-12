@@ -99,7 +99,9 @@ jobs:
           #     "winget-tools": "上面克隆的位置",
           #     "pkgs-repo": "DuckDuckStudio/winget-pkgs",
           #     "tools-repo": "DuckDuckStudio/winget-tools",
-          #     "signature": "no"
+          #     "signature": "no",
+          #     "fork": "DuckDuckStudio/winget-pkgs",
+          #     "lang": "zh-CN"
           # }
           mkdir -p "$HOME/.config/DuckStudio/Sundry"
           echo "{
@@ -108,7 +110,9 @@ jobs:
             \"winget-tools\": \"D:/a/Sundry/Sundry/winget-tools/\",
             \"pkgs-repo\": \"DuckDuckStudio/winget-pkgs\",
             \"tools-repo\": \"DuckDuckStudio/winget-tools\",
-            \"signature\": \"no\"
+            \"signature\": \"no\",
+            \"fork\": \"DuckDuckStudio/winget-pkgs\",
+            \"lang\": \"zh-CN\"
           }" > "$HOME/.config/DuckStudio/Sundry/config.json"
           cat "$HOME/.config/DuckStudio/Sundry/config.json"
 
