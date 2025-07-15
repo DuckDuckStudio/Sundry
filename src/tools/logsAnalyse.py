@@ -141,9 +141,10 @@ def main(args: list[str]) -> int:
 
     # 查看日志中是否有带有以下关键词的行
     keyword_map = {
-        "Installation failed with exit code": ("以非正常退出代码退出", Fore.RED),
         "[FAIL] Installer failed security check": ("安装程序未通过安全检查", Fore.YELLOW),
         "No suitable installer found": ("未找到合适的安装程序", Fore.YELLOW),
+        "ShellExecute installer failed": ("Shell 执行安装程序失败", Fore.YELLOW),
+        "Installation failed with exit code": ("以非正常退出代码退出", Fore.RED),
     }
 
     if (len(args) == 3) and (args[2].lower() in ["true", "yes", "y", "是"]):
@@ -188,7 +189,7 @@ def main(args: list[str]) -> int:
                                     line.strip(),
                                     flags=re.IGNORECASE
                                 )
-                                print(f"{Fore.CYAN}Analyse{Fore.RESET} {result_str}\n{highlighted_line} {Fore.BLUE}in{Fore.RESET} {file}")
+                                print(f"{Fore.CYAN}Analysis{Fore.RESET} {result_str}\n{highlighted_line} {Fore.BLUE}in{Fore.RESET} {file}")
                                 if keyword == "Installation failed with exit code":
                                     print(f"{Fore.YELLOW}Hint{Fore.RESET} 您可以在 https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md 上查找对应退出代码的解释。")
                                 elif keyword == "No suitable installer found":
