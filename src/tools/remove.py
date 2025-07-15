@@ -1,3 +1,4 @@
+import re
 import os
 import csv
 import time
@@ -8,7 +9,7 @@ import requests
 import subprocess
 import webbrowser
 from colorama import init, Fore
-from translate import Translator
+from translate import Translator # type: ignore
 from function.github.token import read_token
 
 # 创建拉取请求
@@ -105,17 +106,15 @@ def main(args: list[str]):
         print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
         return 1
 
-    # 目录路径
+    # 尝试从参数中获取软件包标识符和版本
     跳过检查 = False
     理由 = "It returns a 404 status code in GitHub Action and has been automatically verified."
     手动验证结果 = None
-
-    # 尝试从参数中获取软件包标识符和版本
     if (2 <= len(args) <= 4):
         软件包标识符 = args[0]
         软件包版本 = args[1]
         if (3 <= len(args) <= 4):
-            if ((isinstance(args[2], bool)) or (args[2].lower() == "true")):
+            if (args[2].lower() == "true"):
                 # bool 值视为是否跳过检查开关
                 跳过检查 = True # 不接受传 False
                 if (len(args) == 4):
@@ -164,7 +163,7 @@ def main(args: list[str]):
                     手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
                     if 手动验证结果:
                         # 自动将手动验证结果翻译为英文
-                        手动验证结果 = Translator(from_lang='zh', to_lang='en').translate(手动验证结果)
+                        手动验证结果 = Translator(from_lang='zh', to_lang='en').translate(手动验证结果) # type: ignore
                         手动验证结果 = f"{手动验证结果} (auto-translate)"
                         if input(f"自动翻译结果: {Fore.BLUE}{手动验证结果}{Fore.RESET} 正确吗? ").lower() not in ["正确", "对", "y", "对的", "yes", ""]: # 空字符串代表直接 Enter
                             手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
@@ -185,18 +184,103 @@ def main(args: list[str]):
                     格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
                     理由 = f"{理由}\n\n{格式化审查者} PTAL"
 
-            try:
-                print(f"{Fore.BLUE}使用 winget 验证...")
-                subprocess.run(["winget", "download", "--accept-source-agreements", "--accept-package-agreements", "--source", "winget", "--id", 软件包标识符, "--version", 软件包版本, "--exact", "--download-directory", tempfile.gettempdir()], check=True)
-                input(f"{Fore.YELLOW}⚠ 看起来此软件包可以被 winget 正常下载，您还是想要移除此软件包版本吗:")
-            except subprocess.CalledProcessError as e:
-                print(f"{Fore.GREEN}使用 winget 验证证实确实存在问题 ({e.returncode})")
-                print(f"{Fore.BLUE}查重...")
-                print("======= 打开的 =======")
-                subprocess.run(["gh", "pr", "list", "-S", 软件包标识符, "--repo", "microsoft/winget-pkgs"], check=True) # 为什么不自己写请求？老子懒得再去处理它什么的分页什么的速率！
-                print("======= 所有 =======")
-                subprocess.run(["gh", "pr", "list", "-S", f"{软件包标识符} {软件包版本}", "--repo", "microsoft/winget-pkgs", "--state", "all"], check=True) # 为什么不自己写请求？老子懒得再去处理它什么的分页什么的速率！
-                input("您确定没有重复的拉取请求?")
+            # 使用 WinGet 尝试下载
+            print(f"{Fore.BLUE}使用 winget 验证...{Fore.RESET}")
+            验证结果 = subprocess.Popen(
+                ["winget", "download", "--accept-source-agreements", "--accept-package-agreements", "--skip-dependencies", "--source", "winget", "--id", 软件包标识符, "--version", 软件包版本, "--exact", "--download-directory", tempfile.gettempdir()],
+                stdout=subprocess.PIPE, # 捕获标准输出
+                stderr=subprocess.PIPE, # 捕获标准错误
+                text=True # 输出为字符串
+            )
+
+            # 逐行读取并处理输出
+            同行: str = "正常"
+            验证结果日志: list[str] = []
+            for line in 验证结果.stdout or []: # 标准输出
+                if line.endswith("\n"):
+                    line = line.rstrip("\n") # 去除空行
+
+                if re.match(r"^\s*[-\\|/]", line): # 加载动画，使用 \r 输出
+                    # ^ 匹配字符串开头
+                    # \s* 匹配 0 - n 个空格
+                    # [-\\|/] 匹配 - \ | /
+                    # {1} 表示仅匹配 1 个动画字符
+                    # $ 匹配字符串结尾
+                    同行 = "加载动画"
+                    print(f"\r{Fore.BLUE}{line.strip()}{Fore.RESET}", end="")
+                elif any(进度条 in line for 进度条 in ["█", "▒"]):
+                    # 不属于同行，自身 \r 完后要留着
+                    同行 = "进度条"
+                    print(f"\r{line}", end="")
+                    if "▒" not in line: # 跑完进度了
+                        验证结果日志.append(line.replace("\r", "")) # 进度条也算日志
+                elif line.strip():
+                    if 同行 == "加载动画":
+                        line = f"\r{line}"
+                    elif 同行 == "进度条":
+                        line = f"\n{line}"
+
+                    同行 = "正常"
+                    验证结果日志.append(line.replace("\r", "").replace("\n", ""))
+
+                    if any(msg in line for msg in ["执行此命令时发生意外错误", "Download request status is not success.", "404", "403"]):
+                        print(f"{Fore.RED}{line}{Fore.RESET}")
+                    elif "正在下载" in line:
+                        line = f"{line.replace("正在下载", f"正在下载{Fore.LIGHTBLUE_EX}")}{Fore.RESET}"
+                        print(line)
+                    elif "已找到" in line:
+                        # 为包名和标识符上 CYAN，[]原色
+                        # 正则逐部分解释
+                        # 1. `已找到``
+                        # 字面量，匹配字符串“已找到”。
+                        # 2. `\s+`
+                        # 匹配一个或多个空白字符（如空格、Tab），用于分隔“已找到”和包名。
+                        # 3. `([^\[]+)`
+                        # 这是第一个捕获组，用于匹配包名。
+                        # `[^\[]+`` 的意思是“匹配一个或多个不是左方括号 `[` 的字符”。
+                        # 这样可以让包名中包含空格，但不会匹配到左方括号（即包名遇到 `[` 就停止匹配）。
+                        # 例如：`calibre portable` 等都能被完整捕获。
+                        # 4. `\s+`
+                        # 再次匹配一个或多个空白字符，分隔包名和方括号。
+                        # 5. `\[(\S+)\]`
+                        # 匹配左方括号 `[`
+                        # `(\S+)` 是第二个捕获组，匹配一个或多个非空白字符（即包标识符，不能有空格）。
+                        # 匹配右方括号 `]`
+                        # 例如：`[calibre.calibre.portable]`，捕获到 `calibre.calibre.portable`。
+                        # NOTE: 潜在的问题 - 如果软件包名中带有 [ 则无法匹配完整包名
+                        # `\\1`和`\\2`分别引用正则表达式中的第1和第2个捕获组（即包名和包标识符）。
+                        line = re.sub(r"已找到\s+([^\[]+)\s+\[(\S+)\]", f"已找到 {Fore.CYAN}\\1{Fore.RESET} [{Fore.CYAN}\\2{Fore.RESET}]", line)
+                        print(line)
+                    else:
+                        print(line)
+
+            # 逐行读取并处理错误输出
+            for line in 验证结果.stderr or []: # 错误输出
+                if line.endswith("\n"):
+                    line = line.rstrip('\n') # 去除空行
+                验证结果日志.append(line)
+                print(f"{Fore.RED}{line}{Fore.RESET}")
+
+            # 等待进程结束并获取返回码
+            验证结果.wait()
+
+            if (验证结果.returncode == 0):
+                input(f"{Fore.YELLOW}⚠ 看起来此软件包可以被 winget 正常下载，您还是想要移除此软件包版本吗:{Fore.RESET}")
+            else:
+                验证结果日志.append(f"WinGet returned exit code: {验证结果.returncode}")
+                # 写入理由
+                理由 = f"{理由}\n\n```logs\n"
+                for line in 验证结果日志:
+                    理由 = f"{理由}{line}\n"
+                理由 = f"{理由}```"
+                print(f"{Fore.GREEN}使用 winget 验证证实确实存在问题 ({验证结果.returncode}){Fore.RESET}")
+
+            print(f"{Fore.BLUE}查重...")
+            print("======= 打开的 =======")
+            subprocess.run(["gh", "pr", "list", "-S", 软件包标识符, "--repo", "microsoft/winget-pkgs"], check=True) # 为什么不自己写请求？老子懒得再去处理它什么的分页什么的速率！
+            print("======= 所有 =======")
+            subprocess.run(["gh", "pr", "list", "-S", f"{软件包标识符} {软件包版本}", "--repo", "microsoft/winget-pkgs", "--state", "all"], check=True) # 为什么不自己写请求？老子懒得再去处理它什么的分页什么的速率！
+            input("您确定没有重复的拉取请求?")
         except KeyboardInterrupt:
             print(f"\n{Fore.RED}已取消操作，没有修改任何文件")
             return 0
