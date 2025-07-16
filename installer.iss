@@ -13,6 +13,7 @@ OutputBaseFilename=Sundry_Setup
 LicenseFile=LICENSE
 Compression=lzma2
 SolidCompression=yes
+ArchitecturesInstallIn64BitMode=x64compatible
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
