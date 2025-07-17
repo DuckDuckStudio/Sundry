@@ -104,6 +104,7 @@ jobs:
           cp -v src/fun.txt Release/pack
           cp -v LICENSE Release/pack
           echo ========================================
+          python "自动化脚本/png-2-ico.py"
           pyinstaller --onefile --distpath="Release/pack" --name="sundry.exe" "src/sundry.py" --upx-dir="upx" -i "icon/Sundry.png"
           echo ========================================
           7z a -t7z Release/Sundry.7z Release/pack
