@@ -14,7 +14,7 @@ LicenseFile=LICENSE
 Compression=lzma2
 SolidCompression=yes
 ArchitecturesInstallIn64BitMode=x64compatible
-SetupIconFile=icon/Sundry.png
+SetupIconFile=icon/Sundry.ico
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
