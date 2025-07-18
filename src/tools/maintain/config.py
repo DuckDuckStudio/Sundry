@@ -29,7 +29,7 @@ def 获取用户输入(键: str):
     # 路径输入
     if 键 in 提示消息["路径"]:
         while True:
-            路径 = os.path.normpath(input(提示消息["路径"][键]))
+            路径 = os.path.abspath(os.path.normpath(input(提示消息["路径"][键])))
             if os.path.exists(路径):
                 return 路径
             else:
