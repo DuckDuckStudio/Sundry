@@ -1,23 +1,18 @@
 name: Test Run
 
 on:
-  # 拉取请求
   pull_request:
     paths:
-      - 'src/**'
-      - 'installer.iss'
-      - 'requirements.txt'
-      - '.github/workflows/test.yaml'
-  # main 有新提交 push
-  # 且限制要是 src/ 或 installer.iss 或 requirements.txt 这些文件有变更
+      - src/**
+      - requirements.txt
+      - .github/workflows/test.yaml
   push:
     branches:
       - main
     paths:
-      - 'src/**'
-      - 'installer.iss'
-      - 'requirements.txt'
-      - '.github/workflows/test.yaml'
+      - src/**
+      - requirements.txt
+      - .github/workflows/test.yaml
   # 手动触发
   workflow_dispatch:
 
