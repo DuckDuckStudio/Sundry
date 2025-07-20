@@ -6,3 +6,4 @@ pygments==2.19.2 # 高亮文本
 PyYAML==6.0.2 # 处理 YAML
 
 Pillow==11.3.0 # png 转 ico
+pyinstaller==6.14.2 # 打包 exe
