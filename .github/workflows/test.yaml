@@ -204,8 +204,12 @@ jobs:
           git reset --hard HEAD~666
           cd "$GITHUB_WORKSPACE"
           echo "[DEBUG] 运行 python ./Release/src/sundry.py sync"
-          python ./Release/src/sundry.py sync
-        continue-on-error: true # 403
+          python ./Release/src/sundry.py sync || exit_code=$?
+          if [ "${exit_code:-0}" -eq 1 ]; then
+            # 403
+            exit 0
+          fi
+          exit ${exit_code:-0}
 
       - name: 测试 - repr
         env:
