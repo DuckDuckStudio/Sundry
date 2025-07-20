@@ -154,8 +154,8 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=142028\" n y"
-          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=142028" y y
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164\" n y"
+          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164" y y
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
           python ./Release/src/sundry.py logs-analyse cleanup
 
@@ -165,9 +165,9 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py verify Bilibili.Livehime 7.19.0.9432"
-          # 我确信 GitHub Action Runner 没有预装 哔哩哔哩直播姬
-          python ./Release/src/sundry.py verify Bilibili.Livehime 7.19.0.9432
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py verify DuckStudio.Sundry 1.3.3"
+          # 我确信 GitHub Action Runner 没有预装我的软件
+          python ./Release/src/sundry.py verify DuckStudio.Sundry 1.3.3
 
       - name: 测试 - ignore
         env:
