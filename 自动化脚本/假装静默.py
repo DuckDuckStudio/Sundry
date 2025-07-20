@@ -9,7 +9,7 @@ def main():
         替换文件内容(
             源码路径,
             "if input(f\"{Fore.BLUE}?{Fore.RESET} 临时清单目录下{Fore.YELLOW}已存在同名清单目录{Fore.RESET} {Fore.BLUE}{清单目录}{Fore.RESET}，我应该移除它吗? [Y/n]: \").lower()",
-            "\"y\""
+            "if \"y\""
         )
         or 替换文件内容(
             源码路径,
