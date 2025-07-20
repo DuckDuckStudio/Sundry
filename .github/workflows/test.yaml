@@ -40,6 +40,14 @@ jobs:
         run: |
           python "自动化脚本/修改版本号.py" "123.456.789"
 
+      - name: 假装静默
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          echo "[DEBUG] 先通过修改源代码来假装获取到了用户输入，从而假装静默..."
+          python "./自动化脚本/假装静默.py"
+
       - name: 安装依赖
         shell: bash
         env:
@@ -157,8 +165,6 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 先通过修改源代码来假装获取到了用户输入，从而假装静默..."
-          python "./自动化脚本/假装静默/verify.py"
           echo "[DEBUG] 运行 python ./Release/src/sundry.py verify Bilibili.Livehime 7.19.0.9432"
           # 我确信 GitHub Action Runner 没有预装 哔哩哔哩直播姬
           python ./Release/src/sundry.py verify Bilibili.Livehime 7.19.0.9432
