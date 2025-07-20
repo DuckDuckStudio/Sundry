@@ -99,7 +99,6 @@ jobs:
           PYTHONIOENCODING: utf-8
         # 这里是直接打包过去的，不用管 sundry.ps1
         run: |
-          pip install pyinstaller
           mkdir Release/pack
           cp -v src/fun.txt Release/pack
           cp -v LICENSE Release/pack

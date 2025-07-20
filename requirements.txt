@@ -5,3 +5,4 @@ translate==3.6.1 # 翻结果
 pygments==2.19.2 # 高亮文本
 
 Pillow==11.3.0 # png 转 ico
+pyinstaller==6.14.2 # 打包 exe
