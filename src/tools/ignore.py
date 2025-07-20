@@ -200,8 +200,7 @@ def main(args: list[str]):
         elif (args[0] in ["remove", "移除", "移", "除", "删", "删除", "--remove"]):
             操作 = "remove"
         else:
-            print(f"{Fore.RED}✕ 请按照以下格式传入参数:{Fore.RESET}")
-            print(f"{Fore.BLUE}sundry ignore <add/remove/edit/list> [忽略字段] [理由]{Fore.RESET}")
+            print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
             return 1
         # ===========
         忽略字段 = args[1]
