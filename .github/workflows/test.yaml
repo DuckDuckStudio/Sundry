@@ -165,9 +165,9 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py verify DuckStudio.Sundry 1.3.3"
-          # 我确信 GitHub Action Runner 没有预装我的软件
-          python ./Release/src/sundry.py verify DuckStudio.Sundry 1.3.3
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py verify yugecin.osukps v6"
+          # 我确信 GitHub Action Runner 没有预装 yugecin.osukps
+          python ./Release/src/sundry.py verify yugecin.osukps v6
 
       - name: 测试 - ignore
         env:
