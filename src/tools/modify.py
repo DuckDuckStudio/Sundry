@@ -118,7 +118,7 @@ def main(args: list[str]):
     # 获取所有版本号文件夹
     while True:
         try:
-            版本文件夹s = []
+            版本文件夹s: list[str] = []
             for 文件夹 in os.listdir(清单目录):
                 if os.path.isdir(os.path.join(清单目录, 文件夹)):
                     for 文件 in os.listdir(os.path.join(清单目录, 文件夹)):
@@ -191,7 +191,7 @@ def main(args: list[str]):
 
     return 0
 
-def 写入日志(消息: str, 等级="INFO"):
+def 写入日志(消息: str, 等级: str="INFO"):
     global 程序所在目录, 日志文件路径
     现在时间 = datetime.now()
     写入时间 = 现在时间.strftime('%Y-%m-%d %H:%M:%S.') + str(现在时间.microsecond)[:3] # 格式化日志时间 YYYY-MM-DD HH:MM:SS.ms
@@ -200,7 +200,7 @@ def 写入日志(消息: str, 等级="INFO"):
             日志文件.write(f"{写入时间} {等级} {行}\n")
 
 # 创建拉取请求
-def 创建拉取请求(分支名: str, 版本文件夹: str, 审查="") -> Union[str, int]:
+def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> Union[str, int]:
     # 审查:
     # False -> 不请求审查
     # 带 @ 的字符串 -> 在 PR body 中 @ 审查者
@@ -242,7 +242,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 审查="") -> Union
     return response.json()["html_url"]
 
 # Git 操作部分
-def 修改版本(版本文件夹):
+def 修改版本(版本文件夹: str):
     global 首个_PR
     print(f"\n正在处理版本文件夹: {版本文件夹}")
     写入日志(f"Processing version folder: {版本文件夹}")
