@@ -295,7 +295,7 @@ def 测试安装与卸载(清单目录: str, 操作: str) -> int:
     # 尝试运行 WinGet 操作
     try:
         print(f"尝试{操作}软件包...")
-        subprocess.run(["winget", 命令, "--manifest", 清单目录], check=True)
+        subprocess.run(["winget", 命令, "--manifest", 清单目录, "--accept-package-agreements", "--accept-source-agreements"], check=True)
     except subprocess.CalledProcessError as e:
         print(f"{Fore.RED}✕{Fore.RESET} 尝试{操作}软件包失败: WinGet 返回 {e.returncode}")
         return 1
