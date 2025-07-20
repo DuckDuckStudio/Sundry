@@ -11,7 +11,7 @@ import sys
 # https://github.com/DuckDuckStudio/Fufu_Tools/blob/main/LICENSE
 # ===========================================================
 
-def 替换文件内容(文件路径, 原文本, 新文本):
+def 替换文件内容(文件路径: str, 原文本: str, 新文本: str):
     try:
         # 读取文件内容
         with open(文件路径, 'r', encoding='utf-8') as f:

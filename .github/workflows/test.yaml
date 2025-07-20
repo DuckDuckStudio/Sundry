@@ -20,7 +20,7 @@ permissions: {}
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: windows-2025 # 自此版本开始自带 WinGet
 
     steps:
       - name: 检出代码
@@ -150,6 +150,18 @@ jobs:
           python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=142028" y y
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
           python ./Release/src/sundry.py logs-analyse cleanup
+
+      - name: 测试 - verify
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          # 运行测试
+          echo "[DEBUG] 先通过修改源代码来假装获取到了用户输入，从而假装静默..."
+          python "./自动化脚本/假装静默/verify.py"
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py verify Bilibili.Livehime 7.19.0.9432"
+          # 我确信 GitHub Action Runner 没有预装 哔哩哔哩直播姬
+          python ./Release/src/sundry.py verify Bilibili.Livehime 7.19.0.9432
 
       - name: 测试 - ignore
         env:
