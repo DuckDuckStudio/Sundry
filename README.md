@@ -139,7 +139,7 @@ sundry config "<条目>" "<值>"
   - PR 清单: `sundry verify <PR链接>`
 - 示例:
   - 测试本地清单: `sundry verify DuckStudio.FufuTools 1.3.10`
-  - 测试 PR 清单: `sundry verify https://github.com/microsoft/winget-pkgs/pull/275045` (我不确定我的 CI 会不会把它的 HEAD 分支删掉，如果 HEAD 分支被删掉了可以找其他的打开的 PR 作示例)
+  - 测试 PR 清单: `sundry verify <打开的PR>`
 
 > [!TIP]  
 > 它只能获取 HEAD 分支没被删除的 PR 的清单，如果 HEAD 分支被删除了 GitHub API 会响应 404 Not Found。  
