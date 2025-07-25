@@ -141,13 +141,13 @@ sundry config "<条目>" "<值>"
   - 测试本地清单: `sundry verify DuckStudio.FufuTools 1.3.10`
   - 测试 PR 清单: `sundry verify <打开的PR>`
 
-> [!TIP]  
-> 它只能获取 HEAD 分支没被删除的 PR 的清单，如果 HEAD 分支被删除了 GitHub API 会响应 404 Not Found。  
-> 它暂时无法获取 `UpgradeCode`。  
-> 对于本地清单，配置文件指向的 winget-pkgs 文件夹中至少要有以下文件:  
-> - Tools/Auth.csv
-> - manifests/清单所在文件夹/清单文件 (例如 manifests/d/DuckStudio/Sundry/1.3.4/*)
-> 对于 PR 清单，Sundry 会将清单文件下载到 `%temp%/Sundry/Verify/PRManifest/PR编号` 下。  
+⚠ 注意
+1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了 GitHub API 会响应 404 Not Found。  
+2. 它暂时**无法获取 `UpgradeCode`**。  
+3. 对于本地清单，配置文件指向的 winget-pkgs 文件夹中**至少**要有以下文件:  
+  \- Tools/Auth.csv  
+  \- manifests/清单所在文件夹/清单文件 (例如 manifests/d/DuckStudio/Sundry/1.3.4/*)
+4. 对于 PR 清单，它会将清单文件下载到 `%temp%/Sundry/Verify/PRManifest/PR编号` 下。  
 
 </details>
 
