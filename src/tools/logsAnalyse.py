@@ -2,6 +2,7 @@ import os
 import re
 import shutil
 import zipfile
+import tempfile
 import requests
 from colorama import Fore, init
 from function.files.open import open_file
@@ -29,8 +30,8 @@ def main(args: list[str]) -> int:
             return 1
     else:
         try:
-            # 移除 os.path.join(os.environ["TEMP"], "Sundry", "AzurePiplines", "Logs") 文件夹
-            shutil.rmtree(os.path.join(os.environ["TEMP"], "Sundry", "AzurePiplines", "Logs"))
+            # 移除 os.path.join(tempfile.gettempdir(), "Sundry", "AzurePiplines", "Logs") 文件夹
+            shutil.rmtree(os.path.join(tempfile.gettempdir(), "Sundry", "AzurePiplines", "Logs"))
             print(f"{Fore.GREEN}✓{Fore.RESET} 成功清理日志文件目录。")
             return 0
         except FileNotFoundError:
@@ -70,7 +71,7 @@ def main(args: list[str]) -> int:
 
     # 获取日志下载链接，并将其下载到 %Temp%/Sundry/AzurePiplines/Logs/{build_id}/ 下，没有则创建文件夹
     logs_url = f"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_apis/build/builds/{build_id}/artifacts?artifactName=InstallationVerificationLogs&api-version=7.1&%24format=zip"
-    logs_dir = os.path.join(os.environ["TEMP"], "Sundry", "AzurePiplines", "Logs", build_id)
+    logs_dir = os.path.join(tempfile.gettempdir(), "Sundry", "AzurePiplines", "Logs", build_id)
     logs_zip_path = os.path.join(logs_dir, "logs.zip")
 
     # 如果原先存在同名zip文件

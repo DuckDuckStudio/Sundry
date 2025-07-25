@@ -7,6 +7,7 @@ import ctypes
 import winreg
 import base64
 import shutil
+import tempfile
 import requests
 import subprocess
 import exception.request
@@ -72,7 +73,7 @@ def main(args: list[str]) -> int:
     # ============================================================
 
     if PR编号:
-        清单目录 = os.path.join(os.environ["TEMP"], "Sundry", "Verify", "PRManifest", PR编号)
+        清单目录 = os.path.join(tempfile.gettempdir(), "Sundry", "Verify", "PRManifest", PR编号)
         if 获取PR清单(PR编号, github_token, 清单目录):
             return 1
     else:
