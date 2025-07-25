@@ -7,6 +7,9 @@ def open_file(file: str) -> int:
         if not os.path.exists(file):
             raise FileNotFoundError(f"未找到 {file}")
 
+        if (sys.platform != "win32") and os.path.isdir(file):
+            raise Exception("只能在 Windows 上打开目录")
+
         if sys.platform == "win32":
             os.startfile(fun位置)
         elif sys.platform == "linux":
