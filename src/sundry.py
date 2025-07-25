@@ -1,7 +1,7 @@
 import os
 import sys
 
-def main():
+def main() -> int:
     try:
         tool = sys.argv[1].lower()
         args = sys.argv[2:]
@@ -34,6 +34,9 @@ def main():
     elif tool in ["日志分析", "logs-analyse", "logs_analyse", "Azure日志分析"]:
         import tools.logsAnalyse as logsAnalyse
         return logsAnalyse.main(args)
+    elif tool in ["verify", "test", "验证", "测试"]:
+        import tools.verify as verify
+        return verify.main(args)
     # 未开源的
     # elif tool in ["更新", "update", "new", "新", "新版本"]:
     #     import tools.update as update
@@ -64,6 +67,9 @@ def main():
         print("    Azure Pipline 日志分析:")
         print("        日志分析: sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]")
         print("        清理下载的日志文件: sundry logs-analyse cleanup")
+        print("    清单验证:")
+        print("        本地清单: sundry verify <软件包标识符> <软件包版本>")
+        print("        PR 修改: sundry verify <PR链接>")
         print("    winget-tools 检查忽略: sundry ignore <add/remove/edit/list> [忽略字段] [理由]")
         print("    其他辅助命令:")
         print("        查看清单: sundry cat <软件包标识符> <版本> [清单类型] [区域设置(如果是locale类型)]")

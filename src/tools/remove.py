@@ -223,7 +223,7 @@ def main(args: list[str]):
                     同行 = "正常"
                     验证结果日志.append(line.replace("\r", "").replace("\n", ""))
 
-                    if any(msg in line for msg in ["执行此命令时发生意外错误", "Download request status is not success.", "404", "403"]):
+                    if any(msg in line for msg in ["执行此命令时发生意外错误", "Download request status is not success.", "404", "403", "安装程序哈希不匹配"]):
                         print(f"{Fore.RED}{line}{Fore.RESET}")
                     elif "正在下载" in line:
                         line = f"{line.replace("正在下载", f"正在下载{Fore.LIGHTBLUE_EX}")}{Fore.RESET}"

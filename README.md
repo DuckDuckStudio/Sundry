@@ -15,25 +15,25 @@ sundry config init
 
 > [!TIP]  
 > 在 **1.1.0** 之前，配置文件在程序目录下的 `config.json` 中；在 **1.1.0** 之后，配置文件在用户目录下的 `.config/DuckStudio/Sundry/config.json` 中。 - 这是为更新时不覆盖配置文件考虑的，如果配置文件不对，请再次使用 `sundry config init`。  
-> ~~由于作者实在是太懒了~~，在卸载 Sundry 之后不会移除配置文件。    
+> ~~由于作者实在是太懒了~~，在卸载 Sundry 之后不会移除配置文件，如果需要可以手动移除。    
 
-(可选) 初始化完配置文件后用以下命令确认下:  
+初始化完配置文件后用以下命令确认下:  
 
 ```bash
 sundry config show
 ```
 
-(可选) 如果有任何地方不对，请使用这个命令修改对应值:  
+如果有任何地方不对，请使用这个命令修改对应键的值:  
 
 ```bash
-sundry config [条目] [值]
+sundry config "<条目>" "<值>"
 ```
 
 更多可用命令请见下方示例。  
 
 ## 可用命令
 
-> Sundry [1.3.0](https://github.com/DuckDuckStudio/Sundry/releases/tag/1.3.0)
+> Sundry [1.3.4](https://github.com/DuckDuckStudio/Sundry/releases/tag/1.3.4)
 
 <details>
   <summary><code>sundry help</code></summary>
@@ -108,7 +108,9 @@ sundry config [条目] [值]
 
 - 别名: `日志分析`, `logs-analyse`, `logs_analyse`, `Azure日志分析`
 - 作用: **分析 [Azure Validation Pipeline Run](https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=验证管道日志在哪看？) 失败时的日志，来自动查找具体哪里失败了。**
-- 用法: `sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]`
+- 用法:
+  - 分析日志: `sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]`
+  - 清理之前下载的日志: `sundry logs-analyse cleanup`
 - 示例:
   - 分析日志
     > 这里的 Azure Validation Pipeline Run 是 https://github.com/microsoft/winget-pkgs/pull/267849#issuecomment-2998878757 的。
@@ -123,6 +125,31 @@ sundry config [条目] [值]
 
 </details>
 
+<details>
+  <summary><code>sundry verify</code></summary>
+
+![Sundry verify 命令展示图。该命令用于测试本地或 PR 上的清单的安装和卸载，并获取 ARP 条目变更。](docs/photos/README/Demo/Commands/verify.png)  
+
+> 截图是在 Hyper-V Windows 10 x64 虚拟机上的测试。  
+
+- 别名: `verify`, `test`, `验证`, `测试`
+- 作用: **用于测试本地或 PR 上的清单的安装和卸载，并获取 ARP 条目变更。**
+- 用法:
+  - 本地清单: `sundry verify <软件包标识符> <软件包版本>`
+  - PR 清单: `sundry verify <PR链接>`
+- 示例:
+  - 测试本地清单: `sundry verify DuckStudio.FufuTools 1.3.10`
+  - 测试 PR 清单: `sundry verify <打开的PR>`
+
+⚠ 注意
+1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了 GitHub API 会响应 404 Not Found。  
+2. 它暂时**无法获取 `UpgradeCode`**。  
+3. 对于本地清单，配置文件指向的 winget-pkgs 文件夹中**至少**要有以下文件:  
+  \- Tools/Auth.csv  
+  \- manifests/清单所在文件夹/清单文件 (例如 manifests/d/DuckStudio/Sundry/1.3.4/*)
+4. 对于 PR 清单，它会将清单文件下载到 `%temp%/Sundry/Verify/PRManifest/PR编号` 下。  
+
+</details>
 
 <details>
   <summary><code>sundry ignore</code></summary>
@@ -266,14 +293,19 @@ python -m venv .venv
 & ".venv\Scripts\Activate.ps1"
 python.exe -m pip install --upgrade pip
 pip install -r "requirements.txt"
-pip install pyinstaller
 ```
-4. 构建
+4. 转换图标格式 (可选)
 ```pwsh
-pyinstaller --onefile --distpath="Release/pack" --name="sundry.exe" "src/sundry.py"
+python "自动化脚本/png-2-ico.py"
 ```
-5. 复制所需文件
-```bash
-cp -v src/fun.txt Release/pack
-cp -v LICENSE Release/pack
+5. 构建
+```pwsh
+pyinstaller --onefile --distpath="Release" --name="sundry.exe" "src/sundry.py" --icon "icon/Sundry.ico"
+# 如果前面没转换图标格式，参数中的图标请用 icon/Sundry.png，Pyinstaller 会尝试自己转换格式。
 ```
+6. 复制所需文件
+```pwsh
+Copy-Item -Path "src/fun.txt" -Destination "Release" -Verbose
+Copy-Item -Path "LICENSE" -Destination "Release" -Verbose
+```
+7. `Release` 下就是构建结果
