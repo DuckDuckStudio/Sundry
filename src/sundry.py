@@ -28,7 +28,7 @@ def main() -> int:
     elif tool == "cat":
         import tools.cat as cat
         return cat.main(args)
-    elif tool == "repr":
+    elif tool == "repr": # Ubuntu 支持
         import tools.repr
         return tools.repr.main(args)
     elif tool in ["日志分析", "logs-analyse", "logs_analyse", "Azure日志分析"]: # Ubuntu 支持
