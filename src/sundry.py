@@ -42,13 +42,13 @@ def main() -> int:
     #     import tools.update as update
     #     return update.main(args)
     # 维护
-    elif tool in ["config", "配置"]:
+    elif tool in ["config", "配置"]: # Ubuntu 支持
         import tools.maintain.config as config
         return config.main(args)
-    elif tool in ["还原", "revert"]:
+    elif tool in ["还原", "revert"]: # Ubuntu 支持
         import tools.maintain.revert as revert
         return revert.main(args)
-    elif tool in ["fun"]:
+    elif tool in ["fun"]: # Ubuntu 支持
         import tools.maintain.fun as fun
         # 将 script_path 作为 args 的第一个参数
         args.insert(0, script_path)
