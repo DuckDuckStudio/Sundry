@@ -25,7 +25,7 @@ def main() -> int:
     elif tool in ["sync", "同步", "synchronize", "sync-fork"]:
         import tools.sync as sync
         return sync.main()
-    elif tool == "cat":
+    elif tool == "cat": # Ubuntu 支持
         import tools.cat as cat
         return cat.main(args)
     elif tool == "repr": # Ubuntu 支持
