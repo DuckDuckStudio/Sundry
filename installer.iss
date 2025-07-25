@@ -2,7 +2,7 @@
 AppName=Sundry
 AppVersion=develop
 VersionInfoVersion=develop
-AppPublisher=DuckStudio
+AppPublisher=鸭鸭「カモ」
 VersionInfoCopyright=Copyright (c) 鸭鸭「カモ」
 AppPublisherURL=https://duckduckstudio.github.io/yazicbs.github.io/
 AppSupportURL=https://github.com/DuckDuckStudio/Sundry/issues
