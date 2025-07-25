@@ -22,7 +22,7 @@ def main() -> int:
     elif tool in ["忽略", "检查忽略", "ignore"]:
         import tools.ignore as ignore
         return ignore.main(args)
-    elif tool in ["sync", "同步", "synchronize", "sync-fork"]:
+    elif tool in ["sync", "同步", "synchronize", "sync-fork"]: # Ubuntu 支持
         import tools.sync as sync
         return sync.main()
     elif tool == "cat": # Ubuntu 支持
