@@ -10,6 +10,7 @@ from typing import Union
 from datetime import datetime
 from colorama import init, Fore
 from function.github.token import read_token
+from function.files.open import open_file
 
 def main(args: list[str]):
     global 软件包标识符, 软件包版本, 日志文件路径, 解决, 清单目录, 首个_PR, 格式化审查者
@@ -338,7 +339,7 @@ def 修改版本(版本文件夹: str):
                     f.write(清单文件内容)
                     print(f"  修改后的文件已保存: {清单文件路径}")
                     写入日志(f"    The manifest file has been saved as: {清单文件路径}")
-                os.startfile(清单文件路径)
+                open_file(清单文件路径)
 
     input(f"  {Fore.BLUE}修改完后按 Enter 键继续...{Fore.RESET}")
 

@@ -1,8 +1,7 @@
 import os
-import sys
 import random
-import subprocess
 from colorama import init, Fore
+from function.files.open import open_file
 
 def main(args: list[str]) -> int:
     init(autoreset=True)
@@ -34,31 +33,9 @@ def main(args: list[str]) -> int:
         return 1
 
 def 编辑fun(fun位置: str) -> int:
-    try:
-        if not os.path.exists(fun位置):
-            raise FileNotFoundError()
-        print(f"{Fore.BLUE}INFO{Fore.RESET} fun.txt 位于 {fun位置}")
-        print(f"{Fore.BLUE}INFO{Fore.RESET} 尝试打开 fun.txt ...")
-        try:
-            if sys.platform == "win32":
-                os.startfile(fun位置)
-            elif sys.platform == "linux":
-                try:
-                    subprocess.run(["xdg-open", fun位置], check=True)
-                except FileNotFoundError:
-                    try:
-                        subprocess.run(["nano", fun位置], check=True)
-                    except FileNotFoundError:
-                        subprocess.run(["vim", fun位置], check=True)
-            else:
-                raise OSError(f"很抱歉，作者见识太少，不清楚如何在 {sys.platform} 上打开 txt 文件...\n请手动打开 fun.txt 编辑。")
-        except Exception as e:
-            print(f"{Fore.RED}✕{Fore.RESET} 打开文件时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
-            return 1
-        return 0
-    except FileNotFoundError:
-        print(f"{Fore.RED}✕{Fore.RESET} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
-        return 1
+    print(f"{Fore.BLUE}INFO{Fore.RESET} fun.txt 位于 {fun位置}")
+    print(f"{Fore.BLUE}INFO{Fore.RESET} 尝试打开 fun.txt ...")
+    return open_file(fun位置)
 
 def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
     try:

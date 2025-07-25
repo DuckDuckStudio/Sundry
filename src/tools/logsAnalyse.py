@@ -4,6 +4,7 @@ import shutil
 import zipfile
 import requests
 from colorama import Fore, init
+from function.files.open import open_file
 
 def main(args: list[str]) -> int:
     # sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]
@@ -208,8 +209,7 @@ def main(args: list[str]) -> int:
 
     if (len(args) >= 2):
         if (args[1].lower() in ["true", "yes", "y", "是"]):
-            # 打开日志文件
-            os.startfile(logs_dir)
+            return open_file(logs_dir)
         elif (args[1].lower() in ["false", "no", "n", "否"]):
             # 移除它
             shutil.rmtree(logs_dir)
@@ -217,16 +217,14 @@ def main(args: list[str]) -> int:
         else:
             print(f"{Fore.YELLOW}WARN{Fore.RESET} 指定的参数 1 无效，{Fore.BLUE}{args[1]}{Fore.RESET} 不能表达是否要保留日志文件")
             if (input(f"{Fore.BLUE}?{Fore.RESET} 你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
-                # 打开日志文件
-                os.startfile(logs_dir)
+                return open_file(logs_dir)
             else:
                 # 移除它
                 shutil.rmtree(logs_dir)
                 print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
     else:
         if (input(f"{Fore.BLUE}?{Fore.RESET} 你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
-            # 打开日志文件
-            os.startfile(logs_dir)
+            return open_file(logs_dir)
         else:
             # 移除它
             shutil.rmtree(logs_dir)
