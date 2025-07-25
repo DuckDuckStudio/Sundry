@@ -20,7 +20,7 @@ permissions: {}
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: windows-2025 # 自此版本开始自带 WinGet
 
     steps:
       - name: 检出代码
@@ -39,6 +39,14 @@ jobs:
         # 前面已经配置过 Python 了，这个脚本只用 os 和 sys 这两个标准库，不用再装依赖
         run: |
           python "自动化脚本/修改版本号.py" "123.456.789"
+
+      - name: 假装静默
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          echo "[DEBUG] 先通过修改源代码来假装获取到了用户输入，从而假装静默..."
+          python "./自动化脚本/假装静默.py"
 
       - name: 安装依赖
         shell: bash
@@ -101,8 +109,8 @@ jobs:
           mkdir -p "$HOME/.config/DuckStudio/Sundry"
           echo "{
             \"version\": \"123.456.789\",
-            \"winget-pkgs\": \"D:/a/Sundry/Sundry/winget-pkgs/\",
-            \"winget-tools\": \"D:/a/Sundry/Sundry/winget-tools/\",
+            \"winget-pkgs\": \"C:/a/Sundry/Sundry/winget-pkgs/\",
+            \"winget-tools\": \"C:/a/Sundry/Sundry/winget-tools/\",
             \"pkgs-repo\": \"DuckDuckStudio/winget-pkgs\",
             \"tools-repo\": \"DuckDuckStudio/winget-tools\",
             \"signature\": \"no\",
@@ -146,10 +154,20 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=142028\" n y"
-          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=142028" y y
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164\" n y"
+          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164" y y
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
           python ./Release/src/sundry.py logs-analyse cleanup
+
+      - name: 测试 - verify
+        env:
+          PYTHONIOENCODING: utf-8
+        shell: bash
+        run: |
+          # 运行测试
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py verify yugecin.osukps v6"
+          # 我确信 GitHub Action Runner 没有预装 yugecin.osukps
+          python ./Release/src/sundry.py verify yugecin.osukps v6
 
       - name: 测试 - ignore
         env:
@@ -192,8 +210,12 @@ jobs:
           git reset --hard HEAD~666
           cd "$GITHUB_WORKSPACE"
           echo "[DEBUG] 运行 python ./Release/src/sundry.py sync"
-          python ./Release/src/sundry.py sync
-        continue-on-error: true # 403
+          python ./Release/src/sundry.py sync || exit_code=$?
+          if [ "${exit_code:-0}" -eq 1 ]; then
+            # 403
+            exit 0
+          fi
+          exit ${exit_code:-0}
 
       - name: 测试 - repr
         env:
@@ -201,8 +223,8 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py repr D:/a/Sundry/Sundry/fun.txt"
-          python ./Release/src/sundry.py repr D:/a/Sundry/Sundry/fun.txt
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py repr C:/a/Sundry/Sundry/fun.txt"
+          python ./Release/src/sundry.py repr C:/a/Sundry/Sundry/fun.txt
           echo =================================================================
           echo "[DEBUG] 运行 python ./Release/src/sundry.py repr <多行字符>"
           python ./Release/src/sundry.py repr "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
