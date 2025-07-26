@@ -19,7 +19,7 @@ on:
 permissions: {}
 
 jobs:
-  test:
+  test-windows:
     runs-on: windows-2025 # 自此版本开始自带 WinGet
 
     steps:
