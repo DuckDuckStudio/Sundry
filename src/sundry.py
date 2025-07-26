@@ -12,6 +12,16 @@ def main() -> int:
     script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     version = "develop"
 
+    if (sys.platform != "win32") and (tool in [
+        "移除", "remove", # 验证阶段需要 WinGet
+        "单改", "单修改", "modify", # 验证清单需要 WinGet，不确定如何读取 Token
+        "忽略", "检查忽略", "ignore", # 不确定如何读取 Token
+        "verify", "test", "验证", "测试", # 仅 Windows
+    ]):
+        from colorama import Fore
+        print(f"{Fore.RED}✕{Fore.RESET} 该操作仅可在 Windows 上运行")
+        return 1
+
     # 开源的
     if tool in ["移除", "remove"]:
         import tools.remove as remove
@@ -22,23 +32,19 @@ def main() -> int:
     elif tool in ["忽略", "检查忽略", "ignore"]:
         import tools.ignore as ignore
         return ignore.main(args)
-    elif tool in ["sync", "同步", "synchronize", "sync-fork"]: # Ubuntu 支持
+    elif tool in ["sync", "同步", "synchronize", "sync-fork"]:
         import tools.sync as sync
         return sync.main()
-    elif tool == "cat": # Ubuntu 支持
+    elif tool == "cat":
         import tools.cat as cat
         return cat.main(args)
-    elif tool == "repr": # Ubuntu 支持
+    elif tool == "repr":
         import tools.repr
         return tools.repr.main(args)
-    elif tool in ["日志分析", "logs-analyse", "logs_analyse", "Azure日志分析"]: # Ubuntu 支持
+    elif tool in ["日志分析", "logs-analyse", "logs_analyse", "Azure日志分析"]:
         import tools.logsAnalyse as logsAnalyse
         return logsAnalyse.main(args)
     elif tool in ["verify", "test", "验证", "测试"]:
-        if (sys.platform != "win32"):
-            from colorama import Fore
-            print(f"{Fore.RED}✕{Fore.RESET} 该操作仅可在 Windows 上运行")
-            return 1
         import tools.verify as verify
         return verify.main(args)
     # 未开源的
@@ -46,13 +52,13 @@ def main() -> int:
     #     import tools.update as update
     #     return update.main(args)
     # 维护
-    elif tool in ["config", "配置"]: # Ubuntu 支持
+    elif tool in ["config", "配置"]:
         import tools.maintain.config as config
         return config.main(args)
-    elif tool in ["还原", "revert"]: # Ubuntu 支持
+    elif tool in ["还原", "revert"]:
         import tools.maintain.revert as revert
         return revert.main(args)
-    elif tool in ["fun"]: # Ubuntu 支持
+    elif tool in ["fun"]:
         import tools.maintain.fun as fun
         # 将 script_path 作为 args 的第一个参数
         args.insert(0, script_path)
