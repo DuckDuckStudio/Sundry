@@ -35,6 +35,10 @@ def main() -> int:
         import tools.logsAnalyse as logsAnalyse
         return logsAnalyse.main(args)
     elif tool in ["verify", "test", "验证", "测试"]:
+        if (sys.platform != "win32"):
+            from colorama import Fore
+            print(f"{Fore.RED}✕{Fore.RESET} 该操作仅可在 Windows 上运行")
+            return 1
         import tools.verify as verify
         return verify.main(args)
     # 未开源的
