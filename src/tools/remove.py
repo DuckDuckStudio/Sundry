@@ -8,6 +8,8 @@ import tempfile
 import requests
 import subprocess
 import webbrowser
+import tools.cat as cat
+import tools.sync as sync
 from colorama import init, Fore
 from translate import Translator # type: ignore
 from function.github.token import read_token
@@ -152,7 +154,6 @@ def main(args: list[str]):
             except subprocess.CalledProcessError as e:
                 print(f"{Fore.RED}✕{Fore.RESET} 获取软件包信息失败: {Fore.RED}{e}{Fore.RESET}")
                 return 1
-            import tools.cat as cat
             cat.main([软件包标识符, 软件包版本, "installer"])
             print("======= 确认 =======")
             t = input("您手动访问过每个安装程序链接了吗?").lower()
@@ -292,12 +293,8 @@ def main(args: list[str]):
         理由 = 理由.replace("has been automatically verified.", "has been automatically verified and **manually confirmed**.")
 
     print(f"{Fore.BLUE}开始操作")
-    subprocess.run(["git", "checkout", "master"], check=True) # 确保从 master 分支开始
-    print(f"{Fore.BLUE}  已签出到 master 分支")
-    subprocess.run(["git", "fetch", "upstream"], check=True) # 拉取上游修改
-    subprocess.run(["git", "fetch", "origin"], check=True) # 拉取远程修改
-    subprocess.run(["git", "rebase", "upstream/master"], check=True) # 变基合并上游修改
-    print(f"{Fore.BLUE}  已拉取上游修改")
+    if sync.main():
+        return 1
     新分支名 = f"Remove-{软件包标识符}-{软件包版本}-{int(time.time())}"
     subprocess.run(["git", "checkout", "-b", 新分支名], check=True) # 创建并切换到新的分支
     print(f"{Fore.BLUE}  已签出新分支 {新分支名}")
