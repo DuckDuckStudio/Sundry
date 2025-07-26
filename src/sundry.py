@@ -13,7 +13,7 @@ def main() -> int:
     version = "develop"
 
     if (sys.platform != "win32") and (tool in [
-        "移除", "remove", # 验证阶段需要 WinGet
+        "移除", "remove", # 验证阶段需要 WinGet，不确定如何读取 Token
         "单改", "单修改", "modify", # 验证清单需要 WinGet，不确定如何读取 Token
         "忽略", "检查忽略", "ignore", # 不确定如何读取 Token
         "verify", "test", "验证", "测试", # 仅 Windows
