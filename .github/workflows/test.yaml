@@ -154,7 +154,7 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164\" n y"
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164\" y y"
           python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164" y y
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
           python ./Release/src/sundry.py logs-analyse cleanup
@@ -486,7 +486,7 @@ jobs:
         run: |
           # 运行测试
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164\" n y"
-          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164" y y
+          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164" n y
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
           python ./Release/src/sundry.py logs-analyse cleanup
 
