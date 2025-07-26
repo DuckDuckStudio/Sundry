@@ -11,7 +11,7 @@ def open_file(file: str) -> int:
             raise Exception("只能在 Windows 上打开目录")
 
         if sys.platform == "win32":
-            os.startfile(fun位置)
+            os.startfile(file)
         elif sys.platform == "linux":
             import subprocess
             try:
