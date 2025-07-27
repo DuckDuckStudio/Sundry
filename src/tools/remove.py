@@ -138,7 +138,14 @@ def main(args: list[str]):
         return 1
 
     if not os.path.exists(os.path.join(清单目录, 软件包版本)):
-        print(f"{Fore.RED}软件包版本清单文件不存在: {os.path.join(清单目录, 软件包版本)}")
+        print(f"{Fore.RED}软件包版本清单目录不存在: {os.path.join(清单目录, 软件包版本)}")
+        return 1
+    
+    if any(os.path.isdir(os.path.join(os.path.join(清单目录, 软件包版本), item)) for item in os.listdir(os.path.join(清单目录, 软件包版本))):
+        # 如果软件包版本清单目录下存在其他文件夹
+        print(f"{Fore.RED}✕{Fore.RESET} 软件包版本清单目录下存在其他文件夹")
+        print(f"{Fore.BLUE}[!]{Fore.RESET} 这可能是因为你 {Fore.YELLOW}错误的将软件包标识符的一部分当作软件包版本{Fore.RESET} 导致的。")
+        print(f"{Fore.BLUE}[!]{Fore.RESET} 例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
         return 1
 
     # 入口
@@ -180,7 +187,10 @@ def main(args: list[str]):
                         break # 找到后退出循环
 
                 if found:
-                    input(f"{Fore.YELLOW}⚠ 看起来此软件包在 Auth.csv 中被要求所有者({found})审查，您还是想要移除此软件包版本吗(这将在移除PR中@审查者):")
+                    try:
+                        input(f"{Fore.YELLOW}⚠ 看起来此软件包在 Auth.csv 中被要求所有者({found})审查，您还是想要移除此软件包版本吗(这将在 PR 中 @审查者): [ENTER/CTRL+C]")
+                    except KeyboardInterrupt:
+                        return 1
                     审查者列表 = found.split('/')
                     格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
                     理由 = f"{理由}\n\n{格式化审查者} PTAL"

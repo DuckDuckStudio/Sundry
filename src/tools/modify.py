@@ -94,7 +94,10 @@ def main(args: list[str]):
                 break # 找到后退出循环
 
         if found:
-            input(f"{Fore.YELLOW}⚠ 看起来此软件包在 Auth.csv 中被要求所有者({found})审查，您还是想要更新此软件包吗(这将在首个PR中@审查者，并在后续PR中提及首个PR):{Fore.RESET}")
+            try:
+                input(f"{Fore.YELLOW}⚠ 看起来此软件包在 Auth.csv 中被要求所有者({found})审查，您还是想要更新此软件包吗(这将在 PR 中 @审查者): [ENTER/CTRL+C]{Fore.RESET}")
+            except KeyboardInterrupt:
+                return 1
             审查者列表 = found.split('/')
             格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
             首个_PR = "是"

@@ -213,6 +213,7 @@ def main(args: list[str]):
         操作 = "edit"
     else:
         print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+        return 1
 
     # 同步
     try:

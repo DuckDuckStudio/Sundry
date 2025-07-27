@@ -156,7 +156,7 @@ def 修改配置项(条目: str, 值: str, 配置文件: str):
             with open(配置文件, "w", encoding="utf-8") as f:
                 json.dump(配置数据, f, indent=4, ensure_ascii=False)
             
-            print(f"{Fore.GREEN}✓{Fore.RESET} 成功更新 {条目} 为 {值}")
+            print(f"{Fore.GREEN}✓{Fore.RESET} 成功更新 {Fore.BLUE}{条目}{Fore.RESET} 为 {Fore.BLUE}{值}{Fore.RESET}")
             return 0
         except json.decoder.JSONDecodeError as e:
             print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败，配置文件不是有效的 json 字段:\n{Fore.RED}{e}{Fore.RESET}")

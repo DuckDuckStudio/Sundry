@@ -95,6 +95,13 @@ def main(args: list[str]):
         print(f"{Fore.RED}✕{Fore.RESET} 清单目录不存在")
         return 1
 
+    if any(os.path.isdir(os.path.join(清单目录, item)) for item in os.listdir(清单目录)):
+        # 如果清单目录下存在其他文件夹
+        print(f"{Fore.RED}✕{Fore.RESET} 清单目录下存在其他文件夹")
+        print(f"{Fore.BLUE}[!]{Fore.RESET} 这可能是因为你 {Fore.YELLOW}错误的将软件包标识符的一部分当作软件包版本{Fore.RESET} 导致的。")
+        print(f"{Fore.BLUE}[!]{Fore.RESET} 例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
+        return 1
+
     清单文件: list[str] | str
     if (清单类型 == "all"):
         # 设置清单文件为清单目录下的所有 yaml 文件
