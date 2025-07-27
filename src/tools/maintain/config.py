@@ -1,10 +1,10 @@
 import os
 import json
 import requests
-from pygments import highlight
-from pygments.formatters import TerminalFormatter
-from pygments.lexers import JsonLexer
 from colorama import init, Fore
+from pygments import highlight # type: ignore
+from pygments.lexers import JsonLexer # type: ignore
+from pygments.formatters import TerminalFormatter
 
 # 获取用户输入
 def 获取用户输入(键: str):

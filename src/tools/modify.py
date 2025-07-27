@@ -9,8 +9,8 @@ import subprocess
 from typing import Union
 from datetime import datetime
 from colorama import init, Fore
-from function.github.token import read_token
 from function.files.open import open_file
+from function.github.token import read_token
 
 def main(args: list[str]):
     global 软件包标识符, 软件包版本, 日志文件路径, 解决, 清单目录, 首个_PR, 格式化审查者

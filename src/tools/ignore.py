@@ -6,8 +6,8 @@ import requests
 import subprocess
 from colorama import init, Fore
 from typing import Optional, Union
-from function.github.token import read_token
 from function.files.open import open_file
+from function.github.token import read_token
 
 def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> Union[bool, str]:
     with open(检测程序路径, 'r', encoding='utf-8') as file:
