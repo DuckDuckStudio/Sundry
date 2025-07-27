@@ -4,6 +4,17 @@
 
 sundry 是一个 WinGet 本地清单管理工具，让您更方便地移除清单、修改清单，还可以辅助更新清单。  
 
+## 如何获取
+### Windows
+1. 前往 [GitHub Release](https://github.com/DuckDuckStudio/Sundry/releases) 页面下载安装程序或 zip/7z 归档。
+2. 使用 WinGet 获取:  
+```powershell
+winget install --id DuckStudio.Sundry --source winget --exact
+```
+
+### Ubuntu
+[从源构建](#ubuntu-1)。  
+
 ## 使用说明
 当您获取本工具后，请先使用这个命令初始化配置文件:  
 
@@ -279,10 +290,31 @@ sundry config "<条目>" "<值>"
 
 </details>
 
+### Ubuntu 支持
+
+| 命令 | 是否支持 | 备注 |
+|-----|-----|-----|
+| help | ✓ |  |
+| ver | ✓ |  |
+| remove | ✕ | 验证阶段需要 WinGet，不确定如何读取 Token |
+| modify | ✕ | 验证清单需要 WinGet，不确定如何读取 Token |
+| logs-analyse | 部分支持 | 不支持自动打开日志文件夹 |
+| verify | ✕ | 您只能在 Windows 上验证软件包 |
+| ignore | ✕ | 不确定如何读取 Token |
+| cat | ✓ |  |
+| sync | ✓ |  |
+| repr | ✓ |  |
+| config | ✓ |  |
+| revert | ✓ |  |
+| fun | ✓ |  |
+
 ## 自己构建
-仓库下有一个[构建流](https://github.com/DuckDuckStudio/Sundry/blob/main/.github/workflows/build.yaml)，你可以 fork 后直接运行，它会将结果上传为工件。  
-大概步骤是:  
-1. `cd` 到项目所在目录
+### Windows
+
+> [!TIP]
+> 仓库下有一个适用于 Windows 的[构建流](https://github.com/DuckDuckStudio/Sundry/blob/main/.github/workflows/build.yaml)，你可以 fork 后直接运行，它会将结果上传为工件。  
+
+1. 克隆后 `cd` 到项目所在目录
 2. 更新代码中的版本号
 ```pwsh
 python "自动化脚本/修改版本号.py" "2025.520.1314"
@@ -309,3 +341,31 @@ Copy-Item -Path "src/fun.txt" -Destination "Release" -Verbose
 Copy-Item -Path "LICENSE" -Destination "Release" -Verbose
 ```
 7. `Release` 下就是构建结果
+
+### Ubuntu
+```bash
+set -e
+echo "克隆源码..."
+git clone https://github.com/DuckDuckStudio/Sundry.git
+cd Sundry
+echo "创建虚拟环境并安装依赖..."
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r "requirements.txt"
+echo "构建二进制文件..."
+python3 "自动化脚本/修改版本号.py" "2025.520.1314"
+pyinstaller --onefile --distpath="Release" --name="sundry" "src/sundry.py"
+deactivate
+cp -v "src/fun.txt" "Release"
+cp -v "LICENSE" "Release"
+echo "整理文件..."
+cd ..
+cp -rv "Sundry/Release" "./Release"
+rm -rvf Sundry
+cd Release
+echo "配置 Sundry..."
+./sundry ver
+./sundry config init
+```
+
+然后 `./Release` 下就是构建结果。  

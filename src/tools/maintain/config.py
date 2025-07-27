@@ -1,10 +1,10 @@
 import os
 import json
 import requests
-from pygments import highlight
-from pygments.formatters import TerminalFormatter
-from pygments.lexers import JsonLexer
 from colorama import init, Fore
+from pygments import highlight # type: ignore
+from pygments.lexers import JsonLexer # type: ignore
+from pygments.formatters import TerminalFormatter
 
 # 获取用户输入
 def 获取用户输入(键: str):
@@ -29,7 +29,7 @@ def 获取用户输入(键: str):
     # 路径输入
     if 键 in 提示消息["路径"]:
         while True:
-            路径 = os.path.abspath(os.path.normpath(input(提示消息["路径"][键])))
+            路径 = os.path.abspath(os.path.normpath(input(提示消息["路径"][键]).replace("~", os.path.expanduser("~"))))
             if os.path.exists(路径):
                 return 路径
             else:

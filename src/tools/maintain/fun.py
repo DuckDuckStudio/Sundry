@@ -1,6 +1,7 @@
 import os
 import random
 from colorama import init, Fore
+from function.files.open import open_file
 
 def main(args: list[str]) -> int:
     init(autoreset=True)
@@ -10,7 +11,7 @@ def main(args: list[str]) -> int:
     if (1 <= len(args) <= 2):
         if (len(args) == 1) or (args[1] in ["随机", "random"]):
             return 获取fun(fun位置, 随机=True)
-        elif (len(args) == 2) and (args[1] in ["获取", "读取", "get", "list"]):
+        elif (len(args) == 2) and (args[1] in ["get", "list"]):
             return 获取fun(fun位置, 随机=False)
         elif (len(args) == 2) and (args[1] in ["编辑", "edit", "打开", "open"]):
             return 编辑fun(fun位置)
@@ -32,16 +33,9 @@ def main(args: list[str]) -> int:
         return 1
 
 def 编辑fun(fun位置: str) -> int:
-    try:
-        if not os.path.exists(fun位置):
-            raise FileNotFoundError()
-        print(f"{Fore.BLUE}INFO{Fore.RESET} fun.txt 位于 {fun位置}")
-        print(f"{Fore.BLUE}INFO{Fore.RESET} 在默认程序中打开 fun.txt ...")
-        os.startfile(fun位置)
-        return 0
-    except FileNotFoundError:
-        print(f"{Fore.RED}✕{Fore.RESET} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
-        return 1
+    print(f"{Fore.BLUE}INFO{Fore.RESET} fun.txt 位于 {fun位置}")
+    print(f"{Fore.BLUE}INFO{Fore.RESET} 尝试打开 fun.txt ...")
+    return open_file(fun位置)
 
 def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
     try:

@@ -1,8 +1,8 @@
 import os
 import json
 from colorama import init, Fore
-from pygments import highlight
-from pygments.lexers import YamlLexer
+from pygments import highlight # type: ignore
+from pygments.lexers import YamlLexer # type: ignore
 from pygments.formatters import TerminalFormatter
 
 def 读取和输出(清单文件: str):

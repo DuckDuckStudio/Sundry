@@ -4,8 +4,9 @@ import time
 import json
 import requests
 import subprocess
-from typing import Optional, Union
 from colorama import init, Fore
+from typing import Optional, Union
+from function.files.open import open_file
 from function.github.token import read_token
 
 def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> Union[bool, str]:
@@ -91,7 +92,7 @@ def 编辑忽略字段(检测程序路径: str) -> None:
     print(f"{Fore.BLUE}INFO{Fore.RESET} 检测脚本位于 {检测程序路径}")
     print(f"{Fore.BLUE}INFO{Fore.RESET} 在默认程序中打开检测脚本...")
     # 使用默认程序打开检测程序并等待文件关闭
-    os.startfile(检测程序路径)
+    open_file(检测程序路径)
     input(f"{Fore.BLUE}[!]{Fore.RESET} 请在编辑完成后按 Enter 继续...")
 
 
