@@ -346,7 +346,7 @@ Copy-Item -Path "LICENSE" -Destination "Release" -Verbose
 ```bash
 set -e
 echo "克隆源码..."
-git clone https://github.com/DuckDuckStudio/Sundry.git -b Ubuntu
+git clone https://github.com/DuckDuckStudio/Sundry.git
 cd Sundry
 echo "创建虚拟环境并安装依赖..."
 python3 -m venv .venv
