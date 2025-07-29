@@ -80,7 +80,7 @@ def main(args: list[str]) -> int:
         清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split("."), 软件包版本)
 
         # 如果该软件包在 Auth.csv 中，则警告用户
-        with open(os.path.join(winget_pkgs目录, "Tools", "Auth.csv"), mode="r", encoding="utf-8") as file:
+        with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode="r", encoding="utf-8") as file:
             csv_reader = csv.DictReader(file)
             # 遍历 CSV 文件中的每一行
             found = False # 标记是否找到了包标识符

@@ -44,8 +44,6 @@ sundry config "<条目>" "<值>"
 
 ## 可用命令
 
-> Sundry [1.3.4](https://github.com/DuckDuckStudio/Sundry/releases/tag/1.3.4)
-
 <details>
   <summary><code>sundry help</code></summary>
 
@@ -156,9 +154,9 @@ sundry config "<条目>" "<值>"
 1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了 GitHub API 会响应 404 Not Found。  
 2. 它暂时**无法获取 `UpgradeCode`**。  
 3. 对于本地清单，配置文件指向的 winget-pkgs 文件夹中**至少**要有以下文件:  
-  \- Tools/Auth.csv  
-  \- manifests/清单所在文件夹/清单文件 (例如 manifests/d/DuckStudio/Sundry/1.3.4/*)
-4. 对于 PR 清单，它会将清单文件下载到 `%temp%/Sundry/Verify/PRManifest/PR编号` 下。  
+  \- Tools/ManualValidation/Auth.csv ([Sundry 1.3.5 及以后](https://github.com/DuckDuckStudio/Sundry/issues/61))  
+  \- manifests/清单所在文件夹/清单文件 (例如 manifests/d/DuckStudio/Sundry/1.3.5/*)
+1. 对于 PR 清单，它会将清单文件下载到 `%temp%/Sundry/Verify/PRManifest/PR编号` 下。  
 
 </details>
 

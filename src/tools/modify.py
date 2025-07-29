@@ -84,7 +84,7 @@ def main(args: list[str]):
 
     # 预先检查
     格式化审查者 = ""
-    with open(os.path.join(winget_pkgs目录, "Tools", "Auth.csv"), mode='r', encoding='utf-8') as file:
+    with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode='r', encoding='utf-8') as file:
         csv_reader = csv.DictReader(file)
         # 遍历 CSV 文件中的每一行
         found = False # 标记是否找到了包标识符
