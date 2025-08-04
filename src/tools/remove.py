@@ -17,36 +17,36 @@ from function.github.token import read_token
 # 创建拉取请求
 def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str):
     global owner, 手动验证结果, 软件包标识符
-    github_token = read_token()
-    if not github_token:
-        print(f"{Fore.RED}✕{Fore.RESET} 拉取请求创建失败: Token 读取失败")
-        return 1
+    while True:
+        github_token = read_token()
+        if not github_token:
+            print(f"{Fore.RED}✕{Fore.RESET} 拉取请求创建失败: Token 读取失败")
+            return 1
 
-    api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
-    请求头 = {
-        "Authorization": f"token {github_token}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    if (手动验证结果):
-        数据 = {
-            "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
-            "head": f"{owner}:{分支名}",
-            "base": "master",
-            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n{手动验证结果}\n\n---\n"
+        api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
+        请求头 = {
+            "Authorization": f"token {github_token}",
+            "Accept": "application/vnd.github.v3+json"
         }
-    else:
-        数据 = {
-            "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
-            "head": f"{owner}:{分支名}",
-            "base": "master",
-            "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n\n---\n"
-        }
+        if (手动验证结果):
+            数据 = {
+                "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
+                "head": f"{owner}:{分支名}",
+                "base": "master",
+                "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n{手动验证结果}\n\n---\n"
+            }
+        else:
+            数据 = {
+                "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
+                "head": f"{owner}:{分支名}",
+                "base": "master",
+                "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n\n---\n"
+            }
 
-    while (True):
         response = requests.post(api, headers=请求头, json=数据)
         if response.status_code == 201:
             print(f"    {Fore.GREEN}拉取请求创建成功: {response.json()["html_url"]}")
-            break
+            return response.json()["html_url"]
         else:
             print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
             try:
@@ -55,8 +55,6 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str):
                 print("正在重试...")
             except KeyboardInterrupt:
                 return 1
-
-    return response.json()["html_url"]
 
 def main(args: list[str]):
     global 软件包标识符, 手动验证结果, owner
