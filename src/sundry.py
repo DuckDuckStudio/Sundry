@@ -41,7 +41,7 @@ def main() -> int:
     elif tool == "repr":
         import tools.repr
         return tools.repr.main(args)
-    elif tool in ["日志分析", "logs-analyse", "logs_analyse", "Azure日志分析"]:
+    elif tool in ["日志分析", "logs-analyse", "log-analyse", "logs_analyse", "Azure日志分析"]:
         import tools.logsAnalyse as logsAnalyse
         return logsAnalyse.main(args)
     elif tool in ["verify", "test", "验证", "测试"]:
@@ -63,6 +63,10 @@ def main() -> int:
         # 将 script_path 作为 args 的第一个参数
         args.insert(0, script_path)
         return fun.main(args)
+    elif tool in ["清理", "cleanup"]:
+        import tools.maintain.cleanup as cleanup
+        arg = args[0] if args else ""
+        return cleanup.main(arg) # 仅接受单个 str 参数
     # 其他
     elif tool in ["ver", "版本", "version", "Version", "--version", "--ver", "-v"]:
         print(f"版本: {version}")
@@ -76,7 +80,7 @@ def main() -> int:
         print("    单版本辅助修改: sundry modify <软件包标识符> <版本> [理由/解决的议题] (单改)")
         print("    Azure Pipline 日志分析:")
         print("        日志分析: sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]")
-        print("        清理下载的日志文件: sundry logs-analyse cleanup")
+        print("        清理下载的日志文件: sundry logs-analyse cleanup (等效于 sundry cleanup logs-analyse)")
         print("    清单验证:")
         print("        本地清单: sundry verify <软件包标识符> <软件包版本>")
         print("        PR 修改: sundry verify <PR链接>")
@@ -94,6 +98,7 @@ def main() -> int:
         print("            还原本地仓库修改: sundry revert <仓库> <是否已提交> <是否丢弃>")
         print("        其他维护命令:")
         print("            fun.txt: sundry fun <random/list/edit/add/remove/import> [参数...]")
+        print("            清理产生的文件: sundry cleanup <工具名>")
         print("    其他 Sundry 命令:")
         print("        查看版本: sundry ver")
         print("        查看帮助: sundry help")
