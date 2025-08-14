@@ -1,7 +1,6 @@
 import os
 import sys
 import csv
-import json
 import time
 import random
 import requests
@@ -11,10 +10,11 @@ from datetime import datetime
 from colorama import init, Fore
 from function.files.open import open_file
 from function.github.token import read_token
+from function.maintain.config import 读取配置
 
 def main(args: list[str]):
     global 软件包标识符, 软件包版本, 日志文件路径, 解决, 清单目录, 首个_PR, 格式化审查者
-    global 配置文件, 程序所在目录, 旧清单版本号, 新清单版本号
+    global 程序所在目录, 旧清单版本号, 新清单版本号
     global owner
 
     init(autoreset=True)
@@ -38,7 +38,6 @@ def main(args: list[str]):
         return 1
     
     # 路径
-    配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
     程序所在目录 = os.path.dirname(os.path.abspath(sys.argv[0]))
     日志文件路径 = os.path.join("logs", datetime.today().strftime('%Y\\%m\\%d'), f"{软件包标识符}-{软件包版本}.log") # 相对路径
 
@@ -46,39 +45,15 @@ def main(args: list[str]):
     旧清单版本号 = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0"]
     新清单版本号 = "1.10.0"
 
-    if os.path.exists(配置文件):
-        try:
-            with open(配置文件, "r", encoding="utf-8") as f:
-                配置数据 = json.load(f)
-            
-            if 配置数据["winget-pkgs"]:
-                winget_pkgs目录 = os.path.normpath(配置数据["winget-pkgs"])
-                if (not os.path.exists(winget_pkgs目录)):
-                    print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{winget_pkgs目录}{Fore.RESET} 不存在")
-                    print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
-                    return 1
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"winget-pkgs\" 为空{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
-                return 1
-            # ========================================
-            if 配置数据["pkgs-repo"]:
-                try:
-                    owner, _ = 配置数据["pkgs-repo"].split("/")
-                except Exception as e:
-                    print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败: {Fore.RED}解析 pkgs-repo 配置项失败{Fore.RESET}\n{Fore.RED}{e}{Fore.RESET}")
-                    return 1
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"pkgs-repo\" 为空{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config pkgs-repo [所有者/仓库名] 来修改配置文件中的值")
-                return 1
-        except Exception as e:
-            print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
-            return 1
-    else:
-        print(f"{Fore.RED}✕{Fore.RESET} 配置文件不存在")
-        print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
+    winget_pkgs目录 = ""
+    winget_pkgs目录 = 读取配置("winget-pkgs")
+    if not isinstance(winget_pkgs目录, str):
         return 1
+    
+    pkgs仓库 = 读取配置("pkgs-repo")
+    if not isinstance(pkgs仓库, tuple):
+        return 1
+    owner, _ = pkgs仓库
 
     清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'))
 
@@ -300,7 +275,7 @@ def 修改版本(版本文件夹: str):
                 # 按行分割文件内容
                 lines = 清单文件内容.splitlines()
 
-                if (not lines) or (not lines[0].startswith("#")): # DuckDuckStudio/Sundry#28
+                if (not lines) or (not lines[0].startswith("#")): # https://github.com/DuckDuckStudio/Sundry/issues/28
                     # 如果清单文件内容为空或第一行不是以#开头
                     # 第一行前面追加三行
                     lines.insert(0, "")
@@ -380,7 +355,7 @@ def 修改版本(版本文件夹: str):
         input(f"{Fore.RED}清单验证出现错误，请检查您的清单{Fore.RESET}")
         写入日志("Manifest Error Fixed.")
     else:
-        print(f"{Fore.GREEN}  清单验证成功")
+        print(f"{Fore.GREEN}  清单验证成功{Fore.RESET}")
 
     # 暂存、提交并推送
     print("  暂存并提交更改到 Git")

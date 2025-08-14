@@ -88,6 +88,7 @@ def main() -> int:
         print("    维护:")
         print("        配置:")
         print("            初始化: sundry config init")
+        print("            显示当前配置: sundry config show")
         print("            修改值: sundry config <条目> <值>")
         print("        仓库:")
         print("            还原本地仓库修改: sundry revert <仓库> <是否已提交> <是否丢弃>")

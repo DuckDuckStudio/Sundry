@@ -2,7 +2,6 @@ import re
 import os
 import csv
 import time
-import json
 import shutil
 import tempfile
 import requests
@@ -11,13 +10,14 @@ import webbrowser
 import tools.cat as cat
 import tools.sync as sync
 from colorama import init, Fore
+from function.maintain.config import 读取配置
 from translate import Translator # type: ignore
 from function.github.token import read_token
 
 # 创建拉取请求
 def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str):
     global owner, 手动验证结果, 软件包标识符
-    while True:
+    while True: # 不 break 直接 return
         github_token = read_token()
         if not github_token:
             print(f"{Fore.RED}✕{Fore.RESET} 拉取请求创建失败: Token 读取失败")
@@ -61,49 +61,15 @@ def main(args: list[str]):
 
     init(autoreset=True)
 
-    # 配置文件路径
-    配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
-
-    if os.path.exists(配置文件):
-        try:
-            with open(配置文件, "r", encoding="utf-8") as f:
-                配置数据 = json.load(f)
-            
-            if 配置数据["winget-pkgs"]:
-                winget_pkgs目录 = os.path.normpath(配置数据["winget-pkgs"])
-                if (not os.path.exists(winget_pkgs目录)):
-                    print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{winget_pkgs目录}{Fore.RESET} 不存在")
-                    print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
-                    return 1
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"winget-pkgs\" 为空{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
-                return 1
-            # ========================================
-            if 配置数据["pkgs-repo"]:
-                try:
-                    owner, _ = 配置数据["pkgs-repo"].split("/")
-                except Exception as e:
-                    print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败: {Fore.RED}解析 pkgs-repo 配置项失败{Fore.RESET}\n{Fore.RED}{e}{Fore.RESET}")
-                    return 1
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"pkgs-repo\" 为空{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config pkgs-repo [所有者/仓库名] 来修改配置文件中的值")
-                return 1
-            # ========================================
-            if 配置数据["signature"]:
-                是否签名 = True if 配置数据["signature"] == "yes" else False
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"signature\" 为空或假值{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config signature [true/false] 来修改配置文件中的值")
-                return 1
-            # ========================================
-        except Exception as e:
-            print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
-            return 1
-    else:
-        print(f"{Fore.RED}✕{Fore.RESET} 配置文件不存在")
-        print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
+    winget_pkgs目录 = 读取配置("winget-pkgs")
+    if not isinstance(winget_pkgs目录, str):
+        return 1
+    pkgs仓库 = 读取配置("pkgs-repo")
+    if not isinstance(pkgs仓库, tuple):
+        return 1
+    owner, _ = pkgs仓库
+    是否签名 = 读取配置("signature")
+    if not isinstance(是否签名, bool):
         return 1
 
     # 尝试从参数中获取软件包标识符和版本
