@@ -4,12 +4,11 @@ import time
 import requests
 import subprocess
 from colorama import init, Fore
-from typing import Optional, Union
 from function.files.open import open_file
 from function.github.token import read_token
 from function.maintain.config import 读取配置
 
-def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> Union[bool, str]:
+def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> bool | str:
     with open(检测程序路径, 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
@@ -97,7 +96,7 @@ def 编辑忽略字段(检测程序路径: str) -> None:
 
 
 # 创建拉取请求
-def 创建拉取请求(分支名: str, owner: str, 忽略字段: Optional[str] = None, 格式化忽略字段: Optional[str] = None, 理由: Optional[str] = None) -> Union[str, int]:
+def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = None, 格式化忽略字段: str | None = None, 理由: str | None = None) -> str | int:
     github_token = read_token()
     if not github_token:
         print(f"{Fore.RED}✕{Fore.RESET} 拉取请求创建失败: Token 读取失败")

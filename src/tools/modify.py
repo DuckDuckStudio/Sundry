@@ -5,7 +5,6 @@ import time
 import random
 import requests
 import subprocess
-from typing import Union
 from datetime import datetime
 from colorama import init, Fore
 from function.files.open import open_file
@@ -179,7 +178,7 @@ def 写入日志(消息: str, 等级: str="INFO"):
             日志文件.write(f"{写入时间} {等级} {行}\n")
 
 # 创建拉取请求
-def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> Union[str, int]:
+def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> str | int:
     # 审查:
     # False -> 不请求审查
     # 带 @ 的字符串 -> 在 PR body 中 @ 审查者
