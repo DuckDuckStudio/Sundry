@@ -21,6 +21,8 @@ permissions: {}
 jobs:
   test-windows:
     runs-on: windows-2025 # 自此版本开始自带 WinGet
+    env:
+      PYTHONIOENCODING: utf-8
 
     steps:
       - name: 检出代码
@@ -28,21 +30,15 @@ jobs:
 
       - name: 配置 Python
         uses: actions/setup-python@v5
-        env:
-          PYTHONIOENCODING: utf-8
         with:
           python-version: 3.x
 
       - name: 更新版本号
-        env:
-          PYTHONIOENCODING: utf-8
         # 前面已经配置过 Python 了，这个脚本只用 os 和 sys 这两个标准库，不用再装依赖
         run: |
           python "自动化脚本/修改版本号.py" "123.456.789"
 
       - name: 假装静默
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           echo "[DEBUG] 先通过修改源代码来假装获取到了用户输入，从而假装静默..."
@@ -50,15 +46,11 @@ jobs:
 
       - name: 安装依赖
         shell: bash
-        env:
-          PYTHONIOENCODING: utf-8
         run: |
           pip install -r "requirements.txt"
           pip list
 
       - name: 整理源码
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           cp -v LICENSE src/LICENSE
@@ -120,8 +112,6 @@ jobs:
           cat "$HOME/.config/DuckStudio/Sundry/config.json"
 
       - name: 测试 - Sundry 基本命令
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -132,8 +122,6 @@ jobs:
           python ./Release/src/sundry.py ver
 
       - name: 测试 - config
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -148,9 +136,14 @@ jobs:
           echo "[DEBUG] 运行 python ./Release/src/sundry.py config signature no"
           python ./Release/src/sundry.py config signature no # 还原
 
+      - name: 测试 - autoremove
+        shell: bash
+        run: |
+          # 运行测试
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.osukps"
+          python ./Release/src/sundry.py autoremove DuckStudio.osukps
+
       - name: 测试 - logs-analyse
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -160,8 +153,6 @@ jobs:
           python ./Release/src/sundry.py logs-analyse cleanup
 
       - name: 测试 - verify
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -170,8 +161,6 @@ jobs:
           python ./Release/src/sundry.py verify yugecin.osukps v6
 
       - name: 测试 - ignore
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -179,8 +168,6 @@ jobs:
           python ./Release/src/sundry.py ignore list
 
       - name: 测试 - cat
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -200,8 +187,6 @@ jobs:
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 v
 
       - name: 测试 - sync
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -218,8 +203,6 @@ jobs:
           exit ${exit_code:-0}
 
       - name: 测试 - repr
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -231,8 +214,6 @@ jobs:
           BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 
       - name: 测试 - revert
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -331,8 +312,6 @@ jobs:
           python ./Release/src/sundry.py revert all y y
 
       - name: 测试 - fun
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -362,8 +341,44 @@ jobs:
           echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
           python ./Release/src/sundry.py fun list
 
+      - name: 测试 - cleanup
+        shell: bash
+        run: |
+          echo "[DEBUG] 产生测试文件"
+
+          # 建立临时目录
+          mkdir -p "/tmp/Sundry"
+          mkdir -p "/tmp/Sundry/AzurePiplines/Logs"
+          mkdir -p "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers"
+
+          # 产生一些文件
+          touch "/tmp/Sundry/AzurePiplines/Logs/log1.log"
+          touch "/tmp/Sundry/AzurePiplines/Logs/log2.log"
+          touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer1.exe"
+          touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer2.exe"
+          touch "/tmp/Sundry/OtherFile1.txt"
+          touch "/tmp/Sundry/OtherFile2.txt"
+
+          ls -a -R /tmp/Sundry
+
+          # 运行测试
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup logs-analyse"
+          python ./Release/src/sundry.py cleanup logs-analyse
+          # logs-analyse cleanup 前面测试过了，一样的
+          ls -a -R /tmp/Sundry
+
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup autoremove"
+          python ./Release/src/sundry.py cleanup autoremove
+          ls -a -R /tmp/Sundry
+
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup all)"
+          python ./Release/src/sundry.py cleanup
+          ls -a /tmp
+
   test-ubuntu:
     runs-on: ubuntu-latest
+    env:
+      PYTHONIOENCODING: utf-8
 
     steps:
       - name: 检出代码
@@ -371,14 +386,10 @@ jobs:
 
       - name: 配置 Python
         uses: actions/setup-python@v5
-        env:
-          PYTHONIOENCODING: utf-8
         with:
           python-version: 3.x
 
       - name: 更新版本号
-        env:
-          PYTHONIOENCODING: utf-8
         run: |
           python "自动化脚本/修改版本号.py" "123.456.789"
 
@@ -392,15 +403,11 @@ jobs:
 
       - name: 安装依赖
         shell: bash
-        env:
-          PYTHONIOENCODING: utf-8
         run: |
           pip install -r "requirements.txt"
           pip list
 
       - name: 整理源码
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           cp -v LICENSE src/LICENSE
@@ -451,8 +458,6 @@ jobs:
           cat "$HOME/.config/DuckStudio/Sundry/config.json"
 
       - name: 测试 - Sundry 基本命令
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -463,8 +468,6 @@ jobs:
           python ./Release/src/sundry.py ver
 
       - name: 测试 - config
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -479,9 +482,14 @@ jobs:
           echo "[DEBUG] 运行 python ./Release/src/sundry.py config signature no"
           python ./Release/src/sundry.py config signature no # 还原
 
+      # - name: 测试 - autoremove
+      #   shell: bash
+      #   run: |
+      #     # 运行测试
+      #     echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.Sundry"
+      #     python ./Release/src/sundry.py autoremove DuckStudio.Sundry
+
       - name: 测试 - logs-analyse
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -510,8 +518,6 @@ jobs:
       #     python ./Release/src/sundry.py ignore list
 
       - name: 测试 - cat
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -531,8 +537,6 @@ jobs:
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 v
 
       - name: 测试 - sync
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -549,8 +553,6 @@ jobs:
           exit ${exit_code:-0}
 
       - name: 测试 - repr
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -562,8 +564,6 @@ jobs:
           BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 
       - name: 测试 - revert
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -662,8 +662,6 @@ jobs:
           python ./Release/src/sundry.py revert all y y
 
       - name: 测试 - fun
-        env:
-          PYTHONIOENCODING: utf-8
         shell: bash
         run: |
           # 运行测试
@@ -692,3 +690,37 @@ jobs:
           python ./Release/src/sundry.py fun import "ffffffffff.txt"
           echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
           python ./Release/src/sundry.py fun list
+
+      - name: 测试 - cleanup
+        shell: bash
+        run: |
+          echo "[DEBUG] 产生测试文件"
+
+          # 建立临时目录
+          mkdir -p "/tmp/Sundry"
+          mkdir -p "/tmp/Sundry/AzurePiplines/Logs"
+          mkdir -p "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers"
+
+          # 产生一些文件
+          touch "/tmp/Sundry/AzurePiplines/Logs/log1.log"
+          touch "/tmp/Sundry/AzurePiplines/Logs/log2.log"
+          touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer1.exe"
+          touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer2.exe"
+          touch "/tmp/Sundry/OtherFile1.txt"
+          touch "/tmp/Sundry/OtherFile2.txt"
+
+          tree -a -f /tmp/Sundry/
+
+          # 运行测试
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup logs-analyse"
+          python ./Release/src/sundry.py cleanup logs-analyse
+          # logs-analyse cleanup 前面测试过了，一样的
+          tree -a -f /tmp/Sundry/
+
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup autoremove"
+          python ./Release/src/sundry.py cleanup autoremove
+          tree -a -f /tmp/Sundry/
+
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup all)"
+          python ./Release/src/sundry.py cleanup
+          tree -d -f -L 1 /tmp/
