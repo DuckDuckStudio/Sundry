@@ -4,6 +4,7 @@ import shutil
 import zipfile
 import tempfile
 import requests
+import tools.maintain.cleanup as cleanup
 from colorama import Fore, init
 from function.files.open import open_file
 
@@ -29,18 +30,8 @@ def main(args: list[str]) -> int:
             print(f"{Fore.RED}✕{Fore.RESET} 无效的 Azure Pipline Url")
             return 1
     else:
-        try:
-            # 移除 os.path.join(tempfile.gettempdir(), "Sundry", "AzurePiplines", "Logs") 文件夹
-            shutil.rmtree(os.path.join(tempfile.gettempdir(), "Sundry", "AzurePiplines", "Logs"))
-            print(f"{Fore.GREEN}✓{Fore.RESET} 成功清理日志文件目录。")
-            return 0
-        except FileNotFoundError:
-            print(f"{Fore.BLUE}INFO{Fore.RESET} 日志文件目录不存在，无需清理。")
-            return 0
-        except Exception as e:
-            print(f"{Fore.RED}✕{Fore.RESET} 清理日志文件目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
-            return 1
-    
+        return cleanup.main("logsAnalyse")
+
     # 从 URL 中提取 buildId
     build_id = azure_url.split("buildId=")[-1].replace("&view=results", "")
     
@@ -140,6 +131,7 @@ def main(args: list[str]) -> int:
                 old_path = os.path.join(root, file)
                 new_path = os.path.join(root, file[:-4] + ".log")
                 os.rename(old_path, new_path)
+                # print(f"已将 {old_path} 重命名为 {new_path}")
 
     # 查看日志中是否有带有以下关键词的行
     keyword_map = {

@@ -1,46 +1,14 @@
 import os
-import json
 import subprocess
 from colorama import Fore, init
+from function.maintain.config import 读取配置
 
 def main(args: list[str]):
     init(autoreset=True)
 
-    配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
-
-    if os.path.exists(配置文件):
-        try:
-            with open(配置文件, "r", encoding="utf-8") as f:
-                配置数据 = json.load(f)
-            
-            if 配置数据["winget-pkgs"]:
-                winget_pkgs目录 = os.path.normpath(配置数据["winget-pkgs"])
-                if (not os.path.exists(winget_pkgs目录)):
-                    print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{winget_pkgs目录}{Fore.RESET} 不存在")
-                    print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
-                    return 1
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"winget-pkgs\" 为空{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-pkgs [路径] 来修改配置文件中的值")
-                return 1
-            # ========================================
-            if 配置数据["winget-tools"]:
-                winget_tools目录 = os.path.normpath(配置数据["winget-tools"])
-                if (not os.path.exists(winget_tools目录)):
-                    print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{winget_tools目录}{Fore.RESET} 不存在")
-                    print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-tools [路径] 来修改配置文件中的值")
-                    return 1
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"winget-tools\" 为空{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-tools [路径] 来修改配置文件中的值")
-                return 1
-            # ========================================
-        except Exception as e:
-            print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
-            return 1
-    else:
-        print(f"{Fore.RED}✕{Fore.RESET} 配置文件不存在")
-        print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
+    winget_pkgs目录 = 读取配置("winget-pkgs")
+    winget_tools目录 = 读取配置("winget-tools")
+    if not (isinstance(winget_pkgs目录, str) and isinstance(winget_tools目录, str)):
         return 1
     
     # 格式化输入

@@ -3,6 +3,7 @@ test.*
 test/
 !.github/workflows/test.yaml
 *.log
+__pycache__/
 
 # WIP
 verify/

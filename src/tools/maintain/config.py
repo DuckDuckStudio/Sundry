@@ -130,7 +130,7 @@ def 展示配置文件(配置文件: str):
         try:
             with open(配置文件, "r", encoding="utf-8") as f:
                 配置数据 = json.load(f)
-            print(highlight(json.dumps(配置数据, indent=4, ensure_ascii=False), JsonLexer(), TerminalFormatter()))
+            print(highlight(json.dumps(配置数据, indent=4, ensure_ascii=False), JsonLexer(), TerminalFormatter())) # pyright: ignore[reportUnknownArgumentType]
             return 0
         except json.decoder.JSONDecodeError as e:
             print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败，配置文件不是有效的 json 字段:\n{Fore.RED}{e}{Fore.RESET}")
@@ -178,7 +178,7 @@ def main(args: list[str]):
     配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
 
     try:
-        if len(args) < 1:
+        if not args:
             print(f"{Fore.RED}✕{Fore.RESET} 缺少参数")
             print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry --help 来获取命令帮助")
             return 1

@@ -1,15 +1,14 @@
 import os
 import re
 import time
-import json
 import requests
 import subprocess
 from colorama import init, Fore
-from typing import Optional, Union
 from function.files.open import open_file
 from function.github.token import read_token
+from function.maintain.config import 读取配置
 
-def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> Union[bool, str]:
+def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> bool | str:
     with open(检测程序路径, 'r', encoding='utf-8') as file:
         lines = file.readlines()
 
@@ -18,7 +17,7 @@ def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) 
     end_index = next(i for i, line in enumerate(lines[start_index:]) if '];' in line) + start_index
 
     # 确保没有重复
-    if 忽略字段 in ''.join(lines[start_index:end_index]):
+    if 忽略字段 in "".join(lines[start_index:end_index]):
         print(f"{Fore.YELLOW}⚠ 该忽略字段已存在{Fore.RESET}")
         return "skip"
 
@@ -97,7 +96,7 @@ def 编辑忽略字段(检测程序路径: str) -> None:
 
 
 # 创建拉取请求
-def 创建拉取请求(分支名: str, owner: str, 忽略字段: Optional[str] = None, 格式化忽略字段: Optional[str] = None, 理由: Optional[str] = None) -> Union[str, int]:
+def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = None, 格式化忽略字段: str | None = None, 理由: str | None = None) -> str | int:
     github_token = read_token()
     if not github_token:
         print(f"{Fore.RED}✕{Fore.RESET} 拉取请求创建失败: Token 读取失败")
@@ -153,43 +152,14 @@ def 创建拉取请求(分支名: str, owner: str, 忽略字段: Optional[str] =
 def main(args: list[str]):
     init(autoreset=True)
 
-    # 配置文件路径
-    配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
-
-    if os.path.exists(配置文件):
-        try:
-            with open(配置文件, "r", encoding="utf-8") as f:
-                配置数据 = json.load(f)
-            
-            if 配置数据["winget-tools"]:
-                winget_tools目录 = os.path.normpath(配置数据["winget-tools"])
-                if (not os.path.exists(winget_tools目录)):
-                    print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{winget_tools目录}{Fore.RESET} 不存在")
-                    print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-tools [路径] 来修改配置文件中的值")
-                    return 1
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"winget-tools\" 为空{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config winget-tools [路径] 来修改配置文件中的值")
-                return 1
-            # ========================================
-            if 配置数据["tools-repo"]:
-                try:
-                    owner: str
-                    owner, _ = 配置数据["tools-repo"].split("/")
-                except Exception as e:
-                    print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败: {Fore.RED}解析 tools-repo 配置项失败{Fore.RESET}\n{Fore.RED}{e}{Fore.RESET}")
-                    return 1
-            else:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"tools-repo\" 为空{Fore.RESET}")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config tools-repo [所有者/仓库名] 来修改配置文件中的值")
-                return 1
-        except Exception as e:
-            print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
-            return 1
-    else:
-        print(f"{Fore.RED}✕{Fore.RESET} 配置文件不存在")
-        print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
+    winget_tools目录 = 读取配置("winget-tools")
+    if not isinstance(winget_tools目录, str):
         return 1
+    
+    tools仓库 = 读取配置("tools-repo")
+    if not isinstance(tools仓库, tuple):
+        return 1
+    owner, _ = tools仓库
 
     os.chdir(winget_tools目录)
     检测程序 = os.path.normpath(os.path.join(winget_tools目录, "checker", "Program.cs"))
