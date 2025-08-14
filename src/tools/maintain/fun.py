@@ -8,22 +8,18 @@ def main(args: list[str]) -> int:
 
     fun位置 = os.path.normpath(os.path.join(args[0], "fun.txt"))
 
-    if (1 <= len(args) <= 2):
+    if (1 <= len(args) <= 3): # 这里就这样，不然在 else 里要加一堆参数错误
         if (len(args) == 1) or (args[1] in ["随机", "random"]):
             return 获取fun(fun位置, 随机=True)
         elif (len(args) == 2) and (args[1] in ["get", "list"]):
             return 获取fun(fun位置, 随机=False)
         elif (len(args) == 2) and (args[1] in ["编辑", "edit", "打开", "open"]):
             return 编辑fun(fun位置)
-        else:
-            print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
-            return 1
-    elif (len(args) == 3):
-        if (args[1] in ["add", "添加"]):
+        elif (len(args) == 3) and (args[1] in ["add", "添加"]):
             return 添加fun(fun位置, args[2])
-        elif (args[1] in ["remove", "移除"]):
+        elif (len(args) == 3) and (args[1] in ["remove", "移除"]):
             return 移除fun(fun位置, args[2])
-        elif (args[1] in ["import", "导入"]):
+        elif (len(args) == 3) and (args[1] in ["import", "导入"]):
             return 导入fun(fun位置, os.path.normpath(os.path.abspath(args[2])))
         else:
             print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
@@ -38,6 +34,7 @@ def 编辑fun(fun位置: str) -> int:
     return open_file(fun位置)
 
 def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
+    # 导入覆盖原
     try:
         if not os.path.exists(导入fun文件):
             raise FileNotFoundError()
