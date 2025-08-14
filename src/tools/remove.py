@@ -159,96 +159,13 @@ def main(args: list[str]):
                     格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
                     理由 = f"{理由}\n\n{格式化审查者} PTAL"
 
-            # 使用 WinGet 尝试下载
-            print(f"{Fore.BLUE}使用 winget 验证...{Fore.RESET}")
-            验证结果 = subprocess.Popen(
-                ["winget", "download", "--accept-source-agreements", "--accept-package-agreements", "--skip-dependencies", "--source", "winget", "--id", 软件包标识符, "--version", 软件包版本, "--exact", "--download-directory", tempfile.gettempdir()],
-                stdout=subprocess.PIPE, # 捕获标准输出
-                stderr=subprocess.PIPE, # 捕获标准错误
-                text=True # 输出为字符串
-            )
-
-            # 逐行读取并处理输出
-            同行: str = "正常"
-            验证结果日志: list[str] = []
-            for line in 验证结果.stdout or []: # 标准输出
-                if line.endswith("\n"):
-                    line = line.rstrip("\n") # 去除空行
-
-                if re.match(r"^\s*[-\\|/]", line): # 加载动画，使用 \r 输出
-                    # ^ 匹配字符串开头
-                    # \s* 匹配 0 - n 个空格
-                    # [-\\|/] 匹配 - \ | /
-                    # {1} 表示仅匹配 1 个动画字符
-                    # $ 匹配字符串结尾
-                    同行 = "加载动画"
-                    print(f"\r{Fore.BLUE}{line.strip()}{Fore.RESET}", end="")
-                elif any(进度条 in line for 进度条 in ["█", "▒"]):
-                    # 不属于同行，自身 \r 完后要留着
-                    同行 = "进度条"
-                    print(f"\r{line}", end="")
-                    if "▒" not in line: # 跑完进度了
-                        验证结果日志.append(line.replace("\r", "")) # 进度条也算日志
-                elif line.strip():
-                    if 同行 == "加载动画":
-                        line = f"\r{line}"
-                    elif 同行 == "进度条":
-                        line = f"\n{line}"
-
-                    同行 = "正常"
-                    验证结果日志.append(line.replace("\r", "").replace("\n", ""))
-
-                    if any(msg in line for msg in ["执行此命令时发生意外错误", "Download request status is not success.", "404", "403", "安装程序哈希不匹配"]):
-                        print(f"{Fore.RED}{line}{Fore.RESET}")
-                    elif "正在下载" in line:
-                        line = f"{line.replace("正在下载", f"正在下载{Fore.LIGHTBLUE_EX}")}{Fore.RESET}"
-                        print(line)
-                    elif "已找到" in line:
-                        # 为包名和标识符上 CYAN，[]原色
-                        # 正则逐部分解释
-                        # 1. `已找到``
-                        # 字面量，匹配字符串“已找到”。
-                        # 2. `\s+`
-                        # 匹配一个或多个空白字符（如空格、Tab），用于分隔“已找到”和包名。
-                        # 3. `([^\[]+)`
-                        # 这是第一个捕获组，用于匹配包名。
-                        # `[^\[]+`` 的意思是“匹配一个或多个不是左方括号 `[` 的字符”。
-                        # 这样可以让包名中包含空格，但不会匹配到左方括号（即包名遇到 `[` 就停止匹配）。
-                        # 例如：`calibre portable` 等都能被完整捕获。
-                        # 4. `\s+`
-                        # 再次匹配一个或多个空白字符，分隔包名和方括号。
-                        # 5. `\[(\S+)\]`
-                        # 匹配左方括号 `[`
-                        # `(\S+)` 是第二个捕获组，匹配一个或多个非空白字符（即包标识符，不能有空格）。
-                        # 匹配右方括号 `]`
-                        # 例如：`[calibre.calibre.portable]`，捕获到 `calibre.calibre.portable`。
-                        # NOTE: 潜在的问题 - 如果软件包名中带有 [ 则无法匹配完整包名
-                        # `\\1`和`\\2`分别引用正则表达式中的第1和第2个捕获组（即包名和包标识符）。
-                        line = re.sub(r"已找到\s+([^\[]+)\s+\[(\S+)\]", f"已找到 {Fore.CYAN}\\1{Fore.RESET} [{Fore.CYAN}\\2{Fore.RESET}]", line)
-                        print(line)
-                    else:
-                        print(line)
-
-            # 逐行读取并处理错误输出
-            for line in 验证结果.stderr or []: # 错误输出
-                if line.endswith("\n"):
-                    line = line.rstrip('\n') # 去除空行
-                验证结果日志.append(line)
-                print(f"{Fore.RED}{line}{Fore.RESET}")
-
-            # 等待进程结束并获取返回码
-            验证结果.wait()
-
-            if (验证结果.returncode == 0):
-                input(f"{Fore.YELLOW}⚠ 看起来此软件包可以被 winget 正常下载，您还是想要移除此软件包版本吗:{Fore.RESET}")
-            else:
-                验证结果日志.append(f"WinGet returned exit code: {验证结果.returncode}")
+            验证结果日志 = 使用WinGet验证(软件包标识符, 软件包版本)
+            if 验证结果日志:
                 # 写入理由
                 理由 = f"{理由}\n\n```logs\n"
                 for line in 验证结果日志:
                     理由 = f"{理由}{line}\n"
                 理由 = f"{理由}```"
-                print(f"{Fore.GREEN}使用 winget 验证证实确实存在问题 ({验证结果.returncode}){Fore.RESET}")
 
             print(f"{Fore.BLUE}查重...")
             print("======= 打开的 =======")
@@ -308,3 +225,99 @@ def main(args: list[str]):
         subprocess.run(["git", "branch", "-D", branch], check=True)
     print(f"{Fore.GREEN}工作区清理完成")
     return 0
+
+
+def 使用WinGet验证(软件包标识符: str, 软件包版本: str, AutoRemove: bool=False) -> list[str] | None:
+    # 使用 WinGet 尝试下载
+    print(f"{Fore.BLUE}使用 winget 验证...{Fore.RESET}")
+    验证结果 = subprocess.Popen(
+        [
+            "winget", "download", "--accept-source-agreements",
+            "--accept-package-agreements", "--skip-dependencies",
+            "--source", "winget", "--id", 软件包标识符, "--version", 软件包版本,
+            "--exact", "--download-directory", os.path.join(tempfile.gettempdir(), "Sundry", "RemoveAndAutoRemove", "DownloadInstallers")
+        ],
+        stdout=subprocess.PIPE, # 捕获标准输出
+        stderr=subprocess.PIPE, # 捕获标准错误
+        text=True # 输出为字符串
+    )
+
+    # 逐行读取并处理输出
+    同行: str = "正常"
+    验证结果日志: list[str] = []
+    for line in 验证结果.stdout or []: # 标准输出
+        if line.endswith("\n"):
+            line = line.rstrip("\n") # 去除空行
+
+        if re.match(r"^\s*[-\\|/]", line): # 加载动画，使用 \r 输出
+            # ^ 匹配字符串开头
+            # \s* 匹配 0 - n 个空格
+            # [-\\|/] 匹配 - \ | /
+            # {1} 表示仅匹配 1 个动画字符
+            # $ 匹配字符串结尾
+            同行 = "加载动画"
+            print(f"\r{Fore.BLUE}{line.strip()}{Fore.RESET}", end="")
+        elif any(进度条 in line for 进度条 in ["█", "▒"]):
+            # 不属于同行，自身 \r 完后要留着
+            同行 = "进度条"
+            print(f"\r{line}", end="")
+            if "▒" not in line: # 跑完进度了
+                验证结果日志.append(line.replace("\r", "")) # 进度条也算日志
+        elif line.strip():
+            if 同行 == "加载动画":
+                line = f"\r{line}"
+            elif 同行 == "进度条":
+                line = f"\n{line}"
+
+            同行 = "正常"
+            验证结果日志.append(line.replace("\r", "").replace("\n", ""))
+
+            if any(msg in line for msg in ["执行此命令时发生意外错误", "Download request status is not success.", "404", "403", "安装程序哈希不匹配"]):
+                print(f"{Fore.RED}{line}{Fore.RESET}")
+            elif "正在下载" in line:
+                line = f"{line.replace("正在下载", f"正在下载{Fore.LIGHTBLUE_EX}")}{Fore.RESET}"
+                print(line)
+            elif "已找到" in line:
+                # 为包名和标识符上 CYAN，[]原色
+                # 正则逐部分解释
+                # 1. `已找到``
+                # 字面量，匹配字符串“已找到”。
+                # 2. `\s+`
+                # 匹配一个或多个空白字符（如空格、Tab），用于分隔“已找到”和包名。
+                # 3. `([^\[]+)`
+                # 这是第一个捕获组，用于匹配包名。
+                # `[^\[]+`` 的意思是“匹配一个或多个不是左方括号 `[` 的字符”。
+                # 这样可以让包名中包含空格，但不会匹配到左方括号（即包名遇到 `[` 就停止匹配）。
+                # 例如：`calibre portable` 等都能被完整捕获。
+                # 4. `\s+`
+                # 再次匹配一个或多个空白字符，分隔包名和方括号。
+                # 5. `\[(\S+)\]`
+                # 匹配左方括号 `[`
+                # `(\S+)` 是第二个捕获组，匹配一个或多个非空白字符（即包标识符，不能有空格）。
+                # 匹配右方括号 `]`
+                # 例如：`[calibre.calibre.portable]`，捕获到 `calibre.calibre.portable`。
+                # `\\1`和`\\2`分别引用正则表达式中的第1和第2个捕获组（即包名和包标识符）。
+                line = re.sub(r"已找到\s+([^\[]+)\s+\[(\S+)\]", f"已找到 {Fore.CYAN}\\1{Fore.RESET} [{Fore.CYAN}\\2{Fore.RESET}]", line)
+                print(line)
+            else:
+                print(line)
+
+    # 逐行读取并处理错误输出
+    for line in 验证结果.stderr or []: # 错误输出
+        if line.endswith("\n"):
+            line = line.rstrip('\n') # 去除空行
+        验证结果日志.append(line)
+        print(f"{Fore.RED}{line}{Fore.RESET}")
+
+    # 等待进程结束并获取返回码
+    验证结果.wait()
+
+    if (验证结果.returncode == 0):
+        if not AutoRemove:
+            input(f"{Fore.YELLOW}⚠ 看起来此软件包可以被 winget 正常下载，您还是想要移除此软件包版本吗:{Fore.RESET}")
+        return None
+    else:
+        验证结果日志.append(f"WinGet returned exit code: {验证结果.returncode}")
+        if not AutoRemove:
+            print(f"{Fore.GREEN}使用 winget 验证证实确实存在问题 ({验证结果.returncode}){Fore.RESET}")
+        return 验证结果日志
