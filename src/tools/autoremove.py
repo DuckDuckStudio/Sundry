@@ -8,7 +8,6 @@ from function.maintain.config import 读取配置
 def main(args: list[str]) -> int:
     try:
         init(autoreset=True)
-        检查依赖()
         软件包标识符: str = 处理参数(args)
         版本列表: list[str] = 查找软件包版本(软件包标识符)
         检查软件包版本(软件包标识符, 版本列表)
@@ -124,12 +123,3 @@ def 处理参数(args: list[str]) -> str:
         print(f"{Fore.YELLOW}Hint{Fore.RESET} 多余的参数，我们只需要 {预期参数数量} 个参数")
 
     return args[0] # 包标识符
-    
-def 检查依赖() -> None:
-    try:
-        for 依赖 in ["git", "gh", "winget"]:
-            print(f"{Fore.BLUE}INFO{Fore.RESET} 正在检查 {Fore.BLUE}{依赖}{Fore.RESET} ...")
-            subprocess.run([依赖, "--version"], check=True)
-        print(f"{Fore.GREEN}✓{Fore.RESET} 依赖验证成功")
-    except Exception as e:
-        input(f"{Fore.RED}✕{Fore.RESET} 依赖验证失败:\n{Fore.RED}{e}{Fore.RESET}\n请确保您的设备上存在运行所需依赖，然后按 ENTER 键继续...")
