@@ -37,11 +37,10 @@ def 检查重复拉取请求(软件包标识符: str, 软件包版本: str) -> b
         ["gh", "pr", "list", "-S", f"{软件包标识符} {软件包版本}", "--repo", "microsoft/winget-pkgs"],
         capture_output=True, text=True, check=True
     )
-    subprocess.run(["gh", "pr", "list", "-S", f"{软件包标识符} {软件包版本}", "--repo", "microsoft/winget-pkgs"], check=True)
-    return "no pull requests match your search in microsoft/winget-pkgs" not in f"{result.stdout} {result.stderr}".lower()
+    return not result.stdout
 
 def 移除软件包版本(软件包标识符: str, 版本: str, 原因: str) -> None:
-    if 检查重复拉取请求(软件包标识符, 版本):
+    if not 检查重复拉取请求(软件包标识符, 版本):
         print(f"{Fore.YELLOW}WARN{Fore.RESET} 找到重复的拉取请求，跳过后续处理")
         return
     if remove.main([软件包标识符, 版本, "True", 原因]):
