@@ -36,7 +36,7 @@ def main(args: list[str]) -> int:
     build_id = azure_url.split("buildId=")[-1].replace("&view=results", "")
     
     # 获取该运行的信息（权限公开）
-    api_url = f"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_apis/build/builds/{build_id}?api-version=7.1"
+    api_url = f"https://dev.azure.com/shine-oss/winget-pkgs/_apis/build/builds/{build_id}?api-version=7.1"
     response = requests.get(api_url)
 
     if response.status_code != 200:
