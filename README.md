@@ -86,6 +86,23 @@ sundry config "<条目>" "<值>"
 
 
 <details>
+  <summary><code>sundry autoremove</code></summary>
+
+![Sundry autoremove 命令展示图。该命令用于自动检查并移除指定软件包标识符下的失效版本。](docs/photos/README/Demo/Commands/autoremove.png)  
+
+- 别名: `自动移除`, `autoremove`
+- 作用: 自动检查并移除指定软件包标识符下的失效版本。
+- 用法: `sundry autoremove <软件包标识符>`
+- 示例: `sundry autoremove DuckStudio.Sundry`
+
+> [!WARNING]
+> 她**不会**检查清单中的所有 `InstallerUrl`，而是仅使用 WinGet 验证[适合自己设备的安装程序](https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=winget-是怎么选择要用哪个安装程序的？)是否有效。**例如您在一个 x86 设备上尝试 `autoremove` 一个仅 x64 的软件包，则可能出现误判。**  
+> 我知道这不是一个好方法，我已在 Sundry-Locale 上着手修改检查逻辑。  
+
+</details>
+
+
+<details>
   <summary><code>sundry modify</code></summary>
 
 ![Sundry modify 命令展示图。该命令用于帮助用户打开需要修改的那个软件包的那个版本，并在修改完毕后自动向上游仓库（microsoft/winget-pkgs）提交拉取请求。](docs/photos/README/Demo/Commands/modify.png)  
@@ -130,7 +147,7 @@ sundry config "<条目>" "<值>"
     - 显示一般错误/异常: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" 占位 y`
     - 保留日志文件且不显示一般错误/异常: 默认不显示一般错误/异常，同保留日志文件的示例。
     - 保留日志文件且显示一般错误/异常: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" y y`
-  - 清理之前下载的日志: `sundry logs-analyse cleanup`
+  - 清理之前下载的日志: `sundry logs-analyse cleanup` (等效于 `sundry cleanup logs-analyse`)
 
 </details>
 
@@ -288,6 +305,22 @@ sundry config "<条目>" "<值>"
 
 </details>
 
+
+<details>
+  <summary><code>sundry cleanup</code></summary>
+
+![Sundry cleanup 命令展示图。该命令用于清理 Sundry 的各个工具运行时产生的文件。](docs/photos/README/Demo/Commands/cleanup.png)  
+
+- 别名: `清理`, `cleanup`
+- 作用: **清理 Sundry 的各个工具运行时产生的文件。**
+- 用法: `sundry cleanup <工具名>`
+  - 可以被清理的工具有 `logs-analyse`, `autoremove`, `remove`; 您还可以使用 `all` 来清理所有工具产生的文件。
+- 示例:
+  - 清理所有: `sundry cleanup` (等效于 `sundry cleanup all`)
+  - 清理指定工具: `sundry cleanup logs-analyse` (等效于 `sundry logs-analyse cleanup`)
+
+</details>
+
 ### Ubuntu 支持
 
 | 命令 | 是否支持 | 备注 |
@@ -295,6 +328,7 @@ sundry config "<条目>" "<值>"
 | help | ✓ |  |
 | ver | ✓ |  |
 | remove | ✕ | 验证阶段需要 WinGet，不确定如何读取 Token |
+| autoremove | ✕ | 验证阶段需要 WinGet，移除版本依赖 remove 命令 |
 | modify | ✕ | 验证清单需要 WinGet，不确定如何读取 Token |
 | logs-analyse | 部分支持 | 不支持自动打开日志文件夹 |
 | verify | ✕ | 您只能在 Windows 上验证软件包 |
@@ -305,6 +339,7 @@ sundry config "<条目>" "<值>"
 | config | ✓ |  |
 | revert | ✓ |  |
 | fun | ✓ |  |
+| cleanup | ✓ |  |
 
 ## 自己构建
 ### Windows
