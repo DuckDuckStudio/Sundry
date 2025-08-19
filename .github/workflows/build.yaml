@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: windows-2025
 
     steps:
       - name: 处理版本号
