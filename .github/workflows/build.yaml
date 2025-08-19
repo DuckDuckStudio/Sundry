@@ -76,6 +76,12 @@ jobs:
           Remove-Item "upx\$upx_version" -Verbose -Recurse
           Remove-Item "upx-latest.zip" -Verbose
           tree /a /f
+          Write-Host "=================Inno Setup===================="
+          # Why... GitHub... 把我的 inno 还回来！！！
+          # https://github.com/actions/runner-images/issues/11349
+          Invoke-WebRequest -Uri https://jrsoftware.org/download.php/is.exe -OutFile C:\is.exe
+          Start-Process -FilePath C:\is.exe -ArgumentList "/VERYSILENT", "/SUPPRESSMSGBOXES", "/NORESTART" -Wait
+          Remove-Item C:\is.exe -Verbose
 
       - name: 整理源码
         # 整理文件 > 压缩文件 > 清理工作目录
