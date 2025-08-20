@@ -25,12 +25,16 @@ def main(args: list[str]) -> int:
     软件包标识符: str = ""
     软件包版本: str = ""
     PR编号: str = ""
+    清单目录: str = ""
     github_token = 0
 
     # 解析参数
     if (len(args) == 2): # 符合参数个数要求
         软件包标识符 = args[0]
         软件包版本 = args[1]
+        winget_pkgs目录 = 读取配置("winget-pkgs")
+        if not isinstance(winget_pkgs目录, str):
+            return 1
     elif (len(args) == 1):
         匹配 = re.match("https://github.com/microsoft/winget-pkgs/pull/(\\d+)", args[0])
         if 匹配:
@@ -40,14 +44,43 @@ def main(args: list[str]) -> int:
             # 但为了速率，这里有读到 Token 就带 Token，没有就没有
             print(f"{Fore.YELLOW}⚠{Fore.RESET} 没有读到 Token，请求时不带 Token")
         else:
-            print(f"{Fore.RED}✕{Fore.RESET} 无效的 PR 链接")
-            return 1
+            # 不是链接，那就是路径
+            清单文件目录 = os.path.normpath(os.path.abspath(args[0]))
+            if not os.path.exists(清单文件目录):
+                print(f"{Fore.RED}✕ 指定的清单文件目录不存在{Fore.RESET}")
+                return 1
+
+            清单文件个数 = 0
+            for 清单文件 in os.listdir(清单文件目录):
+                清单文件个数 += 1
+                if os.path.isdir(清单文件):
+                    print(f"{Fore.RED}✕ 清单文件目录下不应包含其他目录{Fore.RESET}")
+                    print(f"{Fore.YELLOW}Hint{Fore.RESET} 如果你想要验证仓库中的清单文件，请使用 sundry verify <包标识符> <版本>")
+                    print(f"{Fore.YELLOW}Hint{Fore.RESET} 更多说明请见 sundry help")
+                    return 1
+                elif not os.path.basename(清单文件).endswith(".yaml"):
+                    print(f"{Fore.RED}✕ 清单文件应为 .yaml 文件: {清单文件} {Fore.RESET}")
+                    return 1
+                elif ("locale" not in os.path.basename(清单文件)) and ("installer" not in os.path.basename(清单文件)):
+                    # 不是 locale 或 installer 清单，那就是 version 清单
+                    # version 清单使用 <包标识符>.yaml 命名
+                    软件包标识符 = os.path.basename(清单文件).replace(".yaml", "")
+            if 清单文件个数 < 3:
+                print(f"{Fore.RED}✕ 清单文件数量不够。预期至少有 3 个 .yaml 格式的清单文件，但实际只有 {清单文件个数} 个。{Fore.RESET}")
+                return 1
+            elif not 软件包标识符:
+                print(f"{Fore.RED}✕ 未能从文件名上识别出软件包标识符，请确保清单文件命名合法。{Fore.RESET}")
+                return 1
+            
+            # 好的，接下来让我为它们构建最少目录结构
+            # 这里相当于把 %TEMP%/Sundry/Verify/LocaleManifests/** 当作一个 winget-pkgs 仓库，后续就和传入 2 个参数时差不多了。
+            清单目录 = os.path.join(tempfile.gettempdir(), "Sundry", "Verify", "LocaleManifests", "manifests", 软件包标识符[0].lower(), *软件包标识符.split("."))
+            # 复制清单过去
+            os.makedirs(清单目录, exist_ok=True)
+            for 清单文件 in os.listdir(清单文件目录):
+                shutil.copy(os.path.join(清单文件目录, 清单文件), 清单目录)
     else: # 不符合
         print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
-        return 1
-
-    winget_pkgs目录 = 读取配置("winget-pkgs")
-    if not isinstance(winget_pkgs目录, str):
         return 1
     
     # ============================================================
@@ -56,7 +89,7 @@ def main(args: list[str]) -> int:
         清单目录 = os.path.join(tempfile.gettempdir(), "Sundry", "Verify", "PRManifest", PR编号)
         if 获取PR清单(PR编号, github_token, 清单目录):
             return 1
-    else:
+    elif not 清单目录:
         清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split("."), 软件包版本)
 
         # 如果该软件包在 Auth.csv 中，则警告用户
@@ -73,25 +106,26 @@ def main(args: list[str]) -> int:
     # 如果有任何一步失败了，就 return 1
     if 验证清单(清单目录):
         return 1
-    elif 软件包标识符 in ["DuckStudio.Sundry"]:
-        print(f"{Fore.YELLOW}⚠{Fore.RESET} 此软件包是 Sundry verify 的依赖项，再次安装它将导致冲突，故取消后续验证。")
-        return 0
-    安装前ARP = 读取ARP字段()
+    # elif 软件包标识符 in ["DuckStudio.Sundry"]:
+    #     安装后 sundry 命令会冲突，但依旧能获取到 AAF 条目
+    #     print(f"{Fore.YELLOW}⚠{Fore.RESET} 此软件包是 Sundry verify 的依赖项，再次安装它将导致冲突，故取消后续验证。")
+    #     return 0
+    安装前AAF = 读取AAF字段()
     if 测试安装与卸载(清单目录, "安装"):
         return 1
     else:
-        安装后ARP = 读取ARP字段()
-        # 对比 ARP 字段，并找出具体不同
+        安装后AAF = 读取AAF字段()
+        # 对比 AAF 字段，并找出具体不同
         不同条目: list[dict[str, str | int]] = []
-        for 条目 in 安装后ARP:
-            if 条目 not in 安装前ARP:
+        for 条目 in 安装后AAF:
+            if 条目 not in 安装前AAF:
                 不同条目.append(条目)
         if 不同条目:
-            print(f"{Fore.BLUE}[!]{Fore.RESET} ARP 条目变更:")
+            print(f"{Fore.BLUE}[!]{Fore.RESET} Apps And Features 条目变更:")
             for 条目 in 不同条目:
-                print(highlight(yaml.dump(转换ARP条目为YAML(条目), sort_keys=False, allow_unicode=True, default_flow_style=False), YamlLexer(), TerminalFormatter())) # type: ignore - 依赖问题
+                print(highlight(yaml.dump(转换AAF条目为YAML(条目), sort_keys=False, allow_unicode=True, default_flow_style=False), YamlLexer(), TerminalFormatter())) # type: ignore - 依赖问题
         else:
-            print(f"{Fore.YELLOW}⚠{Fore.RESET} ARP 条目没有变化")
+            print(f"{Fore.YELLOW}⚠{Fore.RESET} Apps And Features 条目没有变化")
 
         try:
             input("按 ENTER 继续测试卸载，按 CTRL + C 结束...")
@@ -101,6 +135,8 @@ def main(args: list[str]) -> int:
         except KeyboardInterrupt:
             if PR编号:
                 print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 #{PR编号} 的清单")
+            elif not 软件包版本:
+                print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 {软件包标识符} 的本地清单")
             else:
                 print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 {软件包标识符} {软件包版本} 的本地清单")
             return 0
@@ -294,10 +330,10 @@ def 测试安装与卸载(清单目录: str, 操作: str) -> int:
     
     return 0
 
-def 读取ARP字段():
-    # 机器范围 ARP: 计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\<ProductCode>
-    # 用户范围 ARP: 计算机\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<ProductCode>
-    # 此函数皆在实现获取机器/用户范围的 ARP，并返回获取到的结果
+def 读取AAF字段():
+    # 机器范围 AAF: 计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\<ProductCode>
+    # 用户范围 AAF: 计算机\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<ProductCode>
+    # 此函数皆在实现获取机器/用户范围的 AAF，并返回获取到的结果
     # 对应清单中的 AppsAndFeaturesEntries
 
     # 定义关心的字段列表
@@ -377,19 +413,19 @@ def 读取ARP字段():
     
     return 所有条目
 
-def 转换ARP条目为YAML(ARP条目: dict[str, str | int]):
+def 转换AAF条目为YAML(AAF条目: dict[str, str | int]):
     # 顶层字段
     YAML条目: dict[str, str | list[dict[str, str]]] = {}
-    if "Scope" in ARP条目:
-        YAML条目["Scope"] = str(ARP条目["Scope"])
-    if "HelpLink" in ARP条目:
-        YAML条目["PublisherSupportUrl"] = str(ARP条目["HelpLink"])
+    if "Scope" in AAF条目:
+        YAML条目["Scope"] = str(AAF条目["Scope"])
+    if "HelpLink" in AAF条目:
+        YAML条目["PublisherSupportUrl"] = str(AAF条目["HelpLink"])
     
     # AppsAndFeaturesEntries
     程序与功能条目: dict[str, str] = {}
     for 字段 in ["DisplayName", "DisplayVersion", "Publisher", "ProductCode"]:
-        if 字段 in ARP条目:
-            程序与功能条目[字段] = str(ARP条目[字段])
+        if 字段 in AAF条目:
+            程序与功能条目[字段] = str(AAF条目[字段])
     
     if 程序与功能条目:
         YAML条目["AppsAndFeaturesEntries"] = [程序与功能条目]
@@ -399,7 +435,7 @@ def 转换ARP条目为YAML(ARP条目: dict[str, str | int]):
     # 其他字段
     用过的字段 = ["Scope", "HelpLink", "DisplayName", "DisplayVersion", "Publisher", "ProductCode"]
     其他条目: dict[str, str] = {}
-    for 键, 值 in ARP条目.items():
+    for 键, 值 in AAF条目.items():
         if 键 not in 用过的字段:
             其他条目[键] = str(值)
     
