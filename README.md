@@ -161,19 +161,17 @@ sundry config "<条目>" "<值>"
 - 别名: `verify`, `test`, `验证`, `测试`
 - 作用: **用于测试本地或 PR 上的清单的安装和卸载，并获取 ARP 条目变更。**
 - 用法:
-  - 本地清单: `sundry verify <软件包标识符> <软件包版本>`
+  - 本地仓库清单: `sundry verify <软件包标识符> <软件包版本>`
+  - 指定清单文件夹: `sundry verify <清单文件夹路径>`
   - PR 清单: `sundry verify <PR链接>`
 - 示例:
-  - 测试本地清单: `sundry verify DuckStudio.FufuTools 1.3.10`
+  - 测试本地仓库清单: `sundry verify DuckStudio.FufuTools 1.3.10`
+  - 测试指定清单文件夹: `sundry verify D:/WinGet/Manifests/DuckStudio/FufuTools/1.3.10/`
   - 测试 PR 清单: `sundry verify <打开的PR>`
 
-⚠ 注意
-1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了 GitHub API 会响应 404 Not Found。  
-2. 它暂时**无法获取 `UpgradeCode`**。  
-3. 对于本地清单，配置文件指向的 winget-pkgs 文件夹中**至少**要有以下文件:  
-  \- Tools/ManualValidation/Auth.csv ([Sundry 1.3.5 及以后](https://github.com/DuckDuckStudio/Sundry/issues/61))  
-  \- manifests/清单所在文件夹/清单文件 (例如 manifests/d/DuckStudio/Sundry/1.3.5/*)
-1. 对于 PR 清单，它会将清单文件下载到 `%temp%/Sundry/Verify/PRManifest/PR编号` 下。  
+> [!WARNING]
+> 1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了 GitHub API 会响应 404 Not Found。  
+> 2. 它暂时**无法获取 `UpgradeCode`**。  
 
 </details>
 
@@ -314,7 +312,7 @@ sundry config "<条目>" "<值>"
 - 别名: `清理`, `cleanup`
 - 作用: **清理 Sundry 的各个工具运行时产生的文件。**
 - 用法: `sundry cleanup <工具名>`
-  - 可以被清理的工具有 `logs-analyse`, `autoremove`, `remove`; 您还可以使用 `all` 来清理所有工具产生的文件。
+  - 可以被清理的工具有 `logs-analyse`, `autoremove`, `remove`, `verify`; 您还可以使用 `all` 来清理所有工具产生的文件。
 - 示例:
   - 清理所有: `sundry cleanup` (等效于 `sundry cleanup all`)
   - 清理指定工具: `sundry cleanup logs-analyse` (等效于 `sundry logs-analyse cleanup`)

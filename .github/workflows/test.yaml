@@ -159,6 +159,12 @@ jobs:
           echo "[DEBUG] 运行 python ./Release/src/sundry.py verify yugecin.osukps v6"
           # 我确信 GitHub Action Runner 没有预装 yugecin.osukps
           python ./Release/src/sundry.py verify yugecin.osukps v6
+          echo =================================================================
+          echo "[DEBUG] 另存清单文件..."
+          mkdir -p /tmp/SundryTestWorkflow/Manifests
+          cp -rv ${GITHUB_WORKSPACE//\\//}/winget-pkgs/manifests/y/yugecin/osukps/v6 /tmp/SundryTestWorkflow/Manifests
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py verify /tmp/SundryTestWorkflow/Manifests/v6"
+          python ./Release/src/sundry.py verify "/tmp/SundryTestWorkflow/Manifests/v6"
 
       - name: 测试 - ignore
         shell: bash

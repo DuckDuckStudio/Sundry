@@ -21,6 +21,7 @@ def main(哪个工具: str) -> int:
     工具别名 = {
         "logsAnalyse": ["日志分析", "logs-analyse", "log-analyse", "logs_analyse", "azure日志分析"],
         "remove": ["自动移除", "autoremove", "移除", "remove"],
+        "verify": ["test", "验证", "测试"],
         "all": ["所有", "all"]
     }
     for 工具名, 别名 in 工具别名.items():
@@ -33,6 +34,8 @@ def main(哪个工具: str) -> int:
         待清理文件路径 = os.path.join(tempfile.gettempdir(), "Sundry", "AzurePiplines", "Logs")
     elif 哪个工具 == "remove":
         待清理文件路径 = os.path.join(tempfile.gettempdir(), "Sundry", "RemoveAndAutoRemove", "DownloadInstallers")
+    elif 哪个工具 == "verify":
+        待清理文件路径 = os.path.join(tempfile.gettempdir(), "Sundry", "Verify")
     elif 哪个工具 == "all":
         待清理文件路径 = os.path.join(tempfile.gettempdir(), "Sundry")
     else:
