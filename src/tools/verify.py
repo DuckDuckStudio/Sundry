@@ -269,7 +269,11 @@ def 验证清单(清单目录: str) -> int:
         # WinGet 会输出清单验证成功
         return 0
     except subprocess.CalledProcessError as e:
-        return e.returncode
+        if e.returncode == 2316632104:
+            # 清单验证成功，但出现警告
+            return 0
+        else:
+            return e.returncode
 
 def 测试安装与卸载(清单目录: str, 操作: str) -> int:
     # 使用 winget install/uninstall --manifest 尝试安装与卸载清单中的程序，并返回 winget 退出代码
