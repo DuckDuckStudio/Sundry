@@ -4,8 +4,8 @@ from colorama import Fore
 
 def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
     '''
-    [验证/转换后的配置值]
-    读取 Sundry 配置文件的指定配置项，并返回配置值。
+    [验证/转换后的配置值]  
+    读取 Sundry 配置文件的指定配置项，并返回配置值。  
     如果读取失败则返回 0。
     '''
 
