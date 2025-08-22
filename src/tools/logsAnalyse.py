@@ -274,10 +274,8 @@ def 查找退出代码解释(ExitCodes: TextIO, ExitCode: str):
     reader = csv.DictReader(ExitCodes)
     for row in reader:
         if ExitCode in [row["Hex"], row["Dec"], row["InvDec"], row["Symbol"]]:
-            # 输出解释表格
-            # 表头为 Hex | Dec | InvDec | Symbol | Description
-            print(f"{Fore.YELLOW}Hint{Fore.RESET} 退出代码 {Fore.BLUE}{ExitCode}{Fore.RESET} 可能的解释:")
-            print(f"{Fore.YELLOW}Hint{Fore.RESET} {" | ".join([f"Hex: {Fore.BLUE}{row['Hex']}{Fore.RESET}", f"Dec: {Fore.BLUE}{row['Dec']}{Fore.RESET}", f"InvDec: {Fore.BLUE}{row['InvDec']}{Fore.RESET}", f"Symbol: {Fore.BLUE}{row['Symbol']}{Fore.RESET}", f"Description: {Fore.YELLOW}{row['Description']}{Fore.RESET}"]).replace(f"{Fore.BLUE}{ExitCode}{Fore.RESET}", f"{Fore.GREEN}{ExitCode}{Fore.RESET}")}")
+            print(f"{Fore.YELLOW}Hint{Fore.RESET} 此退出代码或许代表:")
+            print(f"{Fore.YELLOW}Hint{Fore.RESET} {" | ".join([f"Hex: {Fore.BLUE}{row['Hex']}{Fore.RESET}", f"Dec: {Fore.BLUE}{row['Dec']}{Fore.RESET}", f"InvDec: {Fore.BLUE}{row['InvDec']}{Fore.RESET}", f"Symbol: {Fore.BLUE}{row['Symbol']}{Fore.RESET}", f"Description: {Fore.BLUE}{row['Description']}{Fore.RESET}"]).replace(f"{Fore.BLUE}{ExitCode}{Fore.RESET}", f"{Fore.MAGENTA}{ExitCode}{Fore.RESET}")}")
 
 def 请求GitHubAPI(apiUrl: str, github_token: str | int):
     请求头 = {
