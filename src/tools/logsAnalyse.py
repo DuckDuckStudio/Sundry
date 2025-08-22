@@ -4,12 +4,17 @@ import shutil
 import zipfile
 import tempfile
 import requests
-import tools.maintain.cleanup as cleanup
+from typing import TextIO
 from colorama import Fore, init
+import tools.maintain.cleanup as cleanup
 from function.files.open import open_file
+from function.github.token import read_token
+from function.maintain.config import 读取配置
+from exception.request import RequestException
+from exception.operation import TryOtherMethods
 
 def main(args: list[str]) -> int:
-    # sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]
+    '''sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]'''
 
     init(autoreset=True)
 
@@ -112,6 +117,8 @@ def main(args: list[str]) -> int:
 
     print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取管道运行 ({build_id}) 的日志。")
 
+    print() # 换行
+
     # =============================================
 
     # 看看解压后的日志文件夹中有没有 *.png 文件，有则输出位置
@@ -185,11 +192,39 @@ def main(args: list[str]) -> int:
                                 )
                                 print(f"{Fore.CYAN}Analysis{Fore.RESET} {result_str}\n{highlighted_line} {Fore.BLUE}in{Fore.RESET} {file}")
                                 if keyword == "Installation failed with exit code":
-                                    print(f"{Fore.YELLOW}Hint{Fore.RESET} 您可以在 https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md 上查找对应退出代码的解释。")
+                                    match = re.search(r"exit code (-?\d+)", line, re.IGNORECASE)
+                                    if match:
+                                        exit_code = match.group(1)
+                                        try:
+                                            winget_pkgs仓库 = 读取配置("winget-pkgs", 静默=True)
+                                            if isinstance(winget_pkgs仓库, str):
+                                                ExitCodesFile = os.path.join(winget_pkgs仓库, "Tools", "ManualValidation", "ExitCodes.csv")
+                                                if os.path.exists(ExitCodesFile):
+                                                    try:
+                                                        with open(ExitCodesFile, "r", encoding="utf-8") as ExitCodes:
+                                                            查找退出代码解释(ExitCodes, exit_code)
+                                                    except PermissionError:
+                                                        raise TryOtherMethods
+                                                else:
+                                                    raise TryOtherMethods
+                                            else:
+                                                raise TryOtherMethods
+                                        except TryOtherMethods:
+                                            # 既然用户本地无法读取这个文件，就从 GitHub 上获取
+                                            # https://github.com/microsoft/winget-pkgs/blob/master/Tools/ManualValidation/ExitCodes.csv
+                                            github_token = read_token()
+                                            ExitCodes = 获取GitHub文件内容(github_token, "microsoft/winget-pkgs", "Tools/ManualValidation/ExitCodes.csv")
+                                            if ExitCodes:
+                                                import io
+                                                查找退出代码解释(io.StringIO(ExitCodes), exit_code)
+                                    else:
+                                        print(f"{Fore.YELLOW}Hint{Fore.RESET} 您可以尝试在 https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md 上查找对应退出代码的解释。")
+                                        print(f"{Fore.YELLOW}Hint{Fore.RESET} 也可以尝试在 https://github.com/microsoft/winget-pkgs/edit/master/Tools/ManualValidation/ExitCodes.csv 上查找对应退出代码的解释。")
                                 elif keyword == "No suitable installer found":
                                     print(f"{Fore.YELLOW}Hint{Fore.RESET} 这可能是因为您提交的软件包的安装程序定义和依赖中的安装程序定义不匹配。")
                                     print(f"{Fore.YELLOW}Hint{Fore.RESET} 举个例子，当上游依赖只支持 x64 架构，而您提交的清单中的安装程序还支持 x86 架构时，WinGet 会因为找不到 x86 的依赖安装程序而失败。")
                                     print(f"{Fore.YELLOW}Hint{Fore.RESET} 具体需要如何处理此错误尚不确定: https://github.com/microsoft/winget-pkgs/issues/152555")
+                                print() # 换行
                                 break
 
     if not 找到可能的问题了吗:
@@ -224,3 +259,58 @@ def main(args: list[str]) -> int:
             print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
 
     return 0
+
+def 查找退出代码解释(ExitCodes: TextIO, ExitCode: str):
+    # 尝试从 ExitCodes.csv 中找 exit_code 的解释
+    # ExitCodes.csv 示例
+    # "Hex","Dec","InvDec","Symbol","Description"
+    # "00000000","0","-4294967296","ERROR_SUCCESS","The operation completed successfully."
+    # "00000001","1","-4294967295","ERROR_INVALID_FUNCTION","Incorrect function."
+    # "00000002","2","-4294967294","ERROR_FILE_NOT_FOUND","The system cannot find the file specified."
+    # "00000003","3","-4294967293","ERROR_PATH_NOT_FOUND","The system cannot find the path specified."
+    # ...
+
+    import csv
+    reader = csv.DictReader(ExitCodes)
+    for row in reader:
+        if ExitCode in [row["Hex"], row["Dec"], row["InvDec"], row["Symbol"]]:
+            # 输出解释表格
+            # 表头为 Hex | Dec | InvDec | Symbol | Description
+            print(f"{Fore.YELLOW}Hint{Fore.RESET} 退出代码 {Fore.BLUE}{ExitCode}{Fore.RESET} 可能的解释:")
+            print(f"{Fore.YELLOW}Hint{Fore.RESET} {" | ".join([f"Hex: {Fore.BLUE}{row['Hex']}{Fore.RESET}", f"Dec: {Fore.BLUE}{row['Dec']}{Fore.RESET}", f"InvDec: {Fore.BLUE}{row['InvDec']}{Fore.RESET}", f"Symbol: {Fore.BLUE}{row['Symbol']}{Fore.RESET}", f"Description: {Fore.YELLOW}{row['Description']}{Fore.RESET}"]).replace(f"{Fore.BLUE}{ExitCode}{Fore.RESET}", f"{Fore.GREEN}{ExitCode}{Fore.RESET}")}")
+
+def 请求GitHubAPI(apiUrl: str, github_token: str | int):
+    请求头 = {
+        "Authorization": f"token {github_token}",
+        "Accept": "application/vnd.github.v3+json"
+    }
+    if not github_token:
+        # 移除 Authorization 头
+        请求头.pop("Authorization", None)
+    try:
+        响应 = requests.get(apiUrl, headers=请求头)
+        
+        if 响应.status_code == 404:
+            raise RequestException("PR 不存在或对应分支已被删除")
+        elif 响应.status_code >= 400:
+            raise RequestException(响应)
+        else:
+            return 响应.json()
+    except RequestException:
+        return
+
+def 获取GitHub文件内容(github_token: str | int, 仓库: str, 文件路径: str):
+    try:
+        # 由于政府政策，在中国大陆不允许使用 raw.githubusercontent.com
+        # 127.0.0.1 欢迎你 XD
+        # raw_url = f"https://raw.githubusercontent.com/{仓库}/refs/heads/{分支}/{文件路径}"
+
+        api = f"https://api.github.com/repos/{仓库}/contents/{文件路径}"
+        响应 = 请求GitHubAPI(api, github_token)
+        if not 响应:
+            raise RequestException(f"响应为空: {响应}")
+
+        import base64
+        return base64.b64decode(响应["content"]).decode("utf-8")
+    except Exception:
+        return
