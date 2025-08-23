@@ -9,6 +9,7 @@ def main() -> int:
         tool = "help"
         args = []
 
+    print(f"[DEBUG] {sys.argv[0]}")
     script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
     version = "develop"
 
