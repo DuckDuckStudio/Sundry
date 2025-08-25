@@ -38,6 +38,9 @@ def main() -> int:
     elif tool in ["sync", "同步", "synchronize", "sync-fork"]:
         import tools.sync as sync
         return sync.main()
+    elif tool in ["prune"]:
+        import tools.prune as prune
+        return prune.main()
     elif tool == "cat":
         import tools.cat as cat
         return cat.main(args)
@@ -93,6 +96,7 @@ def main() -> int:
         print("    其他辅助命令:")
         print("        查看清单: sundry cat <软件包标识符> <版本> [清单类型] [区域设置(如果是locale类型)]")
         print("        同步本地: sundry sync")
+        print("        清理远程已删除分支: sundry prune")
         print("        格式化字符串: sundry repr <文件路径/文本内容> [编码(默认 UTF-8)]")
         print("    维护:")
         print("        配置:")
