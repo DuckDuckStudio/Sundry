@@ -8,24 +8,11 @@ def main():
     init(autoreset=True)
 
     try:
-        winget_pkgs目录 = 读取配置("winget-pkgs")
-        if not isinstance(winget_pkgs目录, str):
-            return 1
-        winget_tools目录 = 读取配置("winget-tools")
-        if not isinstance(winget_tools目录, str):
-            return 1
-        
-        对应 = {
-            "winget-pkgs": winget_pkgs目录,
-            "winget-tools": winget_tools目录
-        }
-
-        for 仓库 in 对应:
-            仓库路径 = 对应.get(仓库)
-            if 仓库路径:
+        for 仓库 in ["winget-pkgs", "winget-tools"]:
+            仓库路径 = 读取配置(仓库)
+            if isinstance(仓库路径, str):
                 清理远程(仓库, 仓库路径)
             else:
-                print(f"{Fore.RED}✕{Fore.RESET} 仓库路径为假值")
                 raise OperationFailed
     except KeyboardInterrupt:
         print(f"{Fore.RED}✕{Fore.RESET} 已取消操作")
