@@ -217,6 +217,26 @@ sundry config "<条目>" "<值>"
 
 
 <details>
+  <summary><code>sundry prune</code></summary>
+
+![Sundry prune 命令展示图。该命令用于清理仓库远程已删除的分支。](docs/photos/README/Demo/Commands/prune.png)  
+
+- 别名: 没有别名，只能用 `prune`。
+- 作用: **清理仓库远程已删除的分支。**
+  - 等效于:  
+    ```bash
+    cd $winget_pkgs
+    git remote prune origin
+    cd $winget_tools
+    git remote prune origin
+    ```
+- 用法: `sundry prune`
+- 示例: `sundry prune`
+
+</details>
+
+
+<details>
   <summary><code>sundry sync</code></summary>
 
 ![Sundry sync 命令展示图。该命令用于同步 fork 仓库和上游仓库的修改。](docs/photos/README/Demo/Commands/sync.png)  
@@ -333,6 +353,7 @@ sundry config "<条目>" "<值>"
 | ignore | ✕ | 不确定如何读取 Token |
 | cat | ✓ |  |
 | sync | ✓ |  |
+| prune | ✓ |  |
 | repr | ✓ |  |
 | config | ✓ |  |
 | revert | ✓ |  |
