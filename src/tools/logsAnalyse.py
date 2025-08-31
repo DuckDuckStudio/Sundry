@@ -6,6 +6,7 @@ import tempfile
 import requests
 from typing import TextIO
 from colorama import Fore, init
+from function.print.print import 消息头
 import tools.maintain.cleanup as cleanup
 from function.files.open import open_file
 from function.github.token import read_token
@@ -20,7 +21,7 @@ def main(args: list[str]) -> int:
 
     # 获取 Azure Pipline 运行链接
     if len(args) < 1:
-        print(f"{Fore.RED}✕{Fore.RESET} 请提供 Azure Pipline Url")
+        print(f"{消息头.错误}请提供 Azure Pipline Url")
         return 1
 
     azure_url = args[0]
@@ -32,7 +33,7 @@ def main(args: list[str]) -> int:
             print(f"{Fore.YELLOW}Hint{Fore.RESET} 请提供 Validation Pipeline Run 的 URL 而不是 GitHub 的 URL")
         
         if not azure_url.startswith("https://dev.azure.com/"):
-            print(f"{Fore.RED}✕{Fore.RESET} 无效的 Azure Pipline Url")
+            print(f"{消息头.错误}无效的 Azure Pipline Url")
             return 1
     else:
         return cleanup.main("logsAnalyse")
@@ -45,7 +46,7 @@ def main(args: list[str]) -> int:
     response = requests.get(api_url)
 
     if response.status_code != 200:
-        print(f"{Fore.RED}✕{Fore.RESET} 无法获取运行信息: {api_url} 响应 {Fore.RED}{response.status_code}{Fore.RESET}")
+        print(f"{消息头.错误}无法获取运行信息: {api_url} 响应 {Fore.RED}{response.status_code}{Fore.RESET}")
         return 1
     
     build_info = response.json()
@@ -53,10 +54,10 @@ def main(args: list[str]) -> int:
     pipeline_name = build_info.get("definition", {}).get("name")
 
     if not pipeline_name:
-        print(f"{Fore.RED}✕{Fore.RESET} 无法确定这是不是验证管道运行")
+        print(f"{消息头.错误}无法确定这是不是验证管道运行")
         return 1
     elif pipeline_name != "WinGetSvc-Validation":
-        print(f"{Fore.RED}✕{Fore.RESET} 这似乎不是验证管道的运行: {pipeline_name}")
+        print(f"{消息头.错误}这似乎不是验证管道的运行: {pipeline_name}")
         return 1
     
     print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证提供的 Azure Pipline Url。")
@@ -72,28 +73,28 @@ def main(args: list[str]) -> int:
 
     # 如果原先存在同名zip文件
     if os.path.exists(logs_zip_path):
-        if input(f"{Fore.BLUE}?{Fore.RESET} 下载位置下{Fore.YELLOW}已存在同名日志文件{Fore.RESET} {Fore.BLUE}{logs_zip_path}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() not in ["y", "yes", "是", ""]:
-            print(f"{Fore.RED}✕{Fore.RESET} 下载位置下存在同名文件")
+        if input(f"{消息头.问题}下载位置下{Fore.YELLOW}已存在同名日志文件{Fore.RESET} {Fore.BLUE}{logs_zip_path}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() not in ["y", "yes", "是", ""]:
+            print(f"{消息头.错误}下载位置下存在同名文件")
             return 1
         else:
             try:
                 # 移除它
                 os.remove(logs_zip_path)
             except Exception as e:
-                print(f"{Fore.RED}✕{Fore.RESET} 移除同名日志文件时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+                print(f"{消息头.错误}移除同名日志文件时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
                 return 1
         
     # 如果解压后的位置存在同名目录
     if os.path.exists(logs_dir):
-        if input(f"{Fore.BLUE}?{Fore.RESET} 解压位置下{Fore.YELLOW}已存在同名日志目录{Fore.RESET} {Fore.BLUE}{logs_dir}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() not in ["y", "yes", "是", ""]:
-            print(f"{Fore.RED}✕{Fore.RESET} 解压位置下存在同名日志目录")
+        if input(f"{消息头.问题}解压位置下{Fore.YELLOW}已存在同名日志目录{Fore.RESET} {Fore.BLUE}{logs_dir}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() not in ["y", "yes", "是", ""]:
+            print(f"{消息头.错误}解压位置下存在同名日志目录")
             return 1
         else:
             try:
                 # 移除它
                 shutil.rmtree(logs_dir)
             except Exception as e:
-                print(f"{Fore.RED}✕{Fore.RESET} 移除同名日志目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+                print(f"{消息头.错误}移除同名日志目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
                 return 1
     os.makedirs(logs_dir, exist_ok=True)
         
@@ -101,7 +102,7 @@ def main(args: list[str]) -> int:
     print(f"{Fore.BLUE}INFO{Fore.RESET} 正在下载日志文件到 {logs_zip_path}...")
     response = requests.get(logs_url)
     if response.status_code != 200:
-        print(f"{Fore.RED}✕{Fore.RESET} 无法下载日志文件: {logs_url} 响应 {Fore.RED}{response.status_code}{Fore.RESET}")
+        print(f"{消息头.错误}无法下载日志文件: {logs_url} 响应 {Fore.RED}{response.status_code}{Fore.RESET}")
         return 1
     with open(logs_zip_path, "wb") as f:
         f.write(response.content)
@@ -228,7 +229,7 @@ def main(args: list[str]) -> int:
                                 break
 
     if not 找到可能的问题了吗:
-        print(f"{Fore.YELLOW}WARN{Fore.RESET} 未找到可能的问题")
+        print(f"{消息头.警告}未找到可能的问题")
         if not ((len(args) == 3) and (args[2].lower() in ["true", "yes", "y", "是"])):
             if (len(args) == 2):
                 print(f"{Fore.YELLOW}Hint{Fore.RESET} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{azure_url}\" \"{args[1]}\" y{Fore.RESET} 来查看一般错误/异常")
@@ -243,15 +244,15 @@ def main(args: list[str]) -> int:
             shutil.rmtree(logs_dir)
             print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
         else:
-            print(f"{Fore.YELLOW}WARN{Fore.RESET} 指定的参数 1 无效，{Fore.BLUE}{args[1]}{Fore.RESET} 不能表达是否要保留日志文件")
-            if (input(f"{Fore.BLUE}?{Fore.RESET} 你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
+            print(f"{消息头.警告}指定的参数 1 无效，{Fore.BLUE}{args[1]}{Fore.RESET} 不能表达是否要保留日志文件")
+            if (input(f"{消息头.问题}你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
                 return open_file(logs_dir)
             else:
                 # 移除它
                 shutil.rmtree(logs_dir)
                 print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
     else:
-        if (input(f"{Fore.BLUE}?{Fore.RESET} 你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
+        if (input(f"{消息头.问题}你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
             return open_file(logs_dir)
         else:
             # 移除它

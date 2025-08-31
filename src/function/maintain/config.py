@@ -1,6 +1,7 @@
 import os
 import json
 from colorama import Fore
+from function.print.print import 消息头
 
 def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
     '''
@@ -30,8 +31,8 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
         配置值 = os.path.normpath(配置值)
         if (not os.path.exists(配置值)):
             if not 静默:
-                print(f"{Fore.RED}✕{Fore.RESET} 配置文件中的目录 {Fore.BLUE}{配置值}{Fore.RESET} 不存在")
-                print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config {配置项} <路径> 来修改配置文件中的值")
+                print(f"{消息头.错误}配置文件中的目录 {Fore.BLUE}{配置值}{Fore.RESET} 不存在")
+                print(f"{消息头.消息}运行 sundry config {配置项} <路径> 来修改配置文件中的值")
             return None
         return 配置值
     elif 配置项 in ["pkgs-repo", "tools-repo", "fork"]:
@@ -41,7 +42,7 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
             return owner, repo
         except Exception as e:
             if not 静默:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败: {Fore.RED}解析 pkgs-repo 配置项失败{Fore.RESET}\n{Fore.RED}{e}{Fore.RESET}")
+                print(f"{消息头.错误}读取配置文件失败: {Fore.RED}解析 pkgs-repo 配置项失败{Fore.RESET}\n{Fore.RED}{e}{Fore.RESET}")
             return None
     elif 配置项 in ["signature"]:
         # yes 反 Ture，否则反 False
@@ -71,15 +72,15 @@ def 读取配置项(配置项: str, 静默: bool = False) -> str | None:
                     return 配置数据[配置项]
                 else:
                     if not 静默:
-                        print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}值 \"{配置项}\" 为空{Fore.RESET}")
-                        print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config {配置项} <值> 来修改配置文件中的值")
+                        print(f"{消息头.错误}读取配置文件失败:\n{Fore.RED}值 \"{配置项}\" 为空{Fore.RESET}")
+                        print(f"{消息头.消息}运行 sundry config {配置项} <值> 来修改配置文件中的值")
                     return None
         except Exception as e:
             if not 静默:
-                print(f"{Fore.RED}✕{Fore.RESET} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
+                print(f"{消息头.错误}读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
             return None
     else:
         if not 静默:
-            print(f"{Fore.RED}✕{Fore.RESET} 配置文件不存在")
-            print(f"{Fore.BLUE}[!]{Fore.RESET} 运行 sundry config init 来初始化配置文件")
+            print(f"{消息头.错误}配置文件不存在")
+            print(f"{消息头.消息}运行 sundry config init 来初始化配置文件")
         return None

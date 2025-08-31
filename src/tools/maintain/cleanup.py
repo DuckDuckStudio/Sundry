@@ -2,7 +2,7 @@ import os
 import shutil
 import tempfile
 from colorama import Fore, init
-from function.print.printLogs import PrintLogs
+from function.print.print import 消息头
 
 def main(哪个工具: str) -> int:
     '''
@@ -13,7 +13,7 @@ def main(哪个工具: str) -> int:
     init(autoreset=True)
 
     if not 哪个工具:
-        PrintLogs("未指定清理哪个工具产生的文件，默认清理所有 Sundry 产生的文件", "WARN")
+        print(f"{消息头.警告}未指定清理哪个工具产生的文件，默认清理所有 Sundry 产生的文件")
         哪个工具 = "all"
 
     哪个工具 = 哪个工具.lower()
@@ -39,7 +39,7 @@ def main(哪个工具: str) -> int:
     elif 哪个工具 == "all":
         待清理文件路径 = os.path.join(tempfile.gettempdir(), "Sundry")
     else:
-        PrintLogs(f"不知道该如何清理 {哪个工具} 产生的文件", "ERROR")
+        print(f"{消息头.错误}不知道该如何清理 {哪个工具} 产生的文件")
         return 1
     
     return 清理文件(待清理文件路径, 哪个工具)
@@ -56,11 +56,11 @@ def 清理文件(待清理文件路径: str, 哪个工具: str) -> int:
 
     try:
         shutil.rmtree(待清理文件路径)
-        PrintLogs(f"成功清理 {哪个工具}", "SUCCESS")
+        print(f"{消息头.成功}成功清理 {哪个工具}")
         return 0
     except FileNotFoundError:
-        PrintLogs("没有需要清理的文件", "NOTICE")
+        print(f"{消息头.消息}没有需要清理的文件")
         return 0
     except Exception as e:
-        PrintLogs(f"清理 {哪个工具} 时出现异常:\n{Fore.RED}{e}{Fore.RESET}", "ERROR")
+        print(f"{消息头.错误}清理 {哪个工具} 时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1

@@ -1,6 +1,7 @@
 import os
 import subprocess
 from colorama import init, Fore
+from function.print.print import 消息头
 from function.maintain.config import 读取配置
 from exception.operation import OperationFailed
 
@@ -15,7 +16,7 @@ def main():
             else:
                 raise OperationFailed
     except KeyboardInterrupt:
-        print(f"{Fore.RED}✕{Fore.RESET} 已取消操作")
+        print(f"{消息头.错误}已取消操作")
         return 1
     except OperationFailed:
         return 1
@@ -29,5 +30,5 @@ def 清理远程(仓库: str, 仓库路径: str):
         subprocess.run(["git", "remote", "prune", "origin"], check=True)
         print(f"{Fore.GREEN}✓{Fore.RESET} 清理完毕")
     except subprocess.CalledProcessError as e:
-        print(f"{Fore.RED}✕{Fore.RESET} 清理 {Fore.BLUE}{仓库}{Fore.RESET} 的远程已删除分支时出错，git 返回 {Fore.BLUE}{e.returncode}{Fore.RESET}")
+        print(f"{消息头.错误}清理 {Fore.BLUE}{仓库}{Fore.RESET} 的远程已删除分支时出错，git 返回 {Fore.BLUE}{e.returncode}{Fore.RESET}")
         raise OperationFailed

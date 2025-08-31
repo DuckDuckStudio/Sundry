@@ -10,6 +10,7 @@ import webbrowser
 import tools.cat as cat
 import tools.sync as sync
 from colorama import init, Fore
+from function.print.print import 消息头
 from function.maintain.config import 读取配置
 from translate import Translator # type: ignore
 from function.github.token import read_token
@@ -20,7 +21,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str):
     while True: # 不 break 直接 return
         github_token = read_token()
         if not github_token:
-            print(f"{Fore.RED}✕{Fore.RESET} 拉取请求创建失败: Token 读取失败")
+            print(f"{消息头.错误}拉取请求创建失败: Token 读取失败")
             return 1
 
         api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
@@ -50,7 +51,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str):
         else:
             print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
             try:
-                if input(f"{Fore.BLUE}?{Fore.RESET} 我应该重试吗[Y/N]: ").lower() not in ["y", "yes", "应该", "要", "重试", "retry"]:
+                if input(f"{消息头.问题}我应该重试吗[Y/N]: ").lower() not in ["y", "yes", "应该", "要", "重试", "retry"]:
                     return 1
                 print("正在重试...")
             except KeyboardInterrupt:
@@ -91,7 +92,7 @@ def main(args: list[str]):
                 # 其他值视为理由
                 理由 = args[2]
     else:
-        print(f"{Fore.RED}✕ 参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+        print(f"{消息头.错误}{Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
     清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'))
@@ -107,9 +108,9 @@ def main(args: list[str]):
     
     if any(os.path.isdir(os.path.join(os.path.join(清单目录, 软件包版本), item)) for item in os.listdir(os.path.join(清单目录, 软件包版本))):
         # 如果软件包版本清单目录下存在其他文件夹
-        print(f"{Fore.RED}✕{Fore.RESET} 软件包版本清单目录下存在其他文件夹")
-        print(f"{Fore.BLUE}[!]{Fore.RESET} 这可能是因为你 {Fore.YELLOW}错误的将软件包标识符的一部分当作软件包版本{Fore.RESET} 导致的。")
-        print(f"{Fore.BLUE}[!]{Fore.RESET} 例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
+        print(f"{消息头.错误}软件包版本清单目录下存在其他文件夹")
+        print(f"{消息头.提示}这可能是因为你 {Fore.YELLOW}错误的将软件包标识符的一部分当作软件包版本{Fore.RESET} 导致的。")
+        print(f"{消息头.提示}例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
         return 1
 
     # 入口
@@ -123,7 +124,7 @@ def main(args: list[str]):
                 print("======= 此软件包版本在 winget 上的信息 =======")
                 subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
             except subprocess.CalledProcessError as e:
-                print(f"{Fore.RED}✕{Fore.RESET} 获取软件包信息失败: {Fore.RED}{e}{Fore.RESET}")
+                print(f"{消息头.错误}获取软件包信息失败: {Fore.RED}{e}{Fore.RESET}")
                 return 1
             cat.main([软件包标识符, 软件包版本, "installer"])
             print("======= 确认 =======")
@@ -320,4 +321,6 @@ def 使用WinGet验证(软件包标识符: str, 软件包版本: str, AutoRemove
         验证结果日志.append(f"WinGet returned exit code: {验证结果.returncode}")
         if not AutoRemove:
             print(f"{Fore.GREEN}使用 winget 验证证实确实存在问题 ({验证结果.returncode}){Fore.RESET}")
+        # elif 验证结果.returncode != 2149122452:
+        #     input(f"{Fore.YELLOW}WinGet 返回了非预期的退出代码 {验证结果.returncode}{Fore.RESET}")
         return 验证结果日志

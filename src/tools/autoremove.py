@@ -3,6 +3,7 @@ import os
 import subprocess
 import tools.remove as remove
 from colorama import Fore, init
+from function.print.print import 消息头
 from function.maintain.config import 读取配置
 
 def main(args: list[str]) -> int:
@@ -11,10 +12,10 @@ def main(args: list[str]) -> int:
         软件包标识符: str = 处理参数(args)
         版本列表: list[str] = 查找软件包版本(软件包标识符)
         检查软件包版本(软件包标识符, 版本列表)
-        print(f"{Fore.GREEN}✓{Fore.RESET} 成功检查 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的所有版本")
+        print(f"{消息头.成功}成功检查 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的所有版本")
         return 0
     except KeyboardInterrupt:
-        print(f"{Fore.RED}✕{Fore.RESET} 操作中止")
+        print(f"{消息头.错误}操作中止")
         return 1
 
 def 检查软件包版本(软件包标识符: str, 版本列表: list[str]) -> None:
@@ -22,9 +23,9 @@ def 检查软件包版本(软件包标识符: str, 版本列表: list[str]) -> N
         print(f"\n{Fore.BLUE}INFO{Fore.RESET} 正在检查 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} ...")
         验证结果 = remove.使用WinGet验证(软件包标识符, 版本, AutoRemove=True)
         if not 验证结果:
-            print(f"{Fore.GREEN}✓{Fore.RESET} 验证 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 通过！")
+            print(f"{消息头.成功}验证 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 通过！")
         else:
-            print(f"{Fore.RED}✕{Fore.RESET} {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 下载失败！将移除此版本...")
+            print(f"{消息头.错误}{Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 下载失败！将移除此版本...")
             移除软件包版本(软件包标识符, 版本, f"Attempt to download using WinGet failed.\n\n```logs\n{"\n".join(验证结果)}\n```")
 
 def 检查重复拉取请求(软件包标识符: str, 软件包版本: str) -> bool:
@@ -40,10 +41,10 @@ def 检查重复拉取请求(软件包标识符: str, 软件包版本: str) -> b
 
 def 移除软件包版本(软件包标识符: str, 版本: str, 原因: str) -> None:
     if not 检查重复拉取请求(软件包标识符, 版本):
-        print(f"{Fore.YELLOW}WARN{Fore.RESET} 找到重复的拉取请求，跳过后续处理")
+        print(f"{消息头.警告}找到重复的拉取请求，跳过后续处理")
         return
     if remove.main([软件包标识符, 版本, "True", 原因]):
-        print(f"{Fore.RED}✕{Fore.RESET} 尝试移除 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 失败！")
+        print(f"{消息头.错误}尝试移除 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 失败！")
         raise KeyboardInterrupt
     
 def 获取winget_pkgs目录() -> str:
@@ -71,7 +72,7 @@ def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -
                                 版本列表.append(文件夹)
                     break
                 except FileNotFoundError as e:
-                    print(f"{Fore.RED}✕{Fore.RESET} {Fore.RED}{e}{Fore.RESET}")
+                    print(f"{消息头.错误}{Fore.RED}{e}{Fore.RESET}")
                     input("是否重新查找? [ENTER/CTRL+C]")
         else:
             结果 = subprocess.run(
@@ -93,13 +94,13 @@ def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -
                 if 匹配结果:
                     版本列表.append(行)
         if not 版本列表:
-            print(f"{Fore.RED}✕{Fore.RESET} 未找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的任何版本")
-            if 本地仓库 or 是否中止(input(f"{Fore.BLUE}?{Fore.RESET} 使用本地仓库中的信息吗? [Y/n]: "), "y"):
+            print(f"{消息头.错误}未找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的任何版本")
+            if 本地仓库 or 是否中止(input(f"{消息头.问题}使用本地仓库中的信息吗? [Y/n]: "), "y"):
                 raise KeyboardInterrupt
-        print(f"{Fore.GREEN}✓{Fore.RESET} 找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 版本:\n{Fore.BLUE}{f"{Fore.RESET},{Fore.BLUE} ".join(版本列表)}{Fore.RESET}\n")
+        print(f"{消息头.成功}找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 版本:\n{Fore.BLUE}{f"{Fore.RESET},{Fore.BLUE} ".join(版本列表)}{Fore.RESET}\n")
         return 版本列表
     except subprocess.CalledProcessError as e:
-        print(f"{Fore.RED}✕{Fore.RESET} 获取版本失败:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误}获取版本失败:\n{Fore.RED}{e}{Fore.RESET}")
         raise KeyboardInterrupt
 
 def 是否中止(输入: str, 默认: str = "n") -> bool:
@@ -115,11 +116,11 @@ def 是否中止(输入: str, 默认: str = "n") -> bool:
 
 def 处理参数(args: list[str]) -> str:
     if not args:
-        print(f"{Fore.RED}✕{Fore.RESET} 请传递参数")
+        print(f"{消息头.错误}请传递参数")
         raise KeyboardInterrupt
     
     预期参数数量: int = 1
     if len(args) > 预期参数数量:
-        print(f"{Fore.YELLOW}Hint{Fore.RESET} 多余的参数，我们只需要 {预期参数数量} 个参数")
+        print(f"{消息头.提示}多余的参数，我们只需要 {预期参数数量} 个参数")
 
     return args[0] # 包标识符
