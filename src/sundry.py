@@ -1,5 +1,6 @@
 import os
 import sys
+from function.print.print import 消息头
 
 def main() -> int:
     try:
@@ -19,7 +20,7 @@ def main() -> int:
         "verify", "test", "验证", "测试", # 仅 Windows
     ]):
         from colorama import Fore
-        print(f"{Fore.RED}✕{Fore.RESET} 该操作仅可在 Windows 上运行")
+        print(f"{消息头.错误}该操作仅可在 Windows 上运行")
         return 1
 
     # 开源的
