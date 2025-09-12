@@ -29,10 +29,10 @@ def 检查软件包版本(软件包标识符: str, 版本列表: list[str]) -> N
             移除软件包版本(软件包标识符, 版本, f"Attempt to download using WinGet failed.\n\n```logs\n{"\n".join(验证结果)}\n```")
 
 def 检查重复拉取请求(软件包标识符: str, 软件包版本: str) -> bool:
-    '''
+    """
     检查上游仓库中是否有 相同 (软件包标识符、版本) 的且 打开的 拉取请求。
     如有，返回 True。否则返回 False。
-    '''
+    """
     result = subprocess.run(
         ["gh", "pr", "list", "-S", f"{软件包标识符} {软件包版本}", "--repo", "microsoft/winget-pkgs"],
         capture_output=True, text=True, check=True
@@ -104,11 +104,11 @@ def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -
         raise KeyboardInterrupt
 
 def 是否中止(输入: str, 默认: str = "n") -> bool:
-    '''
+    """
     依据输入确定是否中止后续操作。
     false 表示继续。
     true 表示中止。
-    '''
+    """
     if not 输入:
         输入 = 默认
 

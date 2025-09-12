@@ -5,10 +5,10 @@ from colorama import Fore, init
 from function.print.print import 消息头
 
 def main(哪个工具: str) -> int:
-    '''
+    """
     清理指定工具运行产生的文件。  
     参数 1: 指定哪个工具
-    '''
+    """
 
     init(autoreset=True)
 
@@ -45,11 +45,11 @@ def main(哪个工具: str) -> int:
     return 清理文件(待清理文件路径, 哪个工具)
     
 def 清理文件(待清理文件路径: str, 哪个工具: str) -> int:
-    '''
+    """
     删除指定的文件夹并打印日志。  
     参数 1: 指定待清理文件夹的路径  
     参数 2: 指定日志输出中的工具名称
-    '''
+    """
 
     if 哪个工具 == "all":
         哪个工具 = "所有 Sundry 产生的文件"
