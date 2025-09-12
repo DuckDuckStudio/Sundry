@@ -16,8 +16,8 @@ from translate import Translator # type: ignore
 from function.github.token import read_token
 
 # 创建拉取请求
-def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str):
-    global owner, 手动验证结果, 软件包标识符
+def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹: str, 理由: str):
+    global owner, 手动验证结果
     while True: # 不 break 直接 return
         github_token = read_token()
         if not github_token:
@@ -58,7 +58,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 理由: str):
                 return 1
 
 def main(args: list[str]):
-    global 软件包标识符, 手动验证结果, owner
+    global 手动验证结果, owner
 
     init(autoreset=True)
 
@@ -207,7 +207,7 @@ def main(args: list[str]):
     while (not 理由):
         理由 = input("移除此软件包版本的理由: ")
 
-    if 创建拉取请求(新分支名, 软件包版本, 理由) == 1:
+    if 创建拉取请求(软件包标识符, 新分支名, 软件包版本, 理由) == 1:
         return 1 # 拉取请求创建失败
 
     print(f"{Fore.GREEN} 成功移除 {软件包标识符} 版本 {软件包版本}")

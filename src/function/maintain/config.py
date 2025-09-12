@@ -4,11 +4,11 @@ from colorama import Fore
 from function.print.print import 消息头
 
 def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
-    '''
+    """
     [验证/转换后的配置值]  
     读取 Sundry 配置文件的指定配置项，并返回配置值。  
     如果读取失败则返回 0。
-    '''
+    """
 
     # {
     #     "version": "1.3.4", -> str
@@ -56,11 +56,11 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
 
 
 def 读取配置项(配置项: str, 静默: bool = False) -> str | None:
-    '''
+    """
     [原始字符串]  
     读取指定配置项的值，并返回配置项值。  
     预期返回非空 str，读取失败返回 None。
-    '''
+    """
 
     配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
 
