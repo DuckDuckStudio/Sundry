@@ -140,8 +140,8 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.osukps"
-          python ./Release/src/sundry.py autoremove DuckStudio.osukps
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.Sundry"
+          python ./Release/src/sundry.py autoremove DuckStudio.Sundry
 
       - name: 测试 - logs-analyse
         shell: bash
