@@ -27,5 +27,5 @@ def open_file(file: str) -> int:
             raise OSError(f"很抱歉，作者见识太少，不清楚如何在 {sys.platform} 上打开文件...")
         return 0
     except Exception as e:
-        print(f"{消息头.错误}打开文件时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 打开文件时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1

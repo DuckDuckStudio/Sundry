@@ -20,7 +20,7 @@ def main() -> int:
         "verify", "test", "验证", "测试", # 仅 Windows
     ]):
         from colorama import Fore
-        print(f"{消息头.错误}该操作仅可在 Windows 上运行")
+        print(f"{消息头.错误} 该操作仅可在 Windows 上运行")
         return 1
 
     # 开源的
@@ -58,6 +58,9 @@ def main() -> int:
     # elif tool in ["更新", "update", "new", "新", "新版本"]:
     #     import tools.update as update
     #     return update.main(args)
+    # elif tool == "hash-update": # 等待更多测试
+    #     import tools.hashUpdate as hashUpdate
+    #     return hashUpdate.main(args)
     # 维护
     elif tool in ["config", "配置"]:
         import tools.maintain.config as config
@@ -87,6 +90,7 @@ def main() -> int:
         # print("    新版本辅助修改: sundry new <软件包标识符> <版本> [解决的议题(没有则使用urls占位)] <urls...>")
         # print("    多版本辅助修改: sundry change (多改)")
         print("    单版本辅助修改: sundry modify <软件包标识符> <版本> [理由/解决的议题] (单改)")
+        # print("    安装程序哈希值更新: sundry hash-update <软件包标识符> <软件包版本> [解决的议题]")
         print("    Azure Pipline 日志分析:")
         print("        日志分析: sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]")
         print("        清理下载的日志文件: sundry logs-analyse cleanup (等效于 sundry cleanup logs-analyse)")

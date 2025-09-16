@@ -23,15 +23,15 @@ def main(args: list[str]) -> int:
         elif (len(args) == 3) and (args[1] in ["import", "导入"]):
             return 导入fun(fun位置, os.path.normpath(os.path.abspath(args[2])))
         else:
-            print(f"{消息头.错误}{Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+            print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
             return 1
     else:
-        print(f"{消息头.错误}{Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
 def 编辑fun(fun位置: str) -> int:
-    print(f"{消息头.信息}fun.txt 位于 {fun位置}")
-    print(f"{消息头.信息}尝试打开 fun.txt ...")
+    print(f"{消息头.信息} fun.txt 位于 {fun位置}")
+    print(f"{消息头.信息} 尝试打开 fun.txt ...")
     return open_file(fun位置)
 
 def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
@@ -42,13 +42,13 @@ def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
         with open(导入fun文件, 'r', encoding='utf-8') as file:
             导入的fun: list[str] = file.readlines()
             if not 导入的fun:
-                print(f"{消息头.警告}{Fore.BLUE}{导入fun文件}{Fore.RESET} (导入) {Fore.YELLOW}为空{Fore.RESET}")
+                print(f"{消息头.警告} {Fore.BLUE}{导入fun文件}{Fore.RESET} (导入) {Fore.YELLOW}为空{Fore.RESET}")
                 return 0
     except FileNotFoundError:
-        print(f"{消息头.错误}{Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{导入fun文件}{Fore.RESET} (导入)")
+        print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{导入fun文件}{Fore.RESET} (导入)")
         return 1
     except Exception as e:
-        print(f"{消息头.错误}读取 {Fore.BLUE}{导入fun文件}{Fore.RESET} (导入) 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 读取 {Fore.BLUE}{导入fun文件}{Fore.RESET} (导入) 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
     # 去重但保持原始顺序
     try:
@@ -60,80 +60,82 @@ def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
                 去重后的导入fun.append(line)
         导入的fun = 去重后的导入fun
     except Exception as e:
-        print(f"{消息头.错误}对 {Fore.BLUE}{导入的fun}{Fore.RESET} 去重时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 对 {Fore.BLUE}{导入的fun}{Fore.RESET} 去重时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
     # 覆盖原fun文件
     try:
         if not os.path.exists(原fun文件):
-            print(f"{消息头.错误}{Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{原fun文件}{Fore.RESET} (原始)")
+            print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{原fun文件}{Fore.RESET} (原始)")
             # 询问用户是否创建一个
             try:
-                input(f"{消息头.问题}创建个新的 fun.txt? [ENTER/CTRL+C]")
+                input(f"{消息头.问题} 创建个新的 fun.txt? [ENTER/CTRL+C]")
                 with open(原fun文件, 'w', encoding='utf-8'):
                     pass
             except KeyboardInterrupt:
-                print(f"\n{消息头.错误}操作取消")
+                print(f"\n{消息头.错误} 操作取消")
                 return 1
         with open(原fun文件, 'w', encoding='utf-8') as file:
             file.writelines(导入的fun)
-        print(f"{消息头.成功}已将 {Fore.BLUE}{导入fun文件}{Fore.RESET} 导入到 {Fore.BLUE}{原fun文件}{Fore.RESET}")
+        print(f"{消息头.成功} 已将 {Fore.BLUE}{导入fun文件}{Fore.RESET} 导入到 {Fore.BLUE}{原fun文件}{Fore.RESET}")
         return 0
     except Exception as e:
-        print(f"{消息头.错误}导入 {Fore.BLUE}{导入fun文件}{Fore.RESET} 到 {Fore.BLUE}{原fun文件}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 导入 {Fore.BLUE}{导入fun文件}{Fore.RESET} 到 {Fore.BLUE}{原fun文件}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
 
 def 移除fun(fun位置: str, 条目: str) -> int:
     try:
+        条目 = 条目.replace("\n", "\\n")
         if not os.path.exists(fun位置):
             raise FileNotFoundError()
         with open(fun位置, 'r', encoding='utf-8') as file:
             lines = file.readlines()
         if not (f"{条目}\n" in lines):
-            print(f"{消息头.警告}在 {Fore.BLUE}{fun位置}{Fore.RESET} 中{Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{条目}{Fore.RESET}")
+            print(f"{消息头.警告} 在 {Fore.BLUE}{fun位置}{Fore.RESET} 中{Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET}")
             return 0
         while f"{条目}\n" in lines:
             # 移除所有匹配的条目
             lines.remove(f"{条目}\n")
         with open(fun位置, 'w', encoding='utf-8') as file:
             file.writelines(lines)
-        print(f"{消息头.成功}已将 {Fore.BLUE}{条目}{Fore.RESET} 从 {Fore.BLUE}{fun位置}{Fore.RESET} 中移除")
+        print(f"{消息头.成功} 已将 {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET} 从 {Fore.BLUE}{fun位置}{Fore.RESET} 中移除")
         return 0
     except FileNotFoundError:
-        print(f"{消息头.错误}{Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
         return 1
     except Exception as e:
-        print(f"{消息头.错误}移除 {Fore.BLUE}{条目}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 移除 {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
 
 def 添加fun(fun位置: str, 新条目: str) -> int:
     # 查重
     try:
+        新条目 = 新条目.replace("\n", "\\n")
         with open(fun位置, 'r', encoding='utf-8') as file:
             lines = file.readlines()
             if f"{新条目}\n" in lines:
-                print(f"{消息头.警告}{Fore.BLUE}{新条目}{Fore.RESET} {Fore.YELLOW}已存在{Fore.RESET}于 {Fore.BLUE}{fun位置}{Fore.RESET}")
+                print(f"{消息头.警告} {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} {Fore.YELLOW}已存在{Fore.RESET}于 {Fore.BLUE}{fun位置}{Fore.RESET}")
                 return 0
     except FileNotFoundError:
-        print(f"{消息头.错误}{Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
         # 询问用户是否创建一个
         try:
-            input(f"{消息头.问题}创建个新的 fun.txt? [ENTER/CTRL+C]")
+            input(f"{消息头.问题} 创建个新的 fun.txt? [ENTER/CTRL+C]")
             with open(fun位置, 'w', encoding='utf-8'):
                 pass
         except KeyboardInterrupt:
-            print(f"\n{消息头.错误}操作取消")
+            print(f"\n{消息头.错误} 操作取消")
             return 1
     except Exception as e:
-        print(f"{消息头.错误}读取 {Fore.BLUE}{fun位置}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 读取 {Fore.BLUE}{fun位置}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
     # 添加新条目
     try:
         with open(fun位置, 'a', encoding='utf-8') as file:
             file.write(f"{新条目}\n")
-        print(f"{消息头.成功}已将 {Fore.BLUE}{新条目}{Fore.RESET} 添加进 {Fore.BLUE}{fun位置}{Fore.RESET}")
+        print(f"{消息头.成功} 已将 {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} 添加进 {Fore.BLUE}{fun位置}{Fore.RESET}")
         return 0
     except Exception as e:
-        print(f"{消息头.错误}添加 {Fore.BLUE}{新条目}{Fore.RESET} 到 {Fore.BLUE}{fun位置}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 添加 {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} 到 {Fore.BLUE}{fun位置}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
 
 def 获取fun(fun位置: str, 随机: bool) -> int:
@@ -157,11 +159,11 @@ def 获取fun(fun位置: str, 随机: bool) -> int:
                     # 整个文件，不处理 \n
                     print(file.read())
             else:
-                print(f"{消息头.警告}{Fore.BLUE}{fun位置}{Fore.RESET} {Fore.YELLOW}为空{Fore.RESET}")
+                print(f"{消息头.警告} {Fore.BLUE}{fun位置}{Fore.RESET} {Fore.YELLOW}为空{Fore.RESET}")
         return 0
     except FileNotFoundError:
-        print(f"{消息头.错误}{Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
         return 1
     except Exception as e:
-        print(f"{消息头.错误}读取 {Fore.BLUE}{fun位置}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 读取 {Fore.BLUE}{fun位置}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1

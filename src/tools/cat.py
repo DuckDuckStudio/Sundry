@@ -8,11 +8,11 @@ from pygments.formatters import TerminalFormatter
 
 def 读取和输出(清单文件: str):
     if not os.path.exists(清单文件):
-        print(f"{消息头.错误}清单文件不存在")
+        print(f"{消息头.错误} 清单文件不存在")
         return 1
 
     try:
-        print(f"{消息头.成功}清单文件位于 {Fore.BLUE}{清单文件}{Fore.RESET}\n")
+        print(f"{消息头.成功} 清单文件位于 {Fore.BLUE}{清单文件}{Fore.RESET}\n")
 
         # 读取清单文件
         with open(清单文件, 'r', encoding='utf-8') as file:
@@ -26,10 +26,10 @@ def 读取和输出(清单文件: str):
 
         return 0
     except PermissionError:
-        print(f"{消息头.错误}读取清单文件失败: {Fore.RED}没有权限{Fore.RESET}")
+        print(f"{消息头.错误} 读取清单文件失败: {Fore.RED}没有权限{Fore.RESET}")
         return 1
     except FileNotFoundError:
-        print(f"{消息头.错误}读取清单文件失败: {Fore.RED}文件不存在{Fore.RESET}")
+        print(f"{消息头.错误} 读取清单文件失败: {Fore.RED}文件不存在{Fore.RESET}")
         return 1
 
 def main(args: list[str]):
@@ -54,30 +54,30 @@ def main(args: list[str]):
         elif (清单类型 in ["all", "全部", "所有"]):
             清单类型 = "all"
         else:
-            print(f"{消息头.错误}清单类型不正确")
-            print(f"{消息头.提示}清单类型必须是 {Fore.BLUE}installer version locale all{Fore.RESET} 中的一种")
+            print(f"{消息头.错误} 清单类型不正确")
+            print(f"{消息头.提示} 清单类型必须是 {Fore.BLUE}installer version locale all{Fore.RESET} 中的一种")
             return 1
         # 获取区域
         区域设置 = ""
         if (清单类型 == "locale"):
             if (len(args) != 4):
-                print(f"{消息头.错误}请告诉我您需要查看哪个区域的清单")
+                print(f"{消息头.错误} 请告诉我您需要查看哪个区域的清单")
                 return 1
             区域设置 = args[3]
     else:
-        print(f"{消息头.错误}{Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
     清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'), 软件包版本)
     if not os.path.exists(清单目录):
-        print(f"{消息头.错误}清单目录不存在")
+        print(f"{消息头.错误} 清单目录不存在")
         return 1
 
     if any(os.path.isdir(os.path.join(清单目录, item)) for item in os.listdir(清单目录)):
         # 如果清单目录下存在其他文件夹
-        print(f"{消息头.错误}清单目录下存在其他文件夹")
-        print(f"{消息头.提示}这可能是因为你 {Fore.YELLOW}错误的将软件包标识符的一部分当作软件包版本{Fore.RESET} 导致的。")
-        print(f"{消息头.提示}例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
+        print(f"{消息头.错误} 清单目录下存在其他文件夹")
+        print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将软件包标识符的一部分当作软件包版本{Fore.RESET} 导致的。")
+        print(f"{消息头.提示} 例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
         return 1
 
     清单文件: list[str] | str
@@ -89,7 +89,7 @@ def main(args: list[str]):
                 清单文件.append(os.path.join(清单目录, 清单))
 
         if not 清单文件:
-            print(f"{消息头.错误}清单目录下没有 YAML 文件")
+            print(f"{消息头.错误} 清单目录下没有 YAML 文件")
             return 1
 
         for 清单 in 清单文件:

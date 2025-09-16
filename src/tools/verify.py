@@ -43,34 +43,34 @@ def main(args: list[str]) -> int:
             github_token = read_token()
             # 这里不做用户询问，测试时放 Token 确实有点...
             # 但为了速率，这里有读到 Token 就带 Token，没有就没有
-            print(f"{消息头.警告}没有读到 Token，请求时不带 Token")
+            print(f"{消息头.警告} 没有读到 Token，请求时不带 Token")
         else:
             # 不是链接，那就是路径
             清单文件目录 = os.path.normpath(os.path.abspath(args[0]))
             if not os.path.exists(清单文件目录):
-                print(f"{消息头.错误}{Fore.RED}指定的清单文件目录不存在{Fore.RESET}")
+                print(f"{消息头.错误} {Fore.RED}指定的清单文件目录不存在{Fore.RESET}")
                 return 1
 
             清单文件个数 = 0
             for 清单文件 in os.listdir(清单文件目录):
                 清单文件个数 += 1
                 if os.path.isdir(清单文件):
-                    print(f"{消息头.错误}{Fore.RED}清单文件目录下不应包含其他目录{Fore.RESET}")
+                    print(f"{消息头.错误} {Fore.RED}清单文件目录下不应包含其他目录{Fore.RESET}")
                     print(f"{Fore.YELLOW}Hint{Fore.RESET} 如果你想要验证仓库中的清单文件，请使用 sundry verify <包标识符> <版本>")
                     print(f"{Fore.YELLOW}Hint{Fore.RESET} 更多说明请见 sundry help")
                     return 1
                 elif not os.path.basename(清单文件).endswith(".yaml"):
-                    print(f"{消息头.错误}{Fore.RED}清单文件应为 .yaml 文件: {清单文件} {Fore.RESET}")
+                    print(f"{消息头.错误} {Fore.RED}清单文件应为 .yaml 文件: {清单文件} {Fore.RESET}")
                     return 1
                 elif ("locale" not in os.path.basename(清单文件)) and ("installer" not in os.path.basename(清单文件)):
                     # 不是 locale 或 installer 清单，那就是 version 清单
                     # version 清单使用 <包标识符>.yaml 命名
                     软件包标识符 = os.path.basename(清单文件).replace(".yaml", "")
             if 清单文件个数 < 3:
-                print(f"{消息头.错误}{Fore.RED}清单文件数量不够。预期至少有 3 个 .yaml 格式的清单文件，但实际只有 {清单文件个数} 个。{Fore.RESET}")
+                print(f"{消息头.错误} {Fore.RED}清单文件数量不够。预期至少有 3 个 .yaml 格式的清单文件，但实际只有 {清单文件个数} 个。{Fore.RESET}")
                 return 1
             elif not 软件包标识符:
-                print(f"{消息头.错误}{Fore.RED}未能从文件名上识别出软件包标识符，请确保清单文件命名合法。{Fore.RESET}")
+                print(f"{消息头.错误} {Fore.RED}未能从文件名上识别出软件包标识符，请确保清单文件命名合法。{Fore.RESET}")
                 return 1
             
             # 好的，接下来让我为它们构建最少目录结构
@@ -81,7 +81,7 @@ def main(args: list[str]) -> int:
             for 清单文件 in os.listdir(清单文件目录):
                 shutil.copy(os.path.join(清单文件目录, 清单文件), 清单目录)
     else: # 不符合
-        print(f"{消息头.错误}{Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
     
     # ============================================================
@@ -109,7 +109,7 @@ def main(args: list[str]) -> int:
         return 1
     # elif 软件包标识符 in ["DuckStudio.Sundry"]:
     #     安装后 sundry 命令会冲突，但依旧能获取到 AAF 条目
-    #     print(f"{消息头.警告}此软件包是 Sundry verify 的依赖项，再次安装它将导致冲突，故取消后续验证。")
+    #     print(f"{消息头.警告} 此软件包是 Sundry verify 的依赖项，再次安装它将导致冲突，故取消后续验证。")
     #     return 0
     安装前AAF = 读取AAF字段()
     if 测试安装与卸载(清单目录, "安装"):
@@ -122,11 +122,11 @@ def main(args: list[str]) -> int:
             if 条目 not in 安装前AAF:
                 不同条目.append(条目)
         if 不同条目:
-            print(f"{消息头.消息}Apps And Features 条目变更:")
+            print(f"{消息头.消息} Apps And Features 条目变更:")
             for 条目 in 不同条目:
                 print(highlight(yaml.dump(转换AAF条目为YAML(条目), sort_keys=False, allow_unicode=True, default_flow_style=False), YamlLexer(), TerminalFormatter())) # type: ignore - 依赖问题
         else:
-            print(f"{消息头.警告}Apps And Features 条目没有变化")
+            print(f"{消息头.警告} Apps And Features 条目没有变化")
 
         try:
             input("按 ENTER 继续测试卸载，按 CTRL + C 结束...")
@@ -160,7 +160,7 @@ def 请求GitHubAPI(apiUrl: str, github_token: str | int):
         else:
             return 响应.json()
     except exception.request.RequestException as e:
-        print(f"{消息头.错误}请求 GitHub API 失败:\n{e}")
+        print(f"{消息头.错误} 请求 GitHub API 失败:\n{e}")
         return
 
 def 获取PR清单(PR编号: str, github_token: str | int, 清单目录: str) -> int:
@@ -174,15 +174,15 @@ def 获取PR清单(PR编号: str, github_token: str | int, 清单目录: str) ->
     fork仓库, fork分支 = 结果
 
     if os.path.exists(清单目录):
-        if input(f"{消息头.问题}临时清单目录下{Fore.YELLOW}已存在同名清单目录{Fore.RESET} {Fore.BLUE}{清单目录}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() not in ["y", "yes", "是", ""]:
-            print(f"{消息头.错误}临时清单目录下存在同名清单目录")
+        if input(f"{消息头.问题} 临时清单目录下{Fore.YELLOW}已存在同名清单目录{Fore.RESET} {Fore.BLUE}{清单目录}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() not in ["y", "yes", "是", ""]:
+            print(f"{消息头.错误} 临时清单目录下存在同名清单目录")
             return 1
         else:
             try:
                 # 移除它
                 shutil.rmtree(清单目录)
             except Exception as e:
-                print(f"{消息头.错误}移除同名清单目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+                print(f"{消息头.错误} 移除同名清单目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
                 return 1
     os.makedirs(清单目录, exist_ok=True)
 
@@ -210,7 +210,7 @@ def 获取PR清单(PR编号: str, github_token: str | int, 清单目录: str) ->
             with open(os.path.join(清单目录, os.path.basename(文件路径)), "wb") as 清单文件:
                 清单文件.write(清单内容)
         except Exception as e:
-            print(f"{消息头.错误}下载清单文件失败:\n{e}")
+            print(f"{消息头.错误} 下载清单文件失败:\n{e}")
             return 1
 
     print(f"成功获取 PR #{PR编号} 中的清单")
@@ -244,17 +244,17 @@ def 获取PR清单文件路径(PR编号: str, github_token: str | int) -> None |
                 if 清单文件夹 is None:
                     清单文件夹 = os.path.normpath(os.path.dirname(文件相对路径))
                 elif 清单文件夹 != os.path.normpath(os.path.dirname(文件相对路径)):
-                    print(f"{消息头.错误}此 PR 修改了多个文件夹下的文件")
+                    print(f"{消息头.错误} 此 PR 修改了多个文件夹下的文件")
                     return
             else:
-                print(f"{消息头.错误}非预期的清单类型: {Fore.BLUE}{文件相对路径}{Fore.RESET}")
+                print(f"{消息头.错误} 非预期的清单类型: {Fore.BLUE}{文件相对路径}{Fore.RESET}")
                 print(f"{Fore.YELLOW}Hint{Fore.RESET} 请确定 PR 是对清单的修改，并确定修改的文件都是 .yaml 格式")
                 return
             if 文件["status"] != "removed":
                 非预期状态 = False
 
         if 非预期状态:
-            print(f"{消息头.错误}这是个纯移除或没有修改的 PR")
+            print(f"{消息头.错误} 这是个纯移除或没有修改的 PR")
             return
         
         print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取清单文件相对路径")
@@ -291,25 +291,25 @@ def 测试安装与卸载(清单目录: str, 操作: str) -> int:
         settings_output = subprocess.check_output(["winget", "settings", "export"], text=True)
         settings = json.loads(settings_output)
     except subprocess.CalledProcessError as e:
-        print(f"{消息头.错误}获取 winget 设置失败: {e}")
+        print(f"{消息头.错误} 获取 winget 设置失败: {e}")
         return 1
     except json.JSONDecodeError as e:
-        print(f"{消息头.错误}解析 winget 设置失败: {e}")
+        print(f"{消息头.错误} 解析 winget 设置失败: {e}")
         return 1
 
     if not settings.get("adminSettings", {}).get("LocalManifestFiles", False): # 如果没有启用本地清单
         if ctypes.windll.shell32.IsUserAnAdmin() == 0:
             # 启用本地清单需要管理员权限
-            print(f"{消息头.错误}允许{操作}本地清单中的程序需要管理员权限")
+            print(f"{消息头.错误} 允许{操作}本地清单中的程序需要管理员权限")
             print(f"{Fore.YELLOW}Hint{Fore.RESET} 请在管理员权限的终端运行: winget settings --enable LocalManifestFiles")
             return 1
         else:
             try:
                 临时启用 = True
                 subprocess.run(["winget", "settings", "--enable", "LocalManifestFiles"], check=True)
-                print(f"{消息头.消息}临时启用 LocalManifestFiles")
+                print(f"{消息头.消息} 临时启用 LocalManifestFiles")
             except subprocess.CalledProcessError as e:
-                print(f"{消息头.错误}启用 LocalManifestFiles 失败: {e}")
+                print(f"{消息头.错误} 启用 LocalManifestFiles 失败: {e}")
                 return 1
     else:
         临时启用 = False
@@ -322,15 +322,15 @@ def 测试安装与卸载(清单目录: str, 操作: str) -> int:
             完整命令.append("--accept-package-agreements")
         subprocess.run(完整命令, check=True)
     except subprocess.CalledProcessError as e:
-        print(f"{消息头.错误}尝试{操作}软件包失败: WinGet 返回 {e.returncode}")
+        print(f"{消息头.错误} 尝试{操作}软件包失败: WinGet 返回 {e.returncode}")
         return 1
 
     try:
         if 临时启用:
-            print(f"{消息头.消息}还原 LocalManifestFiles 设置")
+            print(f"{消息头.消息} 还原 LocalManifestFiles 设置")
             subprocess.run(["winget", "settings", "--disable", "LocalManifestFiles"], check=True)
     except subprocess.CalledProcessError as e:
-        print(f"{消息头.错误}还原 LocalManifestFiles 设置失败: {e}")
+        print(f"{消息头.错误} 还原 LocalManifestFiles 设置失败: {e}")
         return 1
     
     return 0

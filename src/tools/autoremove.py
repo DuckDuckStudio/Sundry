@@ -1,10 +1,13 @@
-import re
 import os
+import yaml
+import requests
 import subprocess
+from typing import Any
 import tools.remove as remove
 from colorama import Fore, init
 from function.print.print import 消息头
 from function.maintain.config import 读取配置
+from exception.request import RequestException
 
 def main(args: list[str]) -> int:
     try:
@@ -12,10 +15,10 @@ def main(args: list[str]) -> int:
         软件包标识符: str = 处理参数(args)
         版本列表: list[str] = 查找软件包版本(软件包标识符)
         检查软件包版本(软件包标识符, 版本列表)
-        print(f"{消息头.成功}成功检查 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的所有版本")
+        print(f"{消息头.成功} 成功检查 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的所有版本")
         return 0
     except KeyboardInterrupt:
-        print(f"{消息头.错误}操作中止")
+        print(f"{消息头.错误} 操作中止")
         return 1
 
 def 检查软件包版本(软件包标识符: str, 版本列表: list[str]) -> None:
@@ -23,10 +26,127 @@ def 检查软件包版本(软件包标识符: str, 版本列表: list[str]) -> N
         print(f"\n{Fore.BLUE}INFO{Fore.RESET} 正在检查 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} ...")
         验证结果 = remove.使用WinGet验证(软件包标识符, 版本, AutoRemove=True)
         if not 验证结果:
-            print(f"{消息头.成功}验证 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 通过！")
+            print(f"{消息头.成功} 验证 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 通过！")
         else:
-            print(f"{消息头.错误}{Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 下载失败！将移除此版本...")
+            InstallerUrls验证结果 = 检查所有安装程序URL(软件包标识符, 版本)
+            if InstallerUrls验证结果[0] in [1, 2]:
+                print(f"{消息头.警告} 似乎有几个安装程序链接仍然有效，请检查它们。")
+                if 是否中止(input(f"{消息头.问题} 还是要移除此版本? [y/N]: ")):
+                    return
+            else:
+                验证结果.append(InstallerUrls验证结果[1])
+            print(f"{消息头.错误} {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 下载失败！将移除此版本...")
             移除软件包版本(软件包标识符, 版本, f"Attempt to download using WinGet failed.\n\n```logs\n{"\n".join(验证结果)}\n```")
+
+def 使用GitHubAPI检查安装程序URL(InstallerUrl: str) -> str:
+    """
+    > 呵呵... 你把我 GitHub 127.0.0.1/Connect reset 了，我用 GitHub API 你还能拿我怎样？
+
+    本函数使用 GitHub API 来检查指定的工件是否存在对应 tag 上。
+
+    请求 GitHub API 获取 Release 信息 (包含工件列表) → 检查工件名 (name) 是否在列表中。
+    """
+
+    try:
+        api = InstallerUrl.replace("https://github.com/", "https://api.github.com/repos/", 1).rsplit("/", 1)[0].rsplit("/", 2)
+        api[1] = "tags"
+        api = "/".join(api)
+
+        # I am too lazy so I don't use token, just send request.
+        响应 = requests.get(api)
+
+        if 响应.status_code == 404:
+            return f"{Fore.YELLOW}失效{Fore.RESET} (Tag 不存在)"
+        elif 响应.status_code >= 400:
+            return f"{Fore.RED}错误 (GitHub API 响应 {响应.status_code} {响应.content}){Fore.RESET}"
+
+        # 你可以自己 GET 下这个 json 看看是什么样的
+        # https://api.github.com/repos/DuckDuckStudio/Sundry/releases/tags/1.4.0
+        响应json: dict[str, str | int | dict[str, str | int | bool] | bool | list[dict[str, str | int | dict[str, str | int | bool] | None]]] = 响应.json()
+        工件数据: list[dict[str, str | int | None | dict[str, str | int | bool]]] = 响应json["assets"] # pyright: ignore[reportAssignmentType]
+        for 工件 in 工件数据:
+            if 工件["name"] == InstallerUrl.split("/")[-1]:
+                return f"{Fore.GREEN}通过 (工件名在 GitHub API 响应的工件列表中){Fore.RESET}"
+        else:
+            return f"{Fore.YELLOW}不存在{Fore.RESET} (工件名不在 GitHub API 响应的工件列表中)"
+    except ValueError as e:
+        return f"{Fore.RED}错误 ({e}){Fore.RESET}"
+
+def 检查所有安装程序URL(软件包标识符: str, 软件包版本: str) -> tuple[int, str]:
+    """
+    检查指定 软件包标识符 软件包版本 的安装程序清单中的所有 InstallerUrl 是否有失效的。
+
+    返回: 状态, 状态信息
+
+    状态:
+    - 全部失效为 0
+    - 部分失效为 1
+    - 全部有效为 2
+    - 检查失败为 3
+
+    返回示例: 3, "失效 (404)"
+    """
+    安装程序清单路径 = os.path.join(获取winget_pkgs目录(), "manifests", 软件包标识符[0].lower(), *软件包标识符.split("."), 软件包版本, f"{软件包标识符}.installer.yaml")
+    try:
+        # 获取安装程序清单中的所有 InstallerUrl 字段的值
+        with open(安装程序清单路径, "r", encoding="utf-8") as 清单文件:
+            清单数据: dict[str, Any] = yaml.safe_load(清单文件)
+            if not isinstance(清单数据, dict): # pyright: ignore[reportUnnecessaryIsInstance]
+                raise ValueError(f"清单读取错误。预期读到 dict，实际读到 {type(清单数据)}")
+        InstallerUrls: set[str] = set()
+        for item in 清单数据.get("Installers", []):
+            if "InstallerUrl" in item:
+                InstallerUrls.add(item["InstallerUrl"])
+
+        if not InstallerUrls:
+            print(f"{消息头.错误} {Fore.BLUE}{软件包标识符} {软件包版本}{Fore.RESET} 的安装程序清单中未找到 InstallerUrl")
+            return 3, ""
+        
+        # 检查所有 InstallerUrl 字段指向的 Url 是否有效
+        失效数 = 0
+        结果 = f"{Fore.GREEN}通过{Fore.RESET}"
+        验证结果 = "========== 验证安装程序清单中的 InstallerUrl(s) =========="
+        print("========== 验证安装程序清单中的 InstallerUrl(s) ==========")
+        for InstallerUrl in InstallerUrls:
+            print(f"正在检查 {InstallerUrl} ...", end="")
+            try:
+                try:
+                    # 尝试 HEAD 下
+                    响应 = requests.head(InstallerUrl, allow_redirects=True)
+                    if 400 <= 响应.status_code < 500: # 客户端错误
+                        raise RequestException
+                except requests.RequestException:
+                    raise RequestException
+            except RequestException:
+                try:
+                    # 以 GET 方法重试
+                    响应 = requests.get(InstallerUrl, allow_redirects=True)
+                    if 400 <= 响应.status_code < 500: # 客户端错误
+                        失效数 += 1
+                        结果 = f"失效 ({响应.status_code})"
+                        结果 = f"{Fore.YELLOW}{结果}{Fore.RESET}"
+                except requests.exceptions.SSLError:
+                    # 我跟你讲，这大概率是某个用证书加速的加速器干的。
+                    结果 = 使用GitHubAPI检查安装程序URL(InstallerUrl)
+                    if (Fore.YELLOW in 结果) or (Fore.RED in 结果):
+                        失效数 += 1
+                except requests.RequestException as e:
+                    失效数 += 1
+                    结果 = f"{Fore.RED}错误 ({e}){Fore.RESET}"
+            print(f"\r{InstallerUrl} | {结果}")
+            验证结果 = f"{验证结果}\n{InstallerUrl} | {结果.replace(Fore.RED, "").replace(Fore.YELLOW, "").replace(Fore.RESET, "")}"
+        if 失效数:
+            if 失效数 == len(InstallerUrls):
+                return 0, 验证结果
+            else:
+                return 1, 验证结果
+        else:
+            return 2, 验证结果
+    except Exception as e:
+        if isinstance(e, KeyboardInterrupt):
+            raise e
+        print(f"{消息头.错误} 检查安装程序清单中的 InstallerUrl(s) 失败:\n{Fore.RED}{e}{Fore.RESET}")
+        return 3, ""
 
 def 检查重复拉取请求(软件包标识符: str, 软件包版本: str) -> bool:
     """
@@ -41,10 +161,10 @@ def 检查重复拉取请求(软件包标识符: str, 软件包版本: str) -> b
 
 def 移除软件包版本(软件包标识符: str, 版本: str, 原因: str) -> None:
     if not 检查重复拉取请求(软件包标识符, 版本):
-        print(f"{消息头.警告}找到重复的拉取请求，跳过后续处理")
+        print(f"{消息头.警告} 找到重复的拉取请求，跳过后续处理")
         return
     if remove.main([软件包标识符, 版本, "True", 原因]):
-        print(f"{消息头.错误}尝试移除 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 失败！")
+        print(f"{消息头.错误} 尝试移除 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 失败！")
         raise KeyboardInterrupt
     
 def 获取winget_pkgs目录() -> str:
@@ -72,7 +192,7 @@ def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -
                                 版本列表.append(文件夹)
                     break
                 except FileNotFoundError as e:
-                    print(f"{消息头.错误}{Fore.RED}{e}{Fore.RESET}")
+                    print(f"{消息头.错误} {Fore.RED}{e}{Fore.RESET}")
                     input("是否重新查找? [ENTER/CTRL+C]")
         else:
             结果 = subprocess.run(
@@ -80,27 +200,40 @@ def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -
                 capture_output=True, text=True, check=True
             )
             版本列表 = []
+            开始了吗 = 3
             for 行 in [line for line in 结果.stdout.splitlines() if line.strip()]:
-                匹配结果 = re.match(r"^[Vv]?\d+(?:\.\d+)*$", 行)
-                # ^[Vv]?\d+(?:\.\d+)*$
-                # ^...$      -> 匹配行的开头和结尾，确保这一整行都是版本号。
-                # [Vv]?      -> 可选的 V 或 v，用于匹配像 "v1.2.3" 或 "V2.0" 这种带前缀的版本号。
-                # \d+        -> 匹配一个或多个数字，版本号的主版本部分，如 "1"、"12"。
-                # (?:\.\d+)* -> 非捕获分组，匹配零次或多次 ".数字"，用于次版本号和补丁号，如 ".2"、".3"。
-                #
-                # 这个正则的目的是:
-                # - 匹配类似 "1.2.3"、"v2.0"、"V10.4.1" 这样的版本号字符串；
-                # - 支持可选的 v 或 V 前缀；
-                if 匹配结果:
+                # 旧的正则匹配查找
+                # 匹配结果 = re.match(r"^[Vv]?\d+(?:\.\d+)*$", 行)
+                # # ^[Vv]?\d+(?:\.\d+)*$
+                # # ^...$      -> 匹配行的开头和结尾，确保这一整行都是版本号。
+                # # [Vv]?      -> 可选的 V 或 v，用于匹配像 "v1.2.3" 或 "V2.0" 这种带前缀的版本号。
+                # # \d+        -> 匹配一个或多个数字，版本号的主版本部分，如 "1"、"12"。
+                # # (?:\.\d+)* -> 非捕获分组，匹配零次或多次 ".数字"，用于次版本号和补丁号，如 ".2"、".3"。
+                # #
+                # # 这个正则的目的是:
+                # # - 匹配类似 "1.2.3"、"v2.0"、"V10.4.1" 这样的版本号字符串；
+                # # - 支持可选的 v 或 V 前缀；
+                # if 匹配结果:
+                #     版本列表.append(行)
+                # print(f"{消息头.调试} {repr(行)}")
+                # ============================================================
+                if (开始了吗 < 1):
                     版本列表.append(行)
+                if (软件包标识符 in 行) or (开始了吗 < 3):
+                    开始了吗 -= 1
+
+            print(f"{消息头.调试} 获取到的版本列表:\n{消息头.调试} {版本列表}\n{消息头.调试} 输出:\n{消息头.调试} {f"\n{消息头.调试} ".join([line for line in 结果.stdout.splitlines() if line.strip()])}")
         if not 版本列表:
-            print(f"{消息头.错误}未找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的任何版本")
-            if 本地仓库 or 是否中止(input(f"{消息头.问题}使用本地仓库中的信息吗? [Y/n]: "), "y"):
+            print(f"{消息头.错误} 未找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的任何版本")
+            if 本地仓库 or 是否中止(input(f"{消息头.问题} 使用本地仓库中的信息吗? [Y/n]: "), "y"):
                 raise KeyboardInterrupt
-        print(f"{消息头.成功}找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 版本:\n{Fore.BLUE}{f"{Fore.RESET},{Fore.BLUE} ".join(版本列表)}{Fore.RESET}\n")
+            else:
+                # 调用函数时会输出成功提示
+                return 查找软件包版本(软件包标识符, 本地仓库=True)
+        print(f"{消息头.成功} 找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 版本:\n{Fore.BLUE}{f"{Fore.RESET},{Fore.BLUE} ".join(版本列表)}{Fore.RESET}\n")
         return 版本列表
     except subprocess.CalledProcessError as e:
-        print(f"{消息头.错误}获取版本失败:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 获取版本失败:\n{Fore.RED}{e}{Fore.RESET}")
         raise KeyboardInterrupt
 
 def 是否中止(输入: str, 默认: str = "n") -> bool:
@@ -116,11 +249,11 @@ def 是否中止(输入: str, 默认: str = "n") -> bool:
 
 def 处理参数(args: list[str]) -> str:
     if not args:
-        print(f"{消息头.错误}请传递参数")
+        print(f"{消息头.错误} 请传递参数")
         raise KeyboardInterrupt
     
     预期参数数量: int = 1
     if len(args) > 预期参数数量:
-        print(f"{消息头.提示}多余的参数，我们只需要 {预期参数数量} 个参数")
+        print(f"{消息头.提示} 多余的参数，我们只需要 {预期参数数量} 个参数")
 
     return args[0] # 包标识符

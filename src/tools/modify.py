@@ -34,7 +34,7 @@ def main(args: list[str]):
         else:
             解决 = ""
     else:
-        print(f"{消息头.错误}{Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
     
     # 路径
@@ -126,7 +126,7 @@ def main(args: list[str]):
 
     # 确保有获取到至少一个版本文件夹
     if not 版本文件夹s:
-        print(f"{消息头.错误}没有找到任何版本文件夹，请检查参数是否正确。")
+        print(f"{消息头.错误} 没有找到任何版本文件夹，请检查参数是否正确。")
         写入日志("No version folder found.", "ERROR")
         with open(os.path.join(程序所在目录, 日志文件路径), 'a') as 日志文件: # 追加写入
             日志文件.write("~~ End of logging ~~\n")
@@ -188,7 +188,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> 
     while True: # 不 break 直接 return
         github_token = read_token()
         if not github_token:
-            print(f"{消息头.错误}拉取请求创建失败: Token 读取失败")
+            print(f"{消息头.错误} 拉取请求创建失败: Token 读取失败")
             return 1
         api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
         请求头 = {
@@ -211,7 +211,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> 
             print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
             写入日志(f"    Failed to create pull request: {response.status_code} - {response.text}", "ERROR")
             try:
-                if input(f"{消息头.问题}我应该重试吗[Y/N]: ").lower() not in ["y", "yes", "应该", "要", "重试", "retry"]:
+                if input(f"{消息头.问题} 我应该重试吗[Y/N]: ").lower() not in ["y", "yes", "应该", "要", "重试", "retry"]:
                     return 1
                 print("正在重试...")
                 写入日志("    Retrying to create a pull request...")
