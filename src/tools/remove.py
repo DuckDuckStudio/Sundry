@@ -21,7 +21,7 @@ def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹:
     while True: # 不 break 直接 return
         github_token = read_token()
         if not github_token:
-            print(f"{消息头.错误}拉取请求创建失败: Token 读取失败")
+            print(f"{消息头.错误} 拉取请求创建失败: Token 读取失败")
             return 1
 
         api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
@@ -51,7 +51,7 @@ def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹:
         else:
             print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
             try:
-                if input(f"{消息头.问题}我应该重试吗[Y/N]: ").lower() not in ["y", "yes", "应该", "要", "重试", "retry"]:
+                if input(f"{消息头.问题} 我应该重试吗[Y/N]: ").lower() not in ["y", "yes", "应该", "要", "重试", "retry"]:
                     return 1
                 print("正在重试...")
             except KeyboardInterrupt:
@@ -92,7 +92,7 @@ def main(args: list[str]):
                 # 其他值视为理由
                 理由 = args[2]
     else:
-        print(f"{消息头.错误}{Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
     清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'))
@@ -108,9 +108,9 @@ def main(args: list[str]):
     
     if any(os.path.isdir(os.path.join(os.path.join(清单目录, 软件包版本), item)) for item in os.listdir(os.path.join(清单目录, 软件包版本))):
         # 如果软件包版本清单目录下存在其他文件夹
-        print(f"{消息头.错误}软件包版本清单目录下存在其他文件夹")
-        print(f"{消息头.提示}这可能是因为你 {Fore.YELLOW}错误的将软件包标识符的一部分当作软件包版本{Fore.RESET} 导致的。")
-        print(f"{消息头.提示}例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
+        print(f"{消息头.错误} 软件包版本清单目录下存在其他文件夹")
+        print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将软件包标识符的一部分当作软件包版本{Fore.RESET} 导致的。")
+        print(f"{消息头.提示} 例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
         return 1
 
     # 入口
@@ -124,7 +124,7 @@ def main(args: list[str]):
                 print("======= 此软件包版本在 winget 上的信息 =======")
                 subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
             except subprocess.CalledProcessError as e:
-                print(f"{消息头.错误}获取软件包信息失败: {Fore.RED}{e}{Fore.RESET}")
+                print(f"{消息头.错误} 获取软件包信息失败: {Fore.RED}{e}{Fore.RESET}")
                 return 1
             cat.main([软件包标识符, 软件包版本, "installer"])
             print("======= 确认 =======")

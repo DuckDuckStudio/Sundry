@@ -12,5 +12,5 @@ def read_token():
         # else:
         return token
     except Exception as e:
-        print(f"{消息头.错误}读取Token时出错:\n{e}")
+        print(f"{消息头.错误} 读取Token时出错:\n{e}")
         return 0
