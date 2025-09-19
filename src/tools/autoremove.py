@@ -61,7 +61,7 @@ def 使用GitHubAPI检查安装程序URL(InstallerUrl: str) -> str:
             return f"{Fore.RED}错误 (GitHub API 响应 {响应.status_code} {响应.content}){Fore.RESET}"
 
         # 你可以自己 GET 下这个 json 看看是什么样的
-        # https://api.github.com/repos/DuckDuckStudio/Sundry/releases/tags/1.4.0
+        # https://api.github.com/repos/DuckDuckStudio/Sundry/releases/tags/1.4.1
         响应json: dict[str, str | int | dict[str, str | int | bool] | bool | list[dict[str, str | int | dict[str, str | int | bool] | None]]] = 响应.json()
         工件数据: list[dict[str, str | int | None | dict[str, str | int | bool]]] = 响应json["assets"] # pyright: ignore[reportAssignmentType]
         for 工件 in 工件数据:
@@ -157,10 +157,10 @@ def 检查重复拉取请求(软件包标识符: str, 软件包版本: str) -> b
         ["gh", "pr", "list", "-S", f"{软件包标识符} {软件包版本}", "--repo", "microsoft/winget-pkgs"],
         capture_output=True, text=True, check=True
     )
-    return not result.stdout
+    return bool(result.stdout)
 
 def 移除软件包版本(软件包标识符: str, 版本: str, 原因: str) -> None:
-    if not 检查重复拉取请求(软件包标识符, 版本):
+    if 检查重复拉取请求(软件包标识符, 版本):
         print(f"{消息头.警告} 找到重复的拉取请求，跳过后续处理")
         return
     if remove.main([软件包标识符, 版本, "True", 原因]):
@@ -168,7 +168,7 @@ def 移除软件包版本(软件包标识符: str, 版本: str, 原因: str) -> 
         raise KeyboardInterrupt
     
 def 获取winget_pkgs目录() -> str:
-    winget_pkgs目录 = 读取配置("winget-pkgs")
+    winget_pkgs目录 = 读取配置("paths.winget-pkgs")
     if not isinstance(winget_pkgs目录, str):
         raise KeyboardInterrupt
     return winget_pkgs目录
@@ -202,21 +202,6 @@ def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -
             版本列表 = []
             开始了吗 = 3
             for 行 in [line for line in 结果.stdout.splitlines() if line.strip()]:
-                # 旧的正则匹配查找
-                # 匹配结果 = re.match(r"^[Vv]?\d+(?:\.\d+)*$", 行)
-                # # ^[Vv]?\d+(?:\.\d+)*$
-                # # ^...$      -> 匹配行的开头和结尾，确保这一整行都是版本号。
-                # # [Vv]?      -> 可选的 V 或 v，用于匹配像 "v1.2.3" 或 "V2.0" 这种带前缀的版本号。
-                # # \d+        -> 匹配一个或多个数字，版本号的主版本部分，如 "1"、"12"。
-                # # (?:\.\d+)* -> 非捕获分组，匹配零次或多次 ".数字"，用于次版本号和补丁号，如 ".2"、".3"。
-                # #
-                # # 这个正则的目的是:
-                # # - 匹配类似 "1.2.3"、"v2.0"、"V10.4.1" 这样的版本号字符串；
-                # # - 支持可选的 v 或 V 前缀；
-                # if 匹配结果:
-                #     版本列表.append(行)
-                # print(f"{消息头.调试} {repr(行)}")
-                # ============================================================
                 if (开始了吗 < 1):
                     版本列表.append(行)
                 if (软件包标识符 in 行) or (开始了吗 < 3):
