@@ -116,6 +116,7 @@ def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = No
 
     if not 理由:
         # 追加创建的 PR 不会带理由，因为理由已写入检测脚本
+        数据: dict[str, str | bool]
         数据 = {
             "title": f"[Auto] 自动忽略追加 - {格式化忽略字段}",
             "head": f"{owner}{分支名}",
@@ -138,6 +139,8 @@ def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = No
             "base": f"{owner}main",
             "body": f"### 此 PR 由 [Sundry](https://github.com/DuckDuckStudio/Sundry/) 创建，用于向检查代码**移除**忽略字段 `{忽略字段}`\n理由: {理由}"
         }
+    if 读取配置("github.pr.maintainer_can_modify") == False:
+        数据["maintainer_can_modify"] = False
     # =======================
     response = requests.post(api, headers=请求头, json=数据)
     if response.status_code == 201:
@@ -153,11 +156,11 @@ def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = No
 def main(args: list[str]):
     init(autoreset=True)
 
-    winget_tools目录 = 读取配置("winget-tools")
+    winget_tools目录 = 读取配置("paths.winget-tools")
     if not isinstance(winget_tools目录, str):
         return 1
     
-    tools仓库 = 读取配置("tools-repo")
+    tools仓库 = 读取配置("repos.winget-tools")
     if not isinstance(tools仓库, tuple):
         return 1
     owner, _ = tools仓库

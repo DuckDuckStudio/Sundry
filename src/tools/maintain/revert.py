@@ -7,8 +7,8 @@ from function.maintain.config import 读取配置
 def main(args: list[str]):
     init(autoreset=True)
 
-    winget_pkgs目录 = 读取配置("winget-pkgs")
-    winget_tools目录 = 读取配置("winget-tools")
+    winget_pkgs目录 = 读取配置("paths.winget-pkgs")
+    winget_tools目录 = 读取配置("paths.winget-tools")
     if not (isinstance(winget_pkgs目录, str) and isinstance(winget_tools目录, str)):
         return 1
     

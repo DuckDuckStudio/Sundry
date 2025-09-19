@@ -10,7 +10,7 @@ def main():
 
     try:
         for 仓库 in ["winget-pkgs", "winget-tools"]:
-            仓库路径 = 读取配置(仓库)
+            仓库路径 = 读取配置(f"paths.{仓库}")
             if isinstance(仓库路径, str):
                 清理远程(仓库, 仓库路径)
             else:

@@ -46,11 +46,11 @@ def main(args: list[str]):
     新清单版本号 = "1.10.0"
 
     winget_pkgs目录 = ""
-    winget_pkgs目录 = 读取配置("winget-pkgs")
+    winget_pkgs目录 = 读取配置("paths.winget-pkgs")
     if not isinstance(winget_pkgs目录, str):
         return 1
     
-    pkgs仓库 = 读取配置("pkgs-repo")
+    pkgs仓库 = 读取配置("repos.winget-pkgs")
     if not isinstance(pkgs仓库, tuple):
         return 1
     owner, _ = pkgs仓库
@@ -111,7 +111,7 @@ def main(args: list[str]):
             写入日志(f"Found the following version folder: {版本文件夹s}")
             break
         except FileNotFoundError as e:
-            print(f"{消息头.错误}{Fore.RED}{e}{Fore.RESET}")
+            print(f"{消息头.错误} {Fore.RED}{e}{Fore.RESET}")
             写入日志(f"Error getting package version number folder: {e}")
             try:
                 input("是否重新查找? [ENTER/CTRL+C]")
@@ -195,12 +195,15 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> 
             "Authorization": f"token {github_token}",
             "Accept": "application/vnd.github.v3+json"
         }
+        数据: dict[str, str | bool]
         数据 = {
             "title": f"Modify: {软件包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
             "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n\n{审查}\n{解决}\n\n---\n"
         }
+        if 读取配置("github.pr.maintainer_can_modify") == False:
+            数据["maintainer_can_modify"] = False
 
         response = requests.post(api, headers=请求头, json=数据)
         if response.status_code == 201:

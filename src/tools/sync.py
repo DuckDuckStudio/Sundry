@@ -8,7 +8,7 @@ def main():
     init(autoreset=True)
 
     try:
-        winget_pkgs目录 = 读取配置("winget-pkgs")
+        winget_pkgs目录 = 读取配置("paths.winget-pkgs")
         if not isinstance(winget_pkgs目录, str):
             return 1
 
