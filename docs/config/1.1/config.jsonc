@@ -1,0 +1,73 @@
+// Sundry config.json 版本 1.1 示例
+// 相关配置项的 key 必须使用小写
+
+{
+    "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.1.json",
+
+    // 配置文件的版本。
+    // old: sundry-old 的配置文件
+    // develop: DuckDuckStudio/Sundry main 分支最新提交的版本
+    // 1.0: Sundry 1.4.1 及以前的版本
+    // 1.1: Sundry 1.4.2 及后续的版本
+    "version": "1.1", // str
+
+    "paths": {
+        // 您的 winget-pkgs 本地仓库路径
+        "winget-pkgs": "", // str
+
+        // 您的 winget-tools 本地仓库路径
+        "winget-tools": "" // str
+    },
+
+    "repos": {
+        // 您的 winget-pkgs 仓库
+        "winget-pkgs": "", // str, owner/repo
+
+        // 您的 winget-tools 仓库
+        "winget-tools": "" // str, owner/repo
+    },
+
+    "git": {
+        // 是否对提交签名
+        "signature": false // bool
+    },
+
+    "github": {
+        "pr": {
+            // 是否允许维护者修改您的 PR 内容
+            "maintainer_can_modify": false // bool
+        }
+    },
+
+    "tools": {
+        "verify": {
+            // 暂未实现
+            // verify 时验证清单中的 URL 是否有效 (#68)
+            "check_url": false, // bool
+
+            // 暂未实现
+            // 在非干净的 Windows 上验证时显示警告 (#99)
+            // TODO: 这个配置会不会太长了？
+            "show_warning_on_non-clean_windows": false // bool
+        },
+        "prune": {
+            "remote": {
+                // 暂未实现
+                // prune 时清理远程中已合并的 PR 的分支 (#98)
+                "prune_merged_branches": false, // bool
+
+                // 暂未实现
+                // prune 时清理远程中已关闭的 PR 的分支 (#98)
+                "prune_closed_branches": false // bool
+            }
+        }
+    },
+
+    // ================= 待定 / 其他分支兼容 =================
+
+    "i18n": {
+        // 仅 Sundry-Locale i18n 分支
+        // Sundry 运行时使用的语言
+        "lang": "zh-cn" // zh-cn | en-us - 全小写
+    }
+}

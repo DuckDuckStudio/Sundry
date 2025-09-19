@@ -1,0 +1,24 @@
+// Sundry config.json 版本 1.0 示例
+
+{
+    "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.0.json",
+
+    // Sundry 版本
+    // develop: DuckDuckStudio/Sundry main 分支最新提交的版本
+    "version": "develop", // str
+
+    // 您的 winget-pkgs 本地仓库路径
+    "winget-pkgs": "", // str
+
+    // 您的 winget-tools 本地仓库路径
+    "winget-tools": "", // str
+
+    // 您的 winget-pkgs 仓库
+    "pkgs-repo": "", // str, owner/repo
+
+    // 您的 winget-tools 仓库
+    "tools-repo": "", // str, owner/repo
+
+    // 是否对提交签名
+    "signature": "" // str, yes | no
+}
