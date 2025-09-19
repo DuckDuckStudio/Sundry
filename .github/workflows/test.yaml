@@ -87,27 +87,41 @@ jobs:
       - name: 配置 Sundry
         shell: bash
         run: |
-          # 创建用户目录下的 .config/DuckStudio/Sundry/config.json，并写入
-          # {
-          #     "version": "123.456.789",
-          #     "winget-pkgs": "上面克隆的位置",
-          #     "winget-tools": "上面克隆的位置",
-          #     "pkgs-repo": "DuckDuckStudio/winget-pkgs",
-          #     "tools-repo": "DuckDuckStudio/winget-tools",
-          #     "signature": "no",
-          #     "fork": "DuckDuckStudio/winget-pkgs",
-          #     "lang": "zh-CN"
-          # }
           mkdir -p "$HOME/.config/DuckStudio/Sundry"
           echo "{
-            \"version\": \"123.456.789\",
-            \"winget-pkgs\": \"${GITHUB_WORKSPACE//\\//}/winget-pkgs/\",
-            \"winget-tools\": \"${GITHUB_WORKSPACE//\\//}/winget-tools/\",
-            \"pkgs-repo\": \"DuckDuckStudio/winget-pkgs\",
-            \"tools-repo\": \"DuckDuckStudio/winget-tools\",
-            \"signature\": \"no\",
-            \"fork\": \"DuckDuckStudio/winget-pkgs\",
-            \"lang\": \"zh-CN\"
+            \"$schema\": \"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.1.json\",
+            \"version\": \"1.1\",
+            \"paths\": {
+              \"winget-pkgs\": \"${GITHUB_WORKSPACE//\\//}/winget-pkgs/\",
+              \"winget-tools\": \"${GITHUB_WORKSPACE//\\//}/winget-tools/\"
+            },
+            \"repos\": {
+              \"winget-pkgs\": \"DuckDuckStudio/winget-pkgs\",
+              \"winget-tools\": \"DuckDuckStudio/winget-tools\"
+            },
+            \"git\": {
+              \"signature\": false
+            },
+            \"github\": {
+              \"pr\": {
+                \"maintainer_can_modify\": false
+              }
+            },
+            \"tools\": {
+              \"verify\": {
+                \"check_url\": false,
+                \"show_warning_on_non-clean_windows\": false
+              },
+              \"prune\": {
+                \"remote\": {
+                  \"prune_merged_branches\": false,
+                  \"prune_closed_branches\": false
+                }
+              }
+            },
+            \"i18n\": {
+              \"lang\": \"zh-cn\"
+            }
           }" > "$HOME/.config/DuckStudio/Sundry/config.json"
           cat "$HOME/.config/DuckStudio/Sundry/config.json"
 
@@ -452,14 +466,39 @@ jobs:
         run: |
           mkdir -p "$HOME/.config/DuckStudio/Sundry"
           echo "{
-            \"version\": \"123.456.789\",
-            \"winget-pkgs\": \"$GITHUB_WORKSPACE/winget-pkgs/\",
-            \"winget-tools\": \"$GITHUB_WORKSPACE/winget-tools/\",
-            \"pkgs-repo\": \"DuckDuckStudio/winget-pkgs\",
-            \"tools-repo\": \"DuckDuckStudio/winget-tools\",
-            \"signature\": \"no\",
-            \"fork\": \"DuckDuckStudio/winget-pkgs\",
-            \"lang\": \"zh-CN\"
+            \"$schema\": \"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.1.json\",
+            \"version\": \"1.1\",
+            \"paths\": {
+              \"winget-pkgs\": \"${GITHUB_WORKSPACE//\\//}/winget-pkgs/\",
+              \"winget-tools\": \"${GITHUB_WORKSPACE//\\//}/winget-tools/\"
+            },
+            \"repos\": {
+              \"winget-pkgs\": \"DuckDuckStudio/winget-pkgs\",
+              \"winget-tools\": \"DuckDuckStudio/winget-tools\"
+            },
+            \"git\": {
+              \"signature\": false
+            },
+            \"github\": {
+              \"pr\": {
+                \"maintainer_can_modify\": false
+              }
+            },
+            \"tools\": {
+              \"verify\": {
+                \"check_url\": false,
+                \"show_warning_on_non-clean_windows\": false
+              },
+              \"prune\": {
+                \"remote\": {
+                  \"prune_merged_branches\": false,
+                  \"prune_closed_branches\": false
+                }
+              }
+            },
+            \"i18n\": {
+              \"lang\": \"zh-cn\"
+            }
           }" > "$HOME/.config/DuckStudio/Sundry/config.json"
           cat "$HOME/.config/DuckStudio/Sundry/config.json"
 
