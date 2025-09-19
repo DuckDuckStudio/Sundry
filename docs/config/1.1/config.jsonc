@@ -9,7 +9,7 @@
     // develop: DuckDuckStudio/Sundry main 分支最新提交的版本
     // 1.0: Sundry 1.4.1 及以前的版本
     // 1.1: Sundry 1.4.2 及后续的版本
-    "version": 1.1, // str
+    "version": "1.1", // str
 
     "paths": {
         // 您的 winget-pkgs 本地仓库路径
