@@ -29,6 +29,7 @@ def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹:
             "Authorization": f"token {github_token}",
             "Accept": "application/vnd.github.v3+json"
         }
+        数据: dict[str, str | bool]
         if (手动验证结果):
             数据 = {
                 "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
@@ -43,6 +44,9 @@ def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹:
                 "base": "master",
                 "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n\n---\n"
             }
+
+        if 读取配置("github.pr.maintainer_can_modify") == False:
+            数据["maintainer_can_modify"] = False
 
         response = requests.post(api, headers=请求头, json=数据)
         if response.status_code == 201:
@@ -62,14 +66,14 @@ def main(args: list[str]):
 
     init(autoreset=True)
 
-    winget_pkgs目录 = 读取配置("winget-pkgs")
+    winget_pkgs目录 = 读取配置("paths.winget-pkgs")
     if not isinstance(winget_pkgs目录, str):
         return 1
-    pkgs仓库 = 读取配置("pkgs-repo")
+    pkgs仓库 = 读取配置("repos.winget-pkgs")
     if not isinstance(pkgs仓库, tuple):
         return 1
     owner, _ = pkgs仓库
-    是否签名 = 读取配置("signature")
+    是否签名 = 读取配置("git.signature")
     if not isinstance(是否签名, bool):
         return 1
 

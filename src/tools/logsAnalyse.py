@@ -197,7 +197,7 @@ def main(args: list[str]) -> int:
                                     if match:
                                         exit_code = match.group(1)
                                         try:
-                                            winget_pkgs仓库 = 读取配置("winget-pkgs", 静默=True)
+                                            winget_pkgs仓库 = 读取配置("paths.winget-pkgs", 静默=True)
                                             if isinstance(winget_pkgs仓库, str):
                                                 ExitCodesFile = os.path.join(winget_pkgs仓库, "Tools", "ManualValidation", "ExitCodes.csv")
                                                 if os.path.exists(ExitCodesFile):

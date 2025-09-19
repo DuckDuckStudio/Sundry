@@ -35,7 +35,7 @@ def 读取和输出(清单文件: str):
 def main(args: list[str]):
     init(autoreset=True)
 
-    winget_pkgs目录 = 读取配置("winget-pkgs")
+    winget_pkgs目录 = 读取配置("paths.winget-pkgs")
     if not isinstance(winget_pkgs目录, str):
         return 1
 

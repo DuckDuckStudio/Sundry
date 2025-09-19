@@ -33,7 +33,7 @@ def main(args: list[str]) -> int:
     if (len(args) == 2): # 符合参数个数要求
         软件包标识符 = args[0]
         软件包版本 = args[1]
-        winget_pkgs目录 = 读取配置("winget-pkgs")
+        winget_pkgs目录 = 读取配置("paths.winget-pkgs")
         if not isinstance(winget_pkgs目录, str):
             return 1
     elif (len(args) == 1):
