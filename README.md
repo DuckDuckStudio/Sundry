@@ -150,6 +150,12 @@ sundry config "<条目>" "<值>"
     - 保留日志文件且显示一般错误/异常: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=137464" y y`
   - 清理之前下载的日志: `sundry logs-analyse cleanup` (等效于 `sundry cleanup logs-analyse`)
 
+> 下载日志文件时响应 404 意味着什么？
+
+1. 验证管道没有上传日志。
+2. 此次运行的日志已被删除。  
+  如果这是一个较早的运行，日志可能已经被项目配置自动清理掉了。
+
 </details>
 
 <details>
