@@ -109,7 +109,7 @@ def main(args: list[str]):
     if not os.path.exists(os.path.join(清单目录, 软件包版本)):
         print(f"{Fore.RED}软件包版本清单目录不存在: {os.path.join(清单目录, 软件包版本)}")
         return 1
-    
+
     if any(os.path.isdir(os.path.join(os.path.join(清单目录, 软件包版本), item)) for item in os.listdir(os.path.join(清单目录, 软件包版本))):
         # 如果软件包版本清单目录下存在其他文件夹
         print(f"{消息头.错误} 软件包版本清单目录下存在其他文件夹")
@@ -277,7 +277,7 @@ def 使用WinGet验证(软件包标识符: str, 软件包版本: str, AutoRemove
             同行 = "正常"
             验证结果日志.append(line.replace("\r", "").replace("\n", ""))
 
-            if any(msg in line for msg in ["执行此命令时发生意外错误", "Download request status is not success.", "404", "403", "安装程序哈希不匹配"]):
+            if any(msg in line for msg in ["执行此命令时发生意外错误", "Download request status is not success.", "404", "403", "安装程序哈希不匹配"]) and (not any(msg in line for msg in ["已找到", "正在下载"])):
                 print(f"{Fore.RED}{line}{Fore.RESET}")
             elif "正在下载" in line:
                 line = f"{line.replace("正在下载", f"正在下载{Fore.LIGHTBLUE_EX}")}{Fore.RESET}"
