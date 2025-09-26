@@ -3,7 +3,7 @@ keyring==25.6.0 # 读Token
 colorama==0.4.6 # 输颜色
 translate==3.6.1 # 翻结果
 pygments==2.19.2 # 高亮文本
-PyYAML==6.0.2 # 处理 YAML
+PyYAML==6.0.3 # 处理 YAML
 
 Pillow==11.3.0 # png 转 ico
 pyinstaller==6.16.0 # 打包 exe
