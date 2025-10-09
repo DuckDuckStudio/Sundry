@@ -2,7 +2,7 @@
 
 [![GitHub Releases 最新版本](https://img.shields.io/github/release/DuckDuckStudio/Sundry)](https://github.com/DuckDuckStudio/Sundry/releases/latest) ![GitHub Releases 下载数](https://img.shields.io/github/downloads/DuckDuckStudio/Sundry/total.svg)  
 
-sundry 是一个 WinGet 本地清单管理工具，让您更方便地移除清单、修改清单，还可以辅助更新清单。  
+Sundry 是一个 WinGet 相关的工具，帮您更方便地移除清单、修改清单、分析验证错误等。  
 
 ## 如何获取
 ### Windows
@@ -429,3 +429,4 @@ echo "配置 Sundry..."
 ```
 
 然后 `./Release` 下就是构建结果。  
+
