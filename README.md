@@ -174,7 +174,6 @@ sundry config "<条目>" "<值>"
   - 测试指定清单文件夹: `sundry verify D:/WinGet/Manifests/DuckStudio/FufuTools/1.3.10/`
   - 测试 PR 清单: `sundry verify <打开的PR>`
 
-> [!WARNING]
 > 1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了 GitHub API 会响应 404 Not Found。  
 > 2. 它暂时**无法获取 `UpgradeCode`**。  
 
@@ -268,7 +267,8 @@ sundry config "<条目>" "<值>"
     sundry repr "第一行
     第二行"
     ```
-  - 文件 (假设编码为 gbk): `sundry repr "D:/文件路径/文件.txt" "gbk"`
+  - 文件: `sundry repr "D:/文件路径/文件.txt"`
+  - 指定编码: `sundry repr "D:/文件路径/文件.txt" "gbk"`
 
 </details>
 
@@ -284,7 +284,9 @@ sundry config "<条目>" "<值>"
 - 示例:
   - 初始化配置: `sundry config init`
   - 显示当前配置: `sundry config show`
-  - 修改配置项: `sundry config signature no`
+  - 修改配置项: `sundry config git.signature false`
+
+> 有关配置文件的更多信息，请参阅[配置文件 1.1 文档](docs/config/1.1/README.md)。
 
 </details>
 
@@ -299,7 +301,8 @@ sundry config "<条目>" "<值>"
 - 用法: `sundry revert <仓库> <是否已提交> <是否丢弃>`
 - 示例:
   - 还原所有仓库、未提交、丢弃: `sundry revert all n y`
-  - 其他类似
+  - 还原 winget-pkgs 仓库、已提交、丢弃: `sundry revert pkgs y y`
+  - 还原 winget-tools 仓库、未提交、保留: `sundry revert tools n n`
 
 </details>
 
