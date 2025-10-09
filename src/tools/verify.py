@@ -17,6 +17,7 @@ from function.github.token import read_token
 from function.maintain.config import 读取配置
 from pygments import highlight # pyright: ignore[reportUnknownVariableType]
 from pygments.lexers import YamlLexer # pyright: ignore[reportUnknownVariableType]
+from function.files.manifest import 获取清单目录
 from pygments.formatters import TerminalFormatter
 
 def main(args: list[str]) -> int:
@@ -26,7 +27,8 @@ def main(args: list[str]) -> int:
     软件包标识符: str = ""
     软件包版本: str = ""
     PR编号: str = ""
-    清单目录: str = ""
+    清单目录: str | None = None
+    winget_pkgs目录 = ""
     github_token = 0
 
     # 解析参数
@@ -91,7 +93,10 @@ def main(args: list[str]) -> int:
         if 获取PR清单(PR编号, github_token, 清单目录):
             return 1
     elif not 清单目录:
-        清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split("."), 软件包版本)
+        清单目录 = 获取清单目录(软件包标识符, 软件包版本, winget_pkgs目录)
+        if not 清单目录:
+            print(f"{消息头.错误} 获取清单目录失败")
+            return 1
 
         # 如果该软件包在 Auth.csv 中，则警告用户
         with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode="r", encoding="utf-8") as file:

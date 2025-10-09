@@ -93,12 +93,10 @@ sundry config "<条目>" "<值>"
 
 - 别名: `自动移除`, `autoremove`
 - 作用: 自动检查并移除指定软件包标识符下的失效版本。
-- 用法: `sundry autoremove <软件包标识符>`
-- 示例: `sundry autoremove DuckStudio.Sundry`
-
-> [!WARNING]
-> 她**不会**检查清单中的所有 `InstallerUrl`，而是仅使用 WinGet 验证[适合自己设备的安装程序](https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=winget-是怎么选择要用哪个安装程序的？)是否有效。**例如您在一个 x86 设备上尝试 `autoremove` 一个仅 x64 的软件包，则可能出现误判。**  
-> 我知道这不是一个好方法，我已在 Sundry-Locale 上着手修改检查逻辑。  
+- 用法: `sundry autoremove <软件包标识符> [是否跳过检查]`
+- 示例:
+  - 基本: `sundry autoremove DuckStudio.Sundry`
+  - 跳过检查 (直接移除整个包): `sundry autoremove DuckStudio.Sundry skip`
 
 </details>
 
@@ -176,7 +174,6 @@ sundry config "<条目>" "<值>"
   - 测试指定清单文件夹: `sundry verify D:/WinGet/Manifests/DuckStudio/FufuTools/1.3.10/`
   - 测试 PR 清单: `sundry verify <打开的PR>`
 
-> [!WARNING]
 > 1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了 GitHub API 会响应 404 Not Found。  
 > 2. 它暂时**无法获取 `UpgradeCode`**。  
 
@@ -270,7 +267,8 @@ sundry config "<条目>" "<值>"
     sundry repr "第一行
     第二行"
     ```
-  - 文件 (假设编码为 gbk): `sundry repr "D:/文件路径/文件.txt" "gbk"`
+  - 文件: `sundry repr "D:/文件路径/文件.txt"`
+  - 指定编码: `sundry repr "D:/文件路径/文件.txt" "gbk"`
 
 </details>
 
@@ -286,7 +284,9 @@ sundry config "<条目>" "<值>"
 - 示例:
   - 初始化配置: `sundry config init`
   - 显示当前配置: `sundry config show`
-  - 修改配置项: `sundry config signature no`
+  - 修改配置项: `sundry config git.signature false`
+
+> 有关配置文件的更多信息，请参阅[配置文件 1.1 文档](docs/config/1.1/README.md)。
 
 </details>
 
@@ -301,7 +301,8 @@ sundry config "<条目>" "<值>"
 - 用法: `sundry revert <仓库> <是否已提交> <是否丢弃>`
 - 示例:
   - 还原所有仓库、未提交、丢弃: `sundry revert all n y`
-  - 其他类似
+  - 还原 winget-pkgs 仓库、已提交、丢弃: `sundry revert pkgs y y`
+  - 还原 winget-tools 仓库、未提交、保留: `sundry revert tools n n`
 
 </details>
 

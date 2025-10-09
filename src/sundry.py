@@ -15,7 +15,7 @@ def main() -> int:
 
     if (sys.platform != "win32") and (tool in [
         "移除", "remove", "自动移除", "autoremove", # 验证阶段需要 WinGet，不确定如何读取 Token
-        "单改", "单修改", "modify", # 验证清单需要 WinGet，不确定如何读取 Token
+        "单改", "单修改", "modify", "hash-update", # 验证清单需要 WinGet，不确定如何读取 Token
         "忽略", "检查忽略", "ignore", # 不确定如何读取 Token
         "verify", "test", "验证", "测试", # 仅 Windows
     ]):
@@ -58,7 +58,7 @@ def main() -> int:
     # elif tool in ["更新", "update", "new", "新", "新版本"]:
     #     import tools.update as update
     #     return update.main(args)
-    # elif tool == "hash-update": # 等待更多测试
+    # elif tool == "hash-update":
     #     import tools.hashUpdate as hashUpdate
     #     return hashUpdate.main(args)
     # 维护
@@ -86,7 +86,7 @@ def main() -> int:
         print("Sundry 使用帮助")
         print("    移除软件包版本:")
         print("        指定版本: sundry remove <软件包标识符> <软件包版本> [跳过检查(只接受true)/理由(默认为GitHub Action中返回404)]")
-        print("        自动检查: sundry autoremove <软件包标识符>")
+        print("        自动检查: sundry autoremove <软件包标识符> [是否跳过检查]")
         # print("    新版本辅助修改: sundry new <软件包标识符> <版本> [解决的议题(没有则使用urls占位)] <urls...>")
         # print("    多版本辅助修改: sundry change (多改)")
         print("    单版本辅助修改: sundry modify <软件包标识符> <版本> [理由/解决的议题] (单改)")

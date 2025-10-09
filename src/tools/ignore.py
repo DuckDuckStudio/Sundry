@@ -118,7 +118,7 @@ def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = No
         # 追加创建的 PR 不会带理由，因为理由已写入检测脚本
         数据: dict[str, str | bool]
         数据 = {
-            "title": f"[Auto] 自动忽略追加 - {格式化忽略字段}",
+            "title": f"[Auto] 自动忽略追加 - {忽略字段}",
             "head": f"{owner}{分支名}",
             "base": f"{owner}main",
             "body": f"### 此 PR 由 [Sundry](https://github.com/DuckDuckStudio/Sundry/) 创建，用于向检查代码**添加**忽略字段 `{忽略字段}`"
@@ -134,7 +134,7 @@ def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = No
     else:
         # 移除创建的 PR 会带理由
         数据 = {
-            "title": f"[Auto] 自动忽略移除 - {格式化忽略字段}",
+            "title": f"[Auto] 自动忽略移除 - {忽略字段}",
             "head": f"{owner}{分支名}",
             "base": f"{owner}main",
             "body": f"### 此 PR 由 [Sundry](https://github.com/DuckDuckStudio/Sundry/) 创建，用于向检查代码**移除**忽略字段 `{忽略字段}`\n理由: {理由}"
@@ -204,7 +204,7 @@ def main(args: list[str]):
     # 1. 只保留字母数字字符和 -、_ 符号
     # 2. 将空格替换为 _
     if (操作 != "list"):
-        格式化忽略字段 = ''.join(e for e in 忽略字段 if e.isalnum() or e in ['-', '_']).replace(' ', '_')
+        格式化忽略字段 = ''.join(e for e in 忽略字段 if e.isalnum() or e in ['-', '_'])
         新分支名 = f"Ignore-{格式化忽略字段}-{int(time.time())}"
         subprocess.run(["git", "checkout", "-b", 新分支名], check=True)
         print(f"{消息头.信息}     已签出新分支 - {新分支名}")
@@ -232,7 +232,7 @@ def main(args: list[str]):
 
         print(f"{消息头.信息} 开始提交和推送...")
         subprocess.run(["git", "add", 检测程序], check=True)
-        subprocess.run(["git", "commit", "-m", f"[Auto] 自动忽略追加 - {格式化忽略字段}"], check=True)
+        subprocess.run(["git", "commit", "-m", f"[Auto] 自动忽略追加 - {忽略字段}"], check=True)
         subprocess.run(["git", "push", "--set-upstream", "origin", 新分支名], check=True)
         print(f"{消息头.成功} 成功推送到远程")
         if not 创建拉取请求(新分支名, owner, 忽略字段, 格式化忽略字段):

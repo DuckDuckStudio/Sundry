@@ -4,6 +4,7 @@ from function.print.print import 消息头
 from pygments import highlight # type: ignore
 from pygments.lexers import YamlLexer # type: ignore
 from function.maintain.config import 读取配置
+from function.files.manifest import 获取清单目录
 from pygments.formatters import TerminalFormatter
 
 def 读取和输出(清单文件: str):
@@ -68,9 +69,9 @@ def main(args: list[str]):
         print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
-    清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'), 软件包版本)
-    if not os.path.exists(清单目录):
-        print(f"{消息头.错误} 清单目录不存在")
+    清单目录 = 获取清单目录(软件包标识符, 软件包版本, winget_pkgs目录)
+    if not 清单目录:
+        print(f"{消息头.错误} 获取清单目录失败")
         return 1
 
     if any(os.path.isdir(os.path.join(清单目录, item)) for item in os.listdir(清单目录)):

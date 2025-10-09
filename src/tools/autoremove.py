@@ -6,37 +6,55 @@ from typing import Any
 import tools.remove as remove
 from colorama import Fore, init
 from function.print.print import 消息头
-from function.maintain.config import 读取配置
 from exception.request import RequestException
+from function.files.manifest import 获取清单目录
 
 def main(args: list[str]) -> int:
     try:
         init(autoreset=True)
-        软件包标识符: str = 处理参数(args)
-        版本列表: list[str] = 查找软件包版本(软件包标识符)
-        检查软件包版本(软件包标识符, 版本列表)
-        print(f"{消息头.成功} 成功检查 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的所有版本")
+        if not args:
+            print(f"{消息头.错误} 请传递参数")
+            raise KeyboardInterrupt
+
+        if len(args) == 1:
+            args.append("")
+        elif len(args) > 2:
+            print(f"{消息头.提示} 多余的参数，我们最多只需要 2 个参数")
+            args = args[:2]
+
+        版本列表: list[str] = 查找软件包版本(args[0])
+        检查软件包版本(args[0], 版本列表, (args[1].lower() in ["y", "yes", "skip", "skip-check"]))
+        print(f"{消息头.成功} 成功检查 {Fore.BLUE}{args[0]}{Fore.RESET} 的所有版本")
         return 0
     except KeyboardInterrupt:
         print(f"{消息头.错误} 操作中止")
         return 1
 
-def 检查软件包版本(软件包标识符: str, 版本列表: list[str]) -> None:
+def 检查软件包版本(软件包标识符: str, 版本列表: list[str], 跳过检查: bool) -> None:
     for 版本 in 版本列表:
+        移除理由 = "Attempt to download using WinGet failed."
+        # TODO: 在参数中指定这个理由
+
         print(f"\n{Fore.BLUE}INFO{Fore.RESET} 正在检查 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} ...")
-        验证结果 = remove.使用WinGet验证(软件包标识符, 版本, AutoRemove=True)
-        if not 验证结果:
-            print(f"{消息头.成功} 验证 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 通过！")
-        else:
-            InstallerUrls验证结果 = 检查所有安装程序URL(软件包标识符, 版本)
-            if InstallerUrls验证结果[0] in [1, 2]:
-                print(f"{消息头.警告} 似乎有几个安装程序链接仍然有效，请检查它们。")
-                if 是否中止(input(f"{消息头.问题} 还是要移除此版本? [y/N]: ")):
-                    return
+        if not 跳过检查:
+            验证结果 = remove.使用WinGet验证(软件包标识符, 版本, AutoRemove=True)
+            if not 验证结果:
+                print(f"{消息头.成功} 验证 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 通过！")
+                continue
             else:
-                验证结果.append(InstallerUrls验证结果[1])
-            print(f"{消息头.错误} {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 下载失败！将移除此版本...")
-            移除软件包版本(软件包标识符, 版本, f"Attempt to download using WinGet failed.\n\n```logs\n{"\n".join(验证结果)}\n```")
+                InstallerUrls验证结果 = 检查所有安装程序URL(软件包标识符, 版本) # 验证所有 InstallerUrl
+                if InstallerUrls验证结果[0] in [1, 2]:
+                    print(f"{消息头.警告} 似乎有几个安装程序链接仍然有效，请检查它们。")
+                    if 是否中止(input(f"{消息头.问题} 还是要移除此版本? [y/N]: ")):
+                        return
+                else:
+                    验证结果.append(InstallerUrls验证结果[1])
+                print(f"{消息头.错误} {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 下载失败！将移除此版本...")
+                移除理由 = f"{移除理由}\n\n```logs\n{"\n".join(验证结果)}\n```"
+        else:
+            print(f"{消息头.警告} 参数指定跳过检查，直接开始移除。")
+
+        移除软件包版本(软件包标识符, 版本, 移除理由)
 
 def 使用GitHubAPI检查安装程序URL(InstallerUrl: str) -> str:
     """
@@ -46,6 +64,8 @@ def 使用GitHubAPI检查安装程序URL(InstallerUrl: str) -> str:
 
     请求 GitHub API 获取 Release 信息 (包含工件列表) → 检查工件名 (name) 是否在列表中。
     """
+
+    # https://github.com/owner/repo/releases/download/1.0.0/Installer.exe
 
     try:
         api = InstallerUrl.replace("https://github.com/", "https://api.github.com/repos/", 1).rsplit("/", 1)[0].rsplit("/", 2)
@@ -86,10 +106,12 @@ def 检查所有安装程序URL(软件包标识符: str, 软件包版本: str) -
 
     返回示例: 3, "失效 (404)"
     """
-    安装程序清单路径 = os.path.join(获取winget_pkgs目录(), "manifests", 软件包标识符[0].lower(), *软件包标识符.split("."), 软件包版本, f"{软件包标识符}.installer.yaml")
+    清单目录 = 获取清单目录(软件包标识符)
+    if not 清单目录:
+        raise KeyboardInterrupt
     try:
         # 获取安装程序清单中的所有 InstallerUrl 字段的值
-        with open(安装程序清单路径, "r", encoding="utf-8") as 清单文件:
+        with open(os.path.join(清单目录, 软件包版本, f"{软件包标识符}.installer.yaml"), "r", encoding="utf-8") as 清单文件:
             清单数据: dict[str, Any] = yaml.safe_load(清单文件)
             if not isinstance(清单数据, dict): # pyright: ignore[reportUnnecessaryIsInstance]
                 raise ValueError(f"清单读取错误。预期读到 dict，实际读到 {type(清单数据)}")
@@ -166,19 +188,15 @@ def 移除软件包版本(软件包标识符: str, 版本: str, 原因: str) -> 
     if remove.main([软件包标识符, 版本, "True", 原因]):
         print(f"{消息头.错误} 尝试移除 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 失败！")
         raise KeyboardInterrupt
-    
-def 获取winget_pkgs目录() -> str:
-    winget_pkgs目录 = 读取配置("paths.winget-pkgs")
-    if not isinstance(winget_pkgs目录, str):
-        raise KeyboardInterrupt
-    return winget_pkgs目录
 
 def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -> list[str]:
     try:
         版本列表: list[str] = []
         if 本地仓库:
             # 获取所有版本号文件夹
-            清单目录 = os.path.join(获取winget_pkgs目录(), "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'))
+            清单目录 = 获取清单目录(软件包标识符)
+            if not 清单目录:
+                raise KeyboardInterrupt
             while True:
                 try:
                     for 文件夹 in os.listdir(清单目录):
@@ -206,8 +224,6 @@ def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -
                     版本列表.append(行)
                 if (软件包标识符 in 行) or (开始了吗 < 3):
                     开始了吗 -= 1
-
-            print(f"{消息头.调试} 获取到的版本列表:\n{消息头.调试} {版本列表}\n{消息头.调试} 输出:\n{消息头.调试} {f"\n{消息头.调试} ".join([line for line in 结果.stdout.splitlines() if line.strip()])}")
         if not 版本列表:
             print(f"{消息头.错误} 未找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的任何版本")
             if 本地仓库 or 是否中止(input(f"{消息头.问题} 使用本地仓库中的信息吗? [Y/n]: "), "y"):
