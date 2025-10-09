@@ -93,12 +93,10 @@ sundry config "<条目>" "<值>"
 
 - 别名: `自动移除`, `autoremove`
 - 作用: 自动检查并移除指定软件包标识符下的失效版本。
-- 用法: `sundry autoremove <软件包标识符>`
-- 示例: `sundry autoremove DuckStudio.Sundry`
-
-> [!WARNING]
-> 她**不会**检查清单中的所有 `InstallerUrl`，而是仅使用 WinGet 验证[适合自己设备的安装程序](https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=winget-是怎么选择要用哪个安装程序的？)是否有效。**例如您在一个 x86 设备上尝试 `autoremove` 一个仅 x64 的软件包，则可能出现误判。**  
-> 我知道这不是一个好方法，我已在 Sundry-Locale 上着手修改检查逻辑。  
+- 用法: `sundry autoremove <软件包标识符> [是否跳过检查]`
+- 示例:
+  - 基本: `sundry autoremove DuckStudio.Sundry`
+  - 跳过检查 (直接移除整个包): `sundry autoremove DuckStudio.Sundry skip`
 
 </details>
 
