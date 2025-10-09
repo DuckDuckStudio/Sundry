@@ -100,7 +100,7 @@ def main(args: list[str]):
         print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
-    清单目录 = 获取清单目录(软件包标识符, winget_pkgs目录)
+    清单目录 = 获取清单目录(软件包标识符, winget_pkgs目录=winget_pkgs目录)
     if not 清单目录:
         print(f"{Fore.RED}未能找到该标识符的清单目录: {软件包标识符}")
         return 1

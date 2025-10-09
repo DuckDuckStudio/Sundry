@@ -40,6 +40,7 @@ def 检查软件包版本(软件包标识符: str, 版本列表: list[str], 跳�
             验证结果 = remove.使用WinGet验证(软件包标识符, 版本, AutoRemove=True)
             if not 验证结果:
                 print(f"{消息头.成功} 验证 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 通过！")
+                continue
             else:
                 InstallerUrls验证结果 = 检查所有安装程序URL(软件包标识符, 版本) # 验证所有 InstallerUrl
                 if InstallerUrls验证结果[0] in [1, 2]:
