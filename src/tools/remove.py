@@ -12,6 +12,7 @@ import tools.sync as sync
 from colorama import init, Fore
 from function.print.print import 消息头
 from function.maintain.config import 读取配置
+from function.files.manifest import 获取清单目录
 from translate import Translator # type: ignore
 from function.github.token import read_token
 
@@ -99,21 +100,19 @@ def main(args: list[str]):
         print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
-    清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'))
-
-    # 确保清单存在
-    if not os.path.exists(清单目录):
-        print(f"{Fore.RED}软件包清单目录不存在: {清单目录}")
+    清单目录 = 获取清单目录(软件包标识符, winget_pkgs目录)
+    if not 清单目录:
+        print(f"{Fore.RED}未能找到该标识符的清单目录: {软件包标识符}")
         return 1
 
     if not os.path.exists(os.path.join(清单目录, 软件包版本)):
-        print(f"{Fore.RED}软件包版本清单目录不存在: {os.path.join(清单目录, 软件包版本)}")
+        print(f"{Fore.RED}包版本清单目录不存在: {os.path.join(清单目录, 软件包版本)}")
         return 1
 
     if any(os.path.isdir(os.path.join(os.path.join(清单目录, 软件包版本), item)) for item in os.listdir(os.path.join(清单目录, 软件包版本))):
         # 如果软件包版本清单目录下存在其他文件夹
-        print(f"{消息头.错误} 软件包版本清单目录下存在其他文件夹")
-        print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将软件包标识符的一部分当作软件包版本{Fore.RESET} 导致的。")
+        print(f"{消息头.错误} 包版本清单目录下存在其他文件夹")
+        print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的。")
         print(f"{消息头.提示} 例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
         return 1
 
@@ -123,18 +122,21 @@ def main(args: list[str]):
         try:
             print(f"{Fore.BLUE}开始预先检查")
             try:
-                print("======= 此软件包现有的所有版本 =======")
+                print("======= 此包现有的所有版本 =======")
                 subprocess.run(["winget", "show", "--versions", 软件包标识符], check=True)
-                print("======= 此软件包版本在 winget 上的信息 =======")
+                print("======= 此包版本在 winget 上的信息 =======")
                 subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
             except subprocess.CalledProcessError as e:
-                print(f"{消息头.错误} 获取软件包信息失败: {Fore.RED}{e}{Fore.RESET}")
+                print(f"{消息头.错误} 获取包信息失败: {Fore.RED}{e}{Fore.RESET}")
                 return 1
             cat.main([软件包标识符, 软件包版本, "installer"])
             print("======= 确认 =======")
             t = input("您手动访问过每个安装程序链接了吗?").lower()
             if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]):
-                webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/manifests/{软件包标识符[0].lower()}/{'/'.join(软件包标识符.split('.'))}/{软件包版本}/{软件包标识符}.installer.yaml")
+                if os.path.join(winget_pkgs目录, "manifests") in 清单目录:
+                    webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/manifests/{软件包标识符[0].lower()}/{'/'.join(软件包标识符.split('.'))}/{软件包版本}/{软件包标识符}.installer.yaml")
+                else:
+                    webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/fonts/{软件包标识符[0].lower()}/{'/'.join(软件包标识符.split('.'))}/{软件包版本}/{软件包标识符}.installer.yaml")
             if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]) or (t in ["手动", "m", "manually"]):
                 if not 手动验证结果:
                     手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
@@ -157,7 +159,7 @@ def main(args: list[str]):
 
                 if found:
                     try:
-                        input(f"{Fore.YELLOW}⚠ 看起来此软件包在 Auth.csv 中被要求所有者({found})审查，您还是想要移除此软件包版本吗(这将在 PR 中 @审查者): [ENTER/CTRL+C]")
+                        input(f"{Fore.YELLOW}⚠ 看起来此包在 Auth.csv 中被要求所有者({found})审查，您还是想要移除此包版本吗(这将在 PR 中 @审查者): [ENTER/CTRL+C]")
                     except KeyboardInterrupt:
                         return 1
                     审查者列表 = found.split('/')

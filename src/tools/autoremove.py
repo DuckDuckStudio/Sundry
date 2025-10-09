@@ -6,8 +6,8 @@ from typing import Any
 import tools.remove as remove
 from colorama import Fore, init
 from function.print.print import 消息头
-from function.maintain.config import 读取配置
 from exception.request import RequestException
+from function.files.manifest import 获取清单目录
 
 def main(args: list[str]) -> int:
     try:
@@ -46,6 +46,8 @@ def 使用GitHubAPI检查安装程序URL(InstallerUrl: str) -> str:
 
     请求 GitHub API 获取 Release 信息 (包含工件列表) → 检查工件名 (name) 是否在列表中。
     """
+
+    # https://github.com/owner/repo/releases/download/1.0.0/Installer.exe
 
     try:
         api = InstallerUrl.replace("https://github.com/", "https://api.github.com/repos/", 1).rsplit("/", 1)[0].rsplit("/", 2)
@@ -86,10 +88,12 @@ def 检查所有安装程序URL(软件包标识符: str, 软件包版本: str) -
 
     返回示例: 3, "失效 (404)"
     """
-    安装程序清单路径 = os.path.join(获取winget_pkgs目录(), "manifests", 软件包标识符[0].lower(), *软件包标识符.split("."), 软件包版本, f"{软件包标识符}.installer.yaml")
+    清单目录 = 获取清单目录(软件包标识符)
+    if not 清单目录:
+        raise KeyboardInterrupt
     try:
         # 获取安装程序清单中的所有 InstallerUrl 字段的值
-        with open(安装程序清单路径, "r", encoding="utf-8") as 清单文件:
+        with open(os.path.join(清单目录, 软件包版本, f"{软件包标识符}.installer.yaml"), "r", encoding="utf-8") as 清单文件:
             清单数据: dict[str, Any] = yaml.safe_load(清单文件)
             if not isinstance(清单数据, dict): # pyright: ignore[reportUnnecessaryIsInstance]
                 raise ValueError(f"清单读取错误。预期读到 dict，实际读到 {type(清单数据)}")
@@ -166,19 +170,15 @@ def 移除软件包版本(软件包标识符: str, 版本: str, 原因: str) -> 
     if remove.main([软件包标识符, 版本, "True", 原因]):
         print(f"{消息头.错误} 尝试移除 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 失败！")
         raise KeyboardInterrupt
-    
-def 获取winget_pkgs目录() -> str:
-    winget_pkgs目录 = 读取配置("paths.winget-pkgs")
-    if not isinstance(winget_pkgs目录, str):
-        raise KeyboardInterrupt
-    return winget_pkgs目录
 
 def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -> list[str]:
     try:
         版本列表: list[str] = []
         if 本地仓库:
             # 获取所有版本号文件夹
-            清单目录 = os.path.join(获取winget_pkgs目录(), "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'))
+            清单目录 = 获取清单目录(软件包标识符)
+            if not 清单目录:
+                raise KeyboardInterrupt
             while True:
                 try:
                     for 文件夹 in os.listdir(清单目录):
@@ -206,8 +206,6 @@ def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -
                     版本列表.append(行)
                 if (软件包标识符 in 行) or (开始了吗 < 3):
                     开始了吗 -= 1
-
-            print(f"{消息头.调试} 获取到的版本列表:\n{消息头.调试} {版本列表}\n{消息头.调试} 输出:\n{消息头.调试} {f"\n{消息头.调试} ".join([line for line in 结果.stdout.splitlines() if line.strip()])}")
         if not 版本列表:
             print(f"{消息头.错误} 未找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的任何版本")
             if 本地仓库 or 是否中止(input(f"{消息头.问题} 使用本地仓库中的信息吗? [Y/n]: "), "y"):
