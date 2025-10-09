@@ -15,7 +15,7 @@ def main() -> int:
 
     if (sys.platform != "win32") and (tool in [
         "移除", "remove", "自动移除", "autoremove", # 验证阶段需要 WinGet，不确定如何读取 Token
-        "单改", "单修改", "modify", # 验证清单需要 WinGet，不确定如何读取 Token
+        "单改", "单修改", "modify", "hash-update", # 验证清单需要 WinGet，不确定如何读取 Token
         "忽略", "检查忽略", "ignore", # 不确定如何读取 Token
         "verify", "test", "验证", "测试", # 仅 Windows
     ]):
@@ -58,7 +58,7 @@ def main() -> int:
     # elif tool in ["更新", "update", "new", "新", "新版本"]:
     #     import tools.update as update
     #     return update.main(args)
-    # elif tool == "hash-update": # 等待更多测试
+    # elif tool == "hash-update":
     #     import tools.hashUpdate as hashUpdate
     #     return hashUpdate.main(args)
     # 维护

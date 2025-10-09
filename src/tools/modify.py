@@ -11,6 +11,7 @@ from function.print.print import 消息头
 from function.files.open import open_file
 from function.github.token import read_token
 from function.maintain.config import 读取配置
+from function.files.manifest import 获取清单目录
 
 def main(args: list[str]):
     global 软件包标识符, 软件包版本, 日志文件路径, 解决, 清单目录, 首个_PR, 格式化审查者
@@ -55,7 +56,14 @@ def main(args: list[str]):
         return 1
     owner, _ = pkgs仓库
 
-    清单目录 = os.path.join(winget_pkgs目录, "manifests", 软件包标识符[0].lower(), *软件包标识符.split('.'))
+    可能是清单目录 = 获取清单目录(软件包标识符, winget_pkgs目录=winget_pkgs目录)
+    # 这里用 可能是清单目录 而不是直接用 清单目录 是因为
+    # 直接用的话 None 会 global 到其他函数。
+    # 不懂的话改改看就知道了。
+    if not 可能是清单目录:
+        print(f"{消息头.错误} 获取清单目录失败")
+        return 1
+    清单目录 = 可能是清单目录
 
     # 预先检查
     格式化审查者 = ""
