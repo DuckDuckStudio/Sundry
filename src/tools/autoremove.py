@@ -12,31 +12,48 @@ from function.files.manifest import 获取清单目录
 def main(args: list[str]) -> int:
     try:
         init(autoreset=True)
-        软件包标识符: str = 处理参数(args)
-        版本列表: list[str] = 查找软件包版本(软件包标识符)
-        检查软件包版本(软件包标识符, 版本列表)
-        print(f"{消息头.成功} 成功检查 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的所有版本")
+        if not args:
+            print(f"{消息头.错误} 请传递参数")
+            raise KeyboardInterrupt
+
+        if len(args) == 1:
+            args.append("")
+        elif len(args) > 2:
+            print(f"{消息头.提示} 多余的参数，我们最多只需要 2 个参数")
+            args = args[:2]
+
+        版本列表: list[str] = 查找软件包版本(args[0])
+        检查软件包版本(args[0], 版本列表, (args[1].lower() in ["y", "yes", "skip", "skip-check"]))
+        print(f"{消息头.成功} 成功检查 {Fore.BLUE}{args[0]}{Fore.RESET} 的所有版本")
         return 0
     except KeyboardInterrupt:
         print(f"{消息头.错误} 操作中止")
         return 1
 
-def 检查软件包版本(软件包标识符: str, 版本列表: list[str]) -> None:
+def 检查软件包版本(软件包标识符: str, 版本列表: list[str], 跳过检查: bool) -> None:
     for 版本 in 版本列表:
+        移除理由 = "Attempt to download using WinGet failed."
+        # TODO: 在参数中指定这个理由
+
         print(f"\n{Fore.BLUE}INFO{Fore.RESET} 正在检查 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} ...")
-        验证结果 = remove.使用WinGet验证(软件包标识符, 版本, AutoRemove=True)
-        if not 验证结果:
-            print(f"{消息头.成功} 验证 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 通过！")
-        else:
-            InstallerUrls验证结果 = 检查所有安装程序URL(软件包标识符, 版本)
-            if InstallerUrls验证结果[0] in [1, 2]:
-                print(f"{消息头.警告} 似乎有几个安装程序链接仍然有效，请检查它们。")
-                if 是否中止(input(f"{消息头.问题} 还是要移除此版本? [y/N]: ")):
-                    return
+        if not 跳过检查:
+            验证结果 = remove.使用WinGet验证(软件包标识符, 版本, AutoRemove=True)
+            if not 验证结果:
+                print(f"{消息头.成功} 验证 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 通过！")
             else:
-                验证结果.append(InstallerUrls验证结果[1])
-            print(f"{消息头.错误} {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 下载失败！将移除此版本...")
-            移除软件包版本(软件包标识符, 版本, f"Attempt to download using WinGet failed.\n\n```logs\n{"\n".join(验证结果)}\n```")
+                InstallerUrls验证结果 = 检查所有安装程序URL(软件包标识符, 版本) # 验证所有 InstallerUrl
+                if InstallerUrls验证结果[0] in [1, 2]:
+                    print(f"{消息头.警告} 似乎有几个安装程序链接仍然有效，请检查它们。")
+                    if 是否中止(input(f"{消息头.问题} 还是要移除此版本? [y/N]: ")):
+                        return
+                else:
+                    验证结果.append(InstallerUrls验证结果[1])
+                print(f"{消息头.错误} {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 下载失败！将移除此版本...")
+                移除理由 = f"{移除理由}\n\n```logs\n{"\n".join(验证结果)}\n```"
+        else:
+            print(f"{消息头.警告} 参数指定跳过检查，直接开始移除。")
+
+        移除软件包版本(软件包标识符, 版本, 移除理由)
 
 def 使用GitHubAPI检查安装程序URL(InstallerUrl: str) -> str:
     """
