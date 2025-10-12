@@ -168,11 +168,7 @@ def main(args: list[str]):
 
             验证结果日志 = 使用WinGet验证(软件包标识符, 软件包版本)
             if 验证结果日志:
-                # 写入理由
-                理由 = f"{理由}\n\n```logs\n"
-                for line in 验证结果日志:
-                    理由 = f"{理由}{line}\n"
-                理由 = f"{理由}```"
+                理由 = f"{理由}\n\n```logs\n{"\n".join(验证结果日志)}\n```"
 
             print(f"{Fore.BLUE}查重...")
             print("======= 打开的 =======")

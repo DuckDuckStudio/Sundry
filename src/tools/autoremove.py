@@ -106,12 +106,12 @@ def 检查所有安装程序URL(软件包标识符: str, 软件包版本: str) -
 
     返回示例: 3, "失效 (404)"
     """
-    清单目录 = 获取清单目录(软件包标识符)
+    清单目录 = 获取清单目录(软件包标识符, 软件包版本)
     if not 清单目录:
         raise KeyboardInterrupt
     try:
         # 获取安装程序清单中的所有 InstallerUrl 字段的值
-        with open(os.path.join(清单目录, 软件包版本, f"{软件包标识符}.installer.yaml"), "r", encoding="utf-8") as 清单文件:
+        with open(os.path.join(清单目录, f"{软件包标识符}.installer.yaml"), "r", encoding="utf-8") as 清单文件:
             清单数据: dict[str, Any] = yaml.safe_load(清单文件)
             if not isinstance(清单数据, dict): # pyright: ignore[reportUnnecessaryIsInstance]
                 raise ValueError(f"清单读取错误。预期读到 dict，实际读到 {type(清单数据)}")
@@ -247,14 +247,3 @@ def 是否中止(输入: str, 默认: str = "n") -> bool:
         输入 = 默认
 
     return 输入.lower() not in ["y", "yes", "是"]
-
-def 处理参数(args: list[str]) -> str:
-    if not args:
-        print(f"{消息头.错误} 请传递参数")
-        raise KeyboardInterrupt
-    
-    预期参数数量: int = 1
-    if len(args) > 预期参数数量:
-        print(f"{消息头.提示} 多余的参数，我们只需要 {预期参数数量} 个参数")
-
-    return args[0] # 包标识符
