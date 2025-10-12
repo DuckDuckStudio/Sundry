@@ -1,17 +1,21 @@
 import os
 import re
+import io
+import csv
 import shutil
 import zipfile
 import tempfile
 import requests
-from typing import TextIO
+from typing import Any
 from colorama import Fore, init
 from function.print.print import 消息头
 import tools.maintain.cleanup as cleanup
 from function.files.open import open_file
+from urllib.parse import urlparse, parse_qs
 from function.github.token import read_token
 from function.maintain.config import 读取配置
 from exception.request import RequestException
+from function.format.github import IssueNumber
 from exception.operation import TryOtherMethods
 
 def main(args: list[str]) -> int:
@@ -24,22 +28,13 @@ def main(args: list[str]) -> int:
         print(f"{消息头.错误} 请提供 Azure Pipline Url")
         return 1
 
-    azure_url = args[0]
-    if azure_url.lower() not in ["cleanup", "清理", "清理日志"]:
-        print(f"{Fore.BLUE}INFO{Fore.RESET} 正在验证提供的 Azure Pipline Url...")
-
-        if azure_url.startswith("https://github.com/"):
-            # 无效和 return 在下面的 if
-            print(f"{Fore.YELLOW}Hint{Fore.RESET} 请提供 Validation Pipeline Run 的 URL 而不是 GitHub 的 URL")
-        
-        if not azure_url.startswith("https://dev.azure.com/"):
-            print(f"{消息头.错误} 无效的 Azure Pipline Url")
-            return 1
-    else:
+    if args[0].lower() in ["cleanup", "清理", "清理日志"]:
         return cleanup.main("logsAnalyse")
-
-    # 从 URL 中提取 buildId
-    build_id = azure_url.split("buildId=")[-1].replace("&view=results", "")
+    else:
+        print(f"{Fore.BLUE}INFO{Fore.RESET} 正在验证提供的参数...")
+        build_id = 获取azp运行id(args[0])
+        if not build_id:
+            return 1
     
     # 获取该运行的信息（权限公开）
     api_url = f"https://dev.azure.com/shine-oss/winget-pkgs/_apis/build/builds/{build_id}?api-version=7.1"
@@ -147,11 +142,14 @@ def main(args: list[str]) -> int:
         "No suitable installer found": ("未找到合适的安装程序", Fore.YELLOW),
         "ShellExecute installer failed": ("Shell 执行安装程序失败", Fore.YELLOW),
         "Installation failed with exit code": ("以非正常退出代码退出", Fore.RED),
+        "Package failed updates, dependency or conflict validation.": ("安装依赖错误", Fore.YELLOW),
     }
 
     if (len(args) == 3) and (args[2].lower() in ["true", "yes", "y", "是"]):
         # 追加这些关键词
         keyword_map.update({
+            "InternetOpenUrl() failed.": ("遇到了网络错误", Fore.RED),
+            "MSIX installer failed": ("MSIX 安装程序失败", Fore.RED),
             "fail": ("一般错误", ""),
             "error": ("一般错误", ""),
             "Exception": ("异常", ""),
@@ -193,38 +191,31 @@ def main(args: list[str]) -> int:
                                 )
                                 print(f"{Fore.CYAN}Analysis{Fore.RESET} {result_str}\n{highlighted_line} {Fore.BLUE}in{Fore.RESET} {file}")
                                 if keyword == "Installation failed with exit code":
-                                    match = re.search(r"exit code (-?\d+)", line, re.IGNORECASE)
-                                    if match:
-                                        exit_code = match.group(1)
-                                        try:
-                                            winget_pkgs仓库 = 读取配置("paths.winget-pkgs", 静默=True)
-                                            if isinstance(winget_pkgs仓库, str):
-                                                ExitCodesFile = os.path.join(winget_pkgs仓库, "Tools", "ManualValidation", "ExitCodes.csv")
-                                                if os.path.exists(ExitCodesFile):
-                                                    try:
-                                                        with open(ExitCodesFile, "r", encoding="utf-8") as ExitCodes:
-                                                            查找退出代码解释(ExitCodes, exit_code)
-                                                    except PermissionError:
-                                                        raise TryOtherMethods
-                                                else:
-                                                    raise TryOtherMethods
-                                            else:
-                                                raise TryOtherMethods
-                                        except TryOtherMethods:
-                                            # 既然用户本地无法读取这个文件，就从 GitHub 上获取
-                                            # https://github.com/microsoft/winget-pkgs/blob/master/Tools/ManualValidation/ExitCodes.csv
-                                            github_token = read_token()
-                                            ExitCodes = 获取GitHub文件内容(github_token, "microsoft/winget-pkgs", "Tools/ManualValidation/ExitCodes.csv")
-                                            if ExitCodes:
-                                                import io
-                                                查找退出代码解释(io.StringIO(ExitCodes), exit_code)
+                                    # Installation failed with exit code 123
+                                    匹配 = re.search(r"exit code (-?\d+)", line, re.IGNORECASE)
+                                    if 匹配:
+                                        查找错误代码解释(匹配.group(1))
                                     else:
-                                        print(f"{Fore.YELLOW}Hint{Fore.RESET} 您可以尝试在 https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md 上查找对应退出代码的解释。")
-                                        print(f"{Fore.YELLOW}Hint{Fore.RESET} 也可以尝试在 https://github.com/microsoft/winget-pkgs/edit/master/Tools/ManualValidation/ExitCodes.csv 上查找对应退出代码的解释。")
+                                        print(f"{消息头.提示} 您可以尝试在 https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md 上查找对应退出代码的解释。")
+                                        print(f"{消息头.提示} 也可以尝试在 https://github.com/microsoft/winget-pkgs/edit/master/Tools/ManualValidation/ExitCodes.csv 上查找对应退出代码的解释。")
+                                elif keyword in ["ShellExecute installer failed", "MSIX installer failed"]:
+                                    # keyword: 123
+                                    匹配 = re.search(f"{keyword}:\\s*(-?\\d+)", line, re.IGNORECASE)
+                                    if 匹配:
+                                        查找错误代码解释(匹配.group(1))
                                 elif keyword == "No suitable installer found":
-                                    print(f"{Fore.YELLOW}Hint{Fore.RESET} 这可能是因为您提交的软件包的安装程序定义和依赖中的安装程序定义不匹配。")
-                                    print(f"{Fore.YELLOW}Hint{Fore.RESET} 举个例子，当上游依赖只支持 x64 架构，而您提交的清单中的安装程序还支持 x86 架构时，WinGet 会因为找不到 x86 的依赖安装程序而失败。")
-                                    print(f"{Fore.YELLOW}Hint{Fore.RESET} 具体需要如何处理此错误尚不确定: https://github.com/microsoft/winget-pkgs/issues/152555")
+                                    print(f"{消息头.提示} 这可能是因为您提交的软件包的安装程序定义和依赖中的安装程序定义不匹配。")
+                                    print(f"{消息头.提示} 举个例子，当上游依赖只支持 x64 架构，而您提交的清单中的安装程序还支持 x86 架构时，WinGet 会因为找不到 x86 的依赖安装程序而失败。")
+                                    print(f"{消息头.提示} 具体需要如何处理此错误尚不确定: https://github.com/microsoft/winget-pkgs/issues/152555")
+                                elif keyword == "Package failed updates, dependency or conflict validation.":
+                                    print(f"{消息头.提示} 这可能是因为你在清单中指定的包依赖在 winget 源中并不存在，请检查并提交依赖清单。")
+                                    查找错误代码解释("80073CF3")
+                                elif "0x" in line:
+                                    # 0x00000000 (Hex, 0x + 8个字符)
+                                    # 不是每个错误代码都能找到解释的，没找到解释就没显示
+                                    匹配 = re.search(r"0x[0-9A-Fa-f]{8}", line)
+                                    if 匹配:
+                                        查找错误代码解释(匹配.group(0))
                                 print() # 换行
                                 break
 
@@ -232,9 +223,9 @@ def main(args: list[str]) -> int:
         print(f"{消息头.警告} 未找到可能的问题")
         if not ((len(args) == 3) and (args[2].lower() in ["true", "yes", "y", "是"])):
             if (len(args) == 2):
-                print(f"{Fore.YELLOW}Hint{Fore.RESET} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{azure_url}\" \"{args[1]}\" y{Fore.RESET} 来查看一般错误/异常")
+                print(f"{消息头.提示} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{args[0]}\" \"{args[1]}\" y{Fore.RESET} 来查看一般错误/异常")
             else:
-                print(f"{Fore.YELLOW}Hint{Fore.RESET} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{azure_url}\" \"[是否保留日志文件]\" y{Fore.RESET} 来查看一般错误/异常")
+                print(f"{消息头.提示} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{args[0]}\" \"[是否保留日志文件]\" y{Fore.RESET} 来查看一般错误/异常")
 
     if (len(args) >= 2):
         if (args[1].lower() in ["true", "yes", "y", "是"]):
@@ -261,8 +252,82 @@ def main(args: list[str]) -> int:
 
     return 0
 
-def 查找退出代码解释(ExitCodes: TextIO, ExitCode: str):
-    # 尝试从 ExitCodes.csv 中找 exit_code 的解释
+def 获取最新的验证管道运行(api: str) -> str | None:
+    """
+    传入 PR Comments API，返回 Azp 验证管道运行链接。
+    """
+
+    try:
+        响应 = requests.get(api)
+        响应.raise_for_status()
+        数据 = 响应.json()
+        body = 获取最新的验证管道评论(数据)
+        if not body:
+            return None
+        match = re.search(r"\((https?://[^)]+)\)", body)
+        if match:
+            return match.group(1)
+        else:
+            return None
+    except requests.HTTPError as e:
+        print(f"{消息头.错误} 请求 GitHub API 时出现异常: {Fore.RED}{type(e)} {e}{Fore.RESET}")
+        return None
+    
+def 获取最新的验证管道评论(data: list[dict[str, Any]]) -> str | None:
+    """
+    传入 PR Comments API 响应数据，返回最新的验证管道运行评论 body。
+    """
+
+    验证评论: list[dict[str, Any]] = []
+    
+    for comment in data:
+        user: dict[str, Any] = comment.get("user", {})
+        login: str = user.get("login", "wingetbot")
+        body: str = comment.get("body", "")
+        if (login == "wingetbot" and "WinGetSvc-Validation" in body):
+            验证评论.append(comment)
+    
+    if 验证评论:
+        # 按创建时间排序，最新的在前
+        验证评论.sort(key=lambda x: x.get("created_at", ""), reverse=True)
+        return 验证评论[0]["body"]
+    else:
+        return None
+
+def 获取azp运行id(已知URL: str) -> str | None:
+    """
+    给定当前已知的 URL (GitHub PR 或 Azure Pipline Run)，返回 *PR 最新的 / 指定的* Azure Pipline 运行的 id (buildId)。
+
+    没有获取到则返回 None，错误输出函数内处理。
+    """
+
+    if 已知URL.startswith("https://github.com/") or 已知URL.isdigit():
+        议题编号 = IssueNumber(已知URL)
+        if not 议题编号:
+            print(f"{消息头.错误} 未能获取 GitHub PR 编号")
+            return None
+        azpUrl = 获取最新的验证管道运行(f"https://api.github.com/repos/microsoft/winget-pkgs/issues/{议题编号}/comments")
+        if not azpUrl:
+            print(f"{消息头.错误} 未能获取到最新验证管道运行链接，请尝试直接指定 Azure 管道运行链接")
+            print(f"{消息头.提示} 管道运行链接获取方法: https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息#验证管道日志在哪看？")
+            return None
+    elif 已知URL.startswith("https://dev.azure.com/"):
+        azpUrl = 已知URL
+    else:
+        print(f"{消息头.错误} 指定的 Azure 管道运行或 GitHub PR 链接不是有效格式")
+        return None
+
+    # 从 URL 中提取 buildId
+    buildId = parse_qs(urlparse(azpUrl).query).get("buildId", [None])[0]
+    if not buildId:
+        print(f"{消息头.错误} 未能从 Azure Pipline 运行链接中获取 buildId 参数的值")
+        return None
+
+    return buildId
+
+def 查找错误代码解释(ExitCode: str):
+    """尝试从 ExitCodes.csv 中找 exit_code 的解释"""
+
     # ExitCodes.csv 示例
     # "Hex","Dec","InvDec","Symbol","Description"
     # "00000000","0","-4294967296","ERROR_SUCCESS","The operation completed successfully."
@@ -271,12 +336,36 @@ def 查找退出代码解释(ExitCodes: TextIO, ExitCode: str):
     # "00000003","3","-4294967293","ERROR_PATH_NOT_FOUND","The system cannot find the path specified."
     # ...
 
-    import csv
-    reader = csv.DictReader(ExitCodes)
-    for row in reader:
-        if ExitCode in [row["Hex"], row["Dec"], row["InvDec"], row["Symbol"]]:
-            print(f"{Fore.YELLOW}Hint{Fore.RESET} 此退出代码或许代表:")
-            print(f"{Fore.YELLOW}Hint{Fore.RESET} {" | ".join([f"Hex: {Fore.BLUE}{row['Hex']}{Fore.RESET}", f"Dec: {Fore.BLUE}{row['Dec']}{Fore.RESET}", f"InvDec: {Fore.BLUE}{row['InvDec']}{Fore.RESET}", f"Symbol: {Fore.BLUE}{row['Symbol']}{Fore.RESET}", f"Description: {Fore.BLUE}{row['Description']}{Fore.RESET}"]).replace(f"{Fore.BLUE}{ExitCode}{Fore.RESET}", f"{Fore.MAGENTA}{ExitCode}{Fore.RESET}")}")
+    ExitCodes = None
+
+    try:
+        winget_pkgs仓库 = 读取配置("paths.winget-pkgs", 静默=True)
+        if isinstance(winget_pkgs仓库, str):
+            ExitCodesFile = os.path.join(winget_pkgs仓库, "Tools", "ManualValidation", "ExitCodes.csv")
+            if os.path.exists(ExitCodesFile):
+                try:
+                    with open(ExitCodesFile, "r", encoding="utf-8") as csvFile:
+                        ExitCodes = io.StringIO(csvFile.read())
+                except PermissionError:
+                    raise TryOtherMethods
+            else:
+                raise TryOtherMethods
+        else:
+            raise TryOtherMethods
+    except TryOtherMethods:
+        # 既然用户本地无法读取这个文件，就从 GitHub 上获取
+        # https://github.com/microsoft/winget-pkgs/blob/master/Tools/ManualValidation/ExitCodes.csv
+        github_token = read_token()
+        csvStr = 获取GitHub文件内容(github_token, "microsoft/winget-pkgs", "Tools/ManualValidation/ExitCodes.csv")
+        if csvStr:
+            ExitCodes = io.StringIO(csvStr)
+
+    if ExitCodes:
+        reader = csv.DictReader(ExitCodes)
+        for row in reader:
+            if ExitCode in [row["Hex"], row["Dec"], row["InvDec"], row["Symbol"]]:
+                print(f"{消息头.提示} 此错误代码或许代表:")
+                print(f"{消息头.提示} {" | ".join([f"Hex: {Fore.BLUE}{row['Hex']}{Fore.RESET}", f"Dec: {Fore.BLUE}{row['Dec']}{Fore.RESET}", f"InvDec: {Fore.BLUE}{row['InvDec']}{Fore.RESET}", f"Symbol: {Fore.BLUE}{row['Symbol']}{Fore.RESET}", f"Description: {Fore.BLUE}{row['Description']}{Fore.RESET}"]).replace(f"{Fore.BLUE}{ExitCode}{Fore.RESET}", f"{Fore.MAGENTA}{ExitCode}{Fore.RESET}")}")
 
 def 请求GitHubAPI(apiUrl: str, github_token: str | int):
     请求头 = {
