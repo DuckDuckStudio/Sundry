@@ -19,7 +19,7 @@ from function.format.github import IssueNumber
 from exception.operation import TryOtherMethods
 
 def main(args: list[str]) -> int:
-    """sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]"""
+    """`sundry logs-analyse <Url> [是否保留日志文件] [是否显示一般错误/异常]`"""
 
     init(autoreset=True)
 
