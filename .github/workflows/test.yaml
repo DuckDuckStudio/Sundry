@@ -154,8 +154,8 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.Sundry"
-          python ./Release/src/sundry.py autoremove DuckStudio.Sundry
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.GitHubView"
+          python ./Release/src/sundry.py autoremove DuckStudio.GitHubView
 
       - name: 测试 - logs-analyse
         shell: bash
@@ -191,20 +191,20 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 all"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 all
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 i"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 i
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 i"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 i
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 l zh-CN"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 l zh-CN
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 l zh-CN"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 l zh-CN
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 v"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 v
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 v"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 v
 
       - name: 测试 - sync
         shell: bash
@@ -531,8 +531,8 @@ jobs:
       #   shell: bash
       #   run: |
       #     # 运行测试
-      #     echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.Sundry"
-      #     python ./Release/src/sundry.py autoremove DuckStudio.Sundry
+      #     echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.GitHubView"
+      #     python ./Release/src/sundry.py autoremove DuckStudio.GitHubView
 
       - name: 测试 - logs-analyse
         shell: bash
@@ -566,20 +566,20 @@ jobs:
         shell: bash
         run: |
           # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 all"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 all
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 i"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 i
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 i"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 i
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 l zh-CN"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 l zh-CN
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 l zh-CN"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 l zh-CN
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 v"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.2.9 v
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 v"
+          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 v
 
       - name: 测试 - sync
         shell: bash
