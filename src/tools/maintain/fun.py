@@ -143,21 +143,22 @@ def 获取fun(fun位置: str, 随机: bool) -> int:
         if not os.path.exists(fun位置):
             raise FileNotFoundError()
         with open(fun位置, 'r', encoding='utf-8') as file:
-            lines = file.readlines()
-            if lines:
+            content = file.read()
+            if content.strip():
                 if 随机:
                     # 随机单个句子
-                    while True: # 避免空行
-                        随机句子 = random.choice(lines).strip().replace("\\n", "\n") # 多行好玩的
-                        # 检查是否包含 http:// 或 https://
-                        if 随机句子 and ("http://" not in 随机句子) and ("https://" not in 随机句子):
-                            break
-                    print(随机句子)
+                    lines: list[str] = []
+                    for line in content.split("\n"):
+                        if line.strip() and (not any(i in line for i in ("http://", "https://"))):
+                            lines.append(line.strip().replace("\\n", "\n"))
+
+                    if lines:
+                        print(random.choice(lines))
+                    else:
+                        print(f"{消息头.错误} 没有合适的行以供随机")
                 else:
-                    # 重置文件指针到文件开头
-                    file.seek(0)
                     # 整个文件，不处理 \n
-                    print(file.read())
+                    print(content)
             else:
                 print(f"{消息头.警告} {Fore.BLUE}{fun位置}{Fore.RESET} {Fore.YELLOW}为空{Fore.RESET}")
         return 0
