@@ -114,7 +114,7 @@ jobs:
 
       - name: 上传构建文件
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Release
           path: Release/**
