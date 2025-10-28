@@ -396,7 +396,7 @@ jobs:
 
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup cache"
           python ./Release/src/sundry.py cleanup cache
-          tree -a -f /tmp/Sundry/
+          ls -a -R /tmp/Sundry
 
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup all)"
           python ./Release/src/sundry.py cleanup
