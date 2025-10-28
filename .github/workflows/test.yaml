@@ -370,12 +370,15 @@ jobs:
           mkdir -p "/tmp/Sundry"
           mkdir -p "/tmp/Sundry/AzurePiplines/Logs"
           mkdir -p "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers"
+          mkdir -p "/tmp/Sundry/Cache/TestCI"
 
           # 产生一些文件
           touch "/tmp/Sundry/AzurePiplines/Logs/log1.log"
           touch "/tmp/Sundry/AzurePiplines/Logs/log2.log"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer1.exe"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer2.exe"
+          touch "/tmp/Sundry/Cache/TestCI/log1.log"
+          touch "/tmp/Sundry/Cache/TestCI/log2.log"
           touch "/tmp/Sundry/OtherFile1.txt"
           touch "/tmp/Sundry/OtherFile2.txt"
 
@@ -389,6 +392,10 @@ jobs:
 
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup autoremove"
           python ./Release/src/sundry.py cleanup autoremove
+          ls -a -R /tmp/Sundry
+
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup cache"
+          python ./Release/src/sundry.py cleanup cache
           ls -a -R /tmp/Sundry
 
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup all)"
@@ -745,12 +752,15 @@ jobs:
           mkdir -p "/tmp/Sundry"
           mkdir -p "/tmp/Sundry/AzurePiplines/Logs"
           mkdir -p "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers"
+          mkdir -p "/tmp/Sundry/Cache/TestCI"
 
           # 产生一些文件
           touch "/tmp/Sundry/AzurePiplines/Logs/log1.log"
           touch "/tmp/Sundry/AzurePiplines/Logs/log2.log"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer1.exe"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer2.exe"
+          touch "/tmp/Sundry/Cache/TestCI/log1.log"
+          touch "/tmp/Sundry/Cache/TestCI/log2.log"
           touch "/tmp/Sundry/OtherFile1.txt"
           touch "/tmp/Sundry/OtherFile2.txt"
 
@@ -764,6 +774,10 @@ jobs:
 
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup autoremove"
           python ./Release/src/sundry.py cleanup autoremove
+          tree -a -f /tmp/Sundry/
+
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup cache"
+          python ./Release/src/sundry.py cleanup cache
           tree -a -f /tmp/Sundry/
 
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup all)"
