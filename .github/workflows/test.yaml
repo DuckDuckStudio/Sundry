@@ -370,6 +370,7 @@ jobs:
           mkdir -p "/tmp/Sundry"
           mkdir -p "/tmp/Sundry/AzurePiplines/Logs"
           mkdir -p "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers"
+          mkdir -p "/tmp/Sundry/Cache/TestCI"
 
           # 产生一些文件
           touch "/tmp/Sundry/AzurePiplines/Logs/log1.log"
@@ -751,6 +752,7 @@ jobs:
           mkdir -p "/tmp/Sundry"
           mkdir -p "/tmp/Sundry/AzurePiplines/Logs"
           mkdir -p "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers"
+          mkdir -p "/tmp/Sundry/Cache/TestCI"
 
           # 产生一些文件
           touch "/tmp/Sundry/AzurePiplines/Logs/log1.log"
