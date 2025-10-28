@@ -29,15 +29,19 @@ def main(哪个工具: str) -> int:
             哪个工具 = 工具名
             break
     # 如不是已知别名，原样传递
+
+    临时目录 = os.path.join(tempfile.gettempdir(), "Sundry")
     
     if 哪个工具 == "logsAnalyse":
-        待清理文件路径 = os.path.join(tempfile.gettempdir(), "Sundry", "AzurePiplines", "Logs")
+        待清理文件路径 = os.path.join(临时目录, "AzurePiplines", "Logs")
     elif 哪个工具 == "remove":
-        待清理文件路径 = os.path.join(tempfile.gettempdir(), "Sundry", "RemoveAndAutoRemove", "DownloadInstallers")
+        待清理文件路径 = os.path.join(临时目录, "RemoveAndAutoRemove", "DownloadInstallers")
     elif 哪个工具 == "verify":
-        待清理文件路径 = os.path.join(tempfile.gettempdir(), "Sundry", "Verify")
+        待清理文件路径 = os.path.join(临时目录, "Verify")
+    elif 哪个工具 == "cache":
+        待清理文件路径 = os.path.join(临时目录, "Cache")
     elif 哪个工具 == "all":
-        待清理文件路径 = os.path.join(tempfile.gettempdir(), "Sundry")
+        待清理文件路径 = 临时目录
     else:
         print(f"{消息头.错误} 不知道该如何清理 {哪个工具} 产生的文件")
         return 1
