@@ -197,7 +197,7 @@ def main(args: list[str]) -> int:
                                         查找错误代码解释(匹配.group(1))
                                     else:
                                         print(f"{消息头.提示} 您可以尝试在 https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md 上查找对应退出代码的解释。")
-                                        print(f"{消息头.提示} 也可以尝试在 https://github.com/microsoft/winget-pkgs/edit/master/Tools/ManualValidation/ExitCodes.csv 上查找对应退出代码的解释。")
+                                        print(f"{消息头.提示} 也可以尝试在 https://github.com/microsoft/winget-pkgs/blob/master/Tools/ManualValidation/ExitCodes.csv 上查找对应退出代码的解释。")
                                 elif keyword in ["ShellExecute installer failed", "MSIX installer failed"]:
                                     # keyword: 123
                                     匹配 = re.search(f"{keyword}:\\s*(-?\\d+)", line, re.IGNORECASE)
