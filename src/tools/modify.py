@@ -9,13 +9,14 @@ from datetime import datetime
 from colorama import init, Fore
 from function.print.print import 消息头
 from function.files.open import open_file
+from function.files.manifest import 清单信息
 from function.github.token import read_token
 from function.maintain.config import 读取配置
 from function.files.manifest import 获取清单目录
 
 def main(args: list[str]):
-    global 软件包标识符, 软件包版本, 日志文件路径, 解决, 清单目录, 首个_PR, 格式化审查者
-    global 程序所在目录, 旧清单版本号, 新清单版本号
+    global 软件包标识符, 软件包版本, 日志文件路径
+    global 解决, 清单目录, 首个_PR, 格式化审查者, 程序所在目录
     global owner
 
     init(autoreset=True)
@@ -41,10 +42,6 @@ def main(args: list[str]):
     # 路径
     程序所在目录 = os.path.dirname(os.path.abspath(sys.argv[0]))
     日志文件路径 = os.path.join("logs", datetime.today().strftime('%Y\\%m\\%d'), f"{软件包标识符}-{软件包版本}.log") # 相对路径
-
-    # 需要替换的版本号
-    旧清单版本号 = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0"]
-    新清单版本号 = "1.10.0"
 
     winget_pkgs目录 = ""
     winget_pkgs目录 = 读取配置("paths.winget-pkgs")
@@ -259,19 +256,19 @@ def 修改版本(版本文件夹: str):
 
                 # =========================== 必经修改 =========================
                 # 修改 ManifestVersion 和版本号
-                for 清单中的旧清单版本号 in 旧清单版本号:
+                for 清单中的旧清单版本号 in 清单信息.旧版本列表:
                     # 修改 ManifestVersion
                     if f"ManifestVersion: {清单中的旧清单版本号}" in 清单文件内容:
-                        print(f"    替换 ManifestVersion: {清单中的旧清单版本号} -> {新清单版本号}")
-                        写入日志(f"    Replace ManifestVersion: {清单中的旧清单版本号} -> {新清单版本号}")
-                        清单文件内容 = 清单文件内容.replace(f"ManifestVersion: {清单中的旧清单版本号}", f"ManifestVersion: {新清单版本号}")
+                        print(f"    替换 ManifestVersion: {清单中的旧清单版本号} -> {清单信息.最新版本}")
+                        写入日志(f"    Replace ManifestVersion: {清单中的旧清单版本号} -> {清单信息.最新版本}")
+                        清单文件内容 = 清单文件内容.replace(f"ManifestVersion: {清单中的旧清单版本号}", f"ManifestVersion: {清单信息.最新版本}")
 
                     # 修改 schema 引用，只替换版本号部分
                     schema_line = f"{清单中的旧清单版本号}.schema.json"
                     if schema_line in 清单文件内容:
-                        print(f"    替换 schema 引用: {清单中的旧清单版本号}.schema.json -> {新清单版本号}.schema.json")
-                        写入日志(f"    Replace schema references: {清单中的旧清单版本号}.schema.json -> {新清单版本号}.schema.json")
-                        清单文件内容 = 清单文件内容.replace(f"{清单中的旧清单版本号}.schema.json", f"{新清单版本号}.schema.json")
+                        print(f"    替换 schema 引用: {清单中的旧清单版本号}.schema.json -> {清单信息.最新版本}.schema.json")
+                        写入日志(f"    Replace schema references: {清单中的旧清单版本号}.schema.json -> {清单信息.最新版本}.schema.json")
+                        清单文件内容 = 清单文件内容.replace(f"{清单中的旧清单版本号}.schema.json", f"{清单信息.最新版本}.schema.json")
 
                 # 替换工具注释
                 '''
@@ -291,14 +288,14 @@ def 修改版本(版本文件夹: str):
                     # 第一行前面追加三行
                     lines.insert(0, "")
                     if 'installer' in file: # 安装程序清单
-                        lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.{新清单版本号}.schema.json")
+                        lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.{清单信息.最新版本}.schema.json")
                     elif 'locale' in file: # 区域清单
                         if 'defaultLocale' in 清单文件内容: # 默认区域清单
-                            lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.{新清单版本号}.schema.json")
+                            lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.{清单信息.最新版本}.schema.json")
                         else: # 一般区域清单
-                            lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.{新清单版本号}.schema.json")
+                            lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.{清单信息.最新版本}.schema.json")
                     else: # 版本清单
-                        lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.{新清单版本号}.schema.json")
+                        lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.{清单信息.最新版本}.schema.json")
                     lines.insert(0, "# Modified with Sundry.")
                 # 否则第一行是#开头
                 else:
