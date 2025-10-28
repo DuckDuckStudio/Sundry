@@ -14,9 +14,9 @@ from function.files.open import open_file
 from urllib.parse import urlparse, parse_qs
 from function.github.token import read_token
 from function.maintain.config import 读取配置
-from exception.request import RequestException
 from function.format.github import IssueNumber
 from exception.operation import TryOtherMethods
+from function.github.api import 获取GitHub文件内容
 
 def main(args: list[str]) -> int:
     """`sundry logs-analyse <Url> [是否保留日志文件] [是否显示一般错误/异常]`"""
@@ -366,39 +366,3 @@ def 查找错误代码解释(ExitCode: str):
             if ExitCode in [row["Hex"], row["Dec"], row["InvDec"], row["Symbol"]]:
                 print(f"{消息头.提示} 此错误代码或许代表:")
                 print(f"{消息头.提示} {" | ".join([f"Hex: {Fore.BLUE}{row['Hex']}{Fore.RESET}", f"Dec: {Fore.BLUE}{row['Dec']}{Fore.RESET}", f"InvDec: {Fore.BLUE}{row['InvDec']}{Fore.RESET}", f"Symbol: {Fore.BLUE}{row['Symbol']}{Fore.RESET}", f"Description: {Fore.BLUE}{row['Description']}{Fore.RESET}"]).replace(f"{Fore.BLUE}{ExitCode}{Fore.RESET}", f"{Fore.MAGENTA}{ExitCode}{Fore.RESET}")}")
-
-def 请求GitHubAPI(apiUrl: str, github_token: str | int):
-    请求头 = {
-        "Authorization": f"token {github_token}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    if not github_token:
-        # 移除 Authorization 头
-        请求头.pop("Authorization", None)
-    try:
-        响应 = requests.get(apiUrl, headers=请求头)
-        
-        if 响应.status_code == 404:
-            raise RequestException("PR 不存在或对应分支已被删除")
-        elif 响应.status_code >= 400:
-            raise RequestException(响应)
-        else:
-            return 响应.json()
-    except RequestException:
-        return
-
-def 获取GitHub文件内容(github_token: str | int, 仓库: str, 文件路径: str):
-    try:
-        # 由于政府政策，在中国大陆不允许使用 raw.githubusercontent.com
-        # 127.0.0.1 欢迎你 XD
-        # raw_url = f"https://raw.githubusercontent.com/{仓库}/refs/heads/{分支}/{文件路径}"
-
-        api = f"https://api.github.com/repos/{仓库}/contents/{文件路径}"
-        响应 = 请求GitHubAPI(api, github_token)
-        if not 响应:
-            raise RequestException(f"响应为空: {响应}")
-
-        import base64
-        return base64.b64decode(响应["content"]).decode("utf-8")
-    except Exception:
-        return
