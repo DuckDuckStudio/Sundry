@@ -278,6 +278,9 @@ def 验证清单(清单目录: str) -> int:
         if e.returncode == 2316632104:
             # 清单验证成功，但出现警告
             return 0
+        elif e.returncode == -1978335192:
+            print(f"{消息头.内部警告} WinGet 返回了 returnCodes.md 中的退出代码，也许您应该修改这里的逻辑？")
+            return 0
         else:
             return e.returncode
 
