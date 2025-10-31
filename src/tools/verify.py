@@ -112,10 +112,6 @@ def main(args: list[str]) -> int:
     # 如果有任何一步失败了，就 return 1
     if 验证清单(清单目录):
         return 1
-    # elif 软件包标识符 in ["DuckStudio.Sundry"]:
-    #     安装后 sundry 命令会冲突，但依旧能获取到 AAF 条目
-    #     print(f"{消息头.警告} 此软件包是 Sundry verify 的依赖项，再次安装它将导致冲突，故取消后续验证。")
-    #     return 0
     安装前AAF = 读取AAF字段()
     if 测试安装与卸载(清单目录, "安装"):
         return 1
@@ -389,7 +385,7 @@ def 读取AAF字段():
                                     if 值 is not None:
                                         entry[字段] = 值
                                 # 添加范围标识
-                                entry["Scope"] = "Machine" if hive == winreg.HKEY_LOCAL_MACHINE else "User"
+                                entry["Scope"] = "machine" if hive == winreg.HKEY_LOCAL_MACHINE else "user"
                                 entries.append(entry)
                         except PermissionError:
                             continue
