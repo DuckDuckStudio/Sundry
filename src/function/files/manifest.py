@@ -54,7 +54,7 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
         for 文件夹 in os.listdir(清单目录):
             if os.path.isdir(os.path.join(清单目录, 文件夹)):
                 for 文件 in os.listdir(os.path.join(清单目录, 文件夹)):
-                    if os.path.isdir(文件):
+                    if os.path.isdir(os.path.join(清单目录, 文件夹, 文件)):
                         # 如果这个版本文件夹下面还有目录，则代表这可能是类似 Nightly 版本的软件包的标识符的一部分
                         break
                 else:
