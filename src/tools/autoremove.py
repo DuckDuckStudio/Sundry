@@ -7,7 +7,7 @@ import tools.remove as remove
 from colorama import Fore, init
 from function.print.print import 消息头
 from exception.request import RequestException
-from function.files.manifest import 获取清单目录
+from function.files.manifest import 获取现有包版本, 获取清单目录
 
 def main(args: list[str]) -> int:
     try:
@@ -22,7 +22,10 @@ def main(args: list[str]) -> int:
             print(f"{消息头.提示} 多余的参数，我们最多只需要 2 个参数")
             args = args[:2]
 
-        版本列表: list[str] = 查找软件包版本(args[0])
+        版本列表: list[str] | None = 获取现有包版本(args[0])
+        if not 版本列表:
+            print(f"{消息头.错误} 未能获取到版本列表")
+            raise KeyboardInterrupt
         检查软件包版本(args[0], 版本列表, (args[1].lower() in ["y", "yes", "skip", "skip-check"]))
         print(f"{消息头.成功} 成功检查 {Fore.BLUE}{args[0]}{Fore.RESET} 的所有版本")
         return 0
@@ -148,7 +151,7 @@ def 检查所有安装程序URL(软件包标识符: str, 软件包版本: str) -
                         结果 = f"失效 ({响应.status_code})"
                         结果 = f"{Fore.YELLOW}{结果}{Fore.RESET}"
                 except requests.exceptions.SSLError:
-                    # 我跟你讲，这大概率是某个用证书加速的加速器干的。
+                    # 这大概率是某个用证书加速的加速器干的。
                     结果 = 使用GitHubAPI检查安装程序URL(InstallerUrl)
                     if (Fore.YELLOW in 结果) or (Fore.RED in 结果):
                         失效数 += 1
@@ -189,53 +192,6 @@ def 移除软件包版本(软件包标识符: str, 版本: str, 原因: str) -> 
         print(f"{消息头.错误} 尝试移除 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 失败！")
         raise KeyboardInterrupt
 
-def 查找软件包版本(软件包标识符: str, 本地仓库: bool = False) -> list[str]:
-    try:
-        版本列表: list[str] = []
-        if 本地仓库:
-            # 获取所有版本号文件夹
-            清单目录 = 获取清单目录(软件包标识符)
-            if not 清单目录:
-                raise KeyboardInterrupt
-            while True:
-                try:
-                    for 文件夹 in os.listdir(清单目录):
-                        if os.path.isdir(os.path.join(清单目录, 文件夹)):
-                            for 文件 in os.listdir(os.path.join(清单目录, 文件夹)):
-                                if os.path.isdir(文件):
-                                    # 如果这个版本文件夹下面还有目录，则代表这可能是类似 Nightly 版本的软件包的标识符的一部分
-                                    break
-                            else:
-                                # 如果前面的 for 没有 break，则执行
-                                版本列表.append(文件夹)
-                    break
-                except FileNotFoundError as e:
-                    print(f"{消息头.错误} {Fore.RED}{e}{Fore.RESET}")
-                    input("是否重新查找? [ENTER/CTRL+C]")
-        else:
-            结果 = subprocess.run(
-                ["winget", "show", "--id", 软件包标识符, "-s", "winget", "-e", "--versions"],
-                capture_output=True, text=True, check=True
-            )
-            版本列表 = []
-            开始了吗 = 3
-            for 行 in [line for line in 结果.stdout.splitlines() if line.strip()]:
-                if (开始了吗 < 1):
-                    版本列表.append(行)
-                if (软件包标识符 in 行) or (开始了吗 < 3):
-                    开始了吗 -= 1
-        if not 版本列表:
-            print(f"{消息头.错误} 未找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 的任何版本")
-            if 本地仓库 or 是否中止(input(f"{消息头.问题} 使用本地仓库中的信息吗? [Y/n]: "), "y"):
-                raise KeyboardInterrupt
-            else:
-                # 调用函数时会输出成功提示
-                return 查找软件包版本(软件包标识符, 本地仓库=True)
-        print(f"{消息头.成功} 找到 {Fore.BLUE}{软件包标识符}{Fore.RESET} 版本:\n{Fore.BLUE}{f"{Fore.RESET},{Fore.BLUE} ".join(版本列表)}{Fore.RESET}\n")
-        return 版本列表
-    except subprocess.CalledProcessError as e:
-        print(f"{消息头.错误} 获取版本失败:\n{Fore.RED}{e}{Fore.RESET}")
-        raise KeyboardInterrupt
 
 def 是否中止(输入: str, 默认: str = "n") -> bool:
     """
