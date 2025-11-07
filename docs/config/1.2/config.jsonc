@@ -35,21 +35,14 @@
     "github": {
         "pr": {
             // 是否允许维护者修改您的 PR 内容
-            "maintainer_can_modify": false // bool
+            "maintainer_can_modify": false, // bool
+
+            // 自己在 Auth.csv 中作为包修改的审查者时，是否在 PR 中请求自己审查
+            "mention_self_when_reviewer": false // bool
         }
     },
 
     "tools": {
-        "verify": {
-            // 暂未实现
-            // verify 时验证清单中的 URL 是否有效 (#68)
-            "check_url": false, // bool
-
-            // 暂未实现
-            // 在非干净的 Windows 上验证时显示警告 (#99)
-            // TODO: 这个配置会不会太长了？
-            "show_warning_on_non-clean_windows": false // bool
-        },
         "prune": {
             "remote": {
                 // 暂未实现
@@ -60,6 +53,12 @@
                 // prune 时清理远程中已关闭的 PR 的分支 (#98)
                 "prune_closed_branches": false // bool
             }
+        },
+        "verify": {
+            // 暂未实现
+            // 在非干净的 Windows 上验证时显示警告 (#99)
+            // TODO: 这个配置会不会太长了？
+            "show_warning_on_non-clean_windows": false // bool
         }
     },
 
