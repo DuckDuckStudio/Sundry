@@ -285,8 +285,9 @@ sundry config "<条目>" "<值>"
   - 初始化配置: `sundry config init`
   - 显示当前配置: `sundry config show`
   - 修改配置项: `sundry config git.signature false`
+  - 更新配置文件: `sundry config update` (当然你直接重新 `init` 一份也可以)
 
-> 有关配置文件的更多信息，请参阅[配置文件 1.1 文档](docs/config/1.1/README.md)。
+> 有关配置文件的更多信息，请参阅[配置文件文档](docs/config/README.md)。
 
 </details>
 
