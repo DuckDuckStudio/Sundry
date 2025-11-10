@@ -285,6 +285,7 @@ sundry config "<条目>" "<值>"
 - 示例:
   - 初始化配置: `sundry config init`
   - 显示当前配置: `sundry config show`
+  - 编辑配置文件: `sundry config edit`
   - 修改配置项: `sundry config git.signature false`
   - 更新配置文件: `sundry config update` (当然你直接重新 `init` 一份也可以)
 

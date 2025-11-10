@@ -4,6 +4,7 @@ import jsonschema
 from typing import Any
 from colorama import init, Fore
 from function.print.print import 消息头
+from function.files.open import open_file
 from pygments import highlight # type: ignore
 from pygments.lexers import JsonLexer # type: ignore
 from pygments.formatters import TerminalFormatter
@@ -290,6 +291,10 @@ def main(args: list[str]) -> int:
             return 展示配置文件(配置文件)
         elif args[0] in ["update", "更新", "upgrade"]:
             return 更新配置()
+        elif args[0] in ["编辑", "edit", "打开", "open"]:
+            print(f"{消息头.信息} 配置文件 config.json 位于 {配置文件}")
+            print(f"{消息头.信息} 尝试打开配置文件 config.json ...")
+            return open_file(配置文件)
         elif len(args) == 2:
             条目 = args[0]
             值 = args[1]
