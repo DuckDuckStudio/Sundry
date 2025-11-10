@@ -39,8 +39,7 @@ def main(args: list[str]=sys.argv):
     print(f"[INFO] 新版本号: {新版本号}")
 
     # 文件路径和替换规则
-    文件和替换规则 = [
-        (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(args[0]))), "src", "tools", "maintain", "config.py"), '"version": "develop",', f'"version": "{新版本号}",'),
+    文件和替换规则: list[tuple[str, str, str]] = [
         (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(args[0]))), "src", "sundry.py"), 'version = "develop"', f'version = "{新版本号}"'),
         (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(args[0]))), "installer.iss"), 'develop', 新版本号)
     ]
