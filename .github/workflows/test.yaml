@@ -88,10 +88,10 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$HOME/.config/DuckStudio/Sundry"
+          # 为了测试 sundry config update，这里的配置文件应该是旧的版本
           echo "{
-            \"$schema\": \"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.2.json\",
-            \"version\": \"1.2\",
-            \"debug\": true,
+            \"$schema\": \"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.1.json\",
+            \"version\": \"1.1\",
             \"paths\": {
               \"winget-pkgs\": \"${GITHUB_WORKSPACE//\\//}/winget-pkgs/\",
               \"winget-tools\": \"${GITHUB_WORKSPACE//\\//}/winget-tools/\"
@@ -105,24 +105,19 @@ jobs:
             },
             \"github\": {
               \"pr\": {
-                \"maintainer_can_modify\": false,
-                \"mention_self_when_reviewer\": false
+                \"maintainer_can_modify\": false
               }
             },
             \"tools\": {
+              \"verify\": {
+                \"check_url\": false,
+                \"show_warning_on_non-clean_windows\": false
+              },
               \"prune\": {
                 \"remote\": {
                   \"prune_merged_branches\": false,
                   \"prune_closed_branches\": false
                 }
-              },
-              \"verify\": {
-                \"show_warning_on_non-clean_windows\": false
-              }
-            },
-            \"cache\": {
-              \"validate\": {
-                \"schema\": true
               }
             },
             \"i18n\": {
@@ -148,13 +143,16 @@ jobs:
           echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
           python ./Release/src/sundry.py config show
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config git.signature yes"
-          python ./Release/src/sundry.py config git.signature yes
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py config update"
+          python ./Release/src/sundry.py config update
           echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
           python ./Release/src/sundry.py config show
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config git.signature no"
-          python ./Release/src/sundry.py config git.signature no # 还原
+          # 这之后的修改对应新版配置文件
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py config debug y"
+          python ./Release/src/sundry.py config debug y
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
+          python ./Release/src/sundry.py config show
 
       - name: 测试 - autoremove
         shell: bash
@@ -478,10 +476,10 @@ jobs:
         shell: bash
         run: |
           mkdir -p "$HOME/.config/DuckStudio/Sundry"
+          # 为了测试 sundry config update，这里的配置文件应该是旧的版本
           echo "{
-            \"$schema\": \"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.2.json\",
-            \"version\": \"1.2\",
-            \"debug\": true,
+            \"$schema\": \"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.1.json\",
+            \"version\": \"1.1\",
             \"paths\": {
               \"winget-pkgs\": \"${GITHUB_WORKSPACE//\\//}/winget-pkgs/\",
               \"winget-tools\": \"${GITHUB_WORKSPACE//\\//}/winget-tools/\"
@@ -495,24 +493,19 @@ jobs:
             },
             \"github\": {
               \"pr\": {
-                \"maintainer_can_modify\": false,
-                \"mention_self_when_reviewer\": false
+                \"maintainer_can_modify\": false
               }
             },
             \"tools\": {
+              \"verify\": {
+                \"check_url\": false,
+                \"show_warning_on_non-clean_windows\": false
+              },
               \"prune\": {
                 \"remote\": {
                   \"prune_merged_branches\": false,
                   \"prune_closed_branches\": false
                 }
-              },
-              \"verify\": {
-                \"show_warning_on_non-clean_windows\": false
-              }
-            },
-            \"cache\": {
-              \"validate\": {
-                \"schema\": true
               }
             },
             \"i18n\": {
@@ -538,13 +531,16 @@ jobs:
           echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
           python ./Release/src/sundry.py config show
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config git.signature yes"
-          python ./Release/src/sundry.py config git.signature yes
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py config update"
+          python ./Release/src/sundry.py config update
           echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
           python ./Release/src/sundry.py config show
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config git.signature no"
-          python ./Release/src/sundry.py config git.signature no # 还原
+          # 这之后的修改对应新版配置文件
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py config debug y"
+          python ./Release/src/sundry.py config debug y
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
+          python ./Release/src/sundry.py config show
 
       # - name: 测试 - autoremove
       #   shell: bash
