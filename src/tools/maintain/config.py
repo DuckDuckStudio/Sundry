@@ -64,6 +64,11 @@ def 获取用户输入(键路径: str) -> str | bool:
                 return 值
             else:
                 print(f"{消息头.错误} {验证结果}")
+        elif 键路径.startswith("cache."):
+            if 值.lower() in ["n", "no", "不要", "否", "false", "不"]:
+                return False
+            else:
+                return True
         elif 键路径 in 配置项信息.布尔值项:
             if 值.lower() in ["y", "yes", "要", "是", "true"]:
                 return True
