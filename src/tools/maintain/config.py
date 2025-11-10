@@ -3,7 +3,6 @@ import json
 from typing import Any
 from colorama import init, Fore
 from function.print.print import 消息头
-from function.maintain.config import 验证配置
 from pygments import highlight # type: ignore
 from pygments.lexers import JsonLexer # type: ignore
 from pygments.formatters import TerminalFormatter
@@ -12,17 +11,25 @@ from function.maintain.config import 读取配置, 验证配置, 配置项信息
 # 获取用户输入
 def 获取用户输入(键路径: str) -> str | bool:
     提示消息映射: dict[str, str] = {
+        # paths.*
         "paths.winget-pkgs": f"{消息头.问题} 您的本地 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库在哪里: ",
         "paths.winget-tools": f"{消息头.问题} 您的本地 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库在哪里: ",
+        # repos.*
         "repos.winget-pkgs": f"{消息头.问题} 您的远程 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库是什么 (owner/winget-pkgs): ",
         "repos.winget-tools": f"{消息头.问题} 您的远程 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库是什么 (owner/winget-tools): ",
+        # git.*
         "git.signature": f"{消息头.问题} 是否要为 Git 提交签名? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        # github.pr.*
         "github.pr.maintainer_can_modify": f"{消息头.问题} 是否允许维护者修改您的 PR 内容? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         "github.pr.mention_self_when_reviewer": f"{消息头.问题} 创建 PR 时，如果自己在 Auth.csv 中作为包修改的审查者时，是否在 PR 中请求自己审查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
-        "tools.verify.show_warning_on_non-clean_windows": f"{消息头.问题} 在非干净的 Windows 上验证时显示警告? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        # tools.prune.*
         "tools.prune.remote.prune_merged_branches": f"{消息头.问题} prune 时清理远程中{Fore.YELLOW}已合并{Fore.RESET}的 PR 的分支? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         "tools.prune.remote.prune_closed_branches": f"{消息头.问题} prune 时清理远程中{Fore.YELLOW}已关闭{Fore.RESET}的 PR 的分支? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        # tools.verify.*
+        "tools.verify.show_warning_on_non-clean_windows": f"{消息头.问题} 在非干净的 Windows 上验证时显示警告? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        # i18n.*
         "i18n.lang": f"{消息头.问题} 你希望 Sundry 使用哪种语言运行? [{Fore.GREEN}zh-CN(默认){Fore.RESET}, en-US]: ",
+        # cache.*
         "cache.validate.schema": f"{消息头.问题} 在 sundry validate 时是否缓存下载的清单架构 (schema)? (默认为{Fore.GREEN}是{Fore.RESET}): "
     }
 
@@ -99,14 +106,14 @@ def 初始化配置文件(配置文件: str) -> int:
                 }
             },
             "tools": {
-                "verify": {
-                    "show_warning_on_non-clean_windows": False
-                },
                 "prune": {
                     "remote": {
                         "prune_merged_branches": False,
                         "prune_closed_branches": False
                     }
+                },
+                "verify": {
+                    "show_warning_on_non-clean_windows": False
                 }
             },
             "cache": {
