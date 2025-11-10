@@ -1,8 +1,65 @@
 import os
 import json
 import requests
+from typing import Any
 from colorama import Fore
 from function.print.print import 消息头
+
+class 配置信息:
+    默认配置: dict[str, Any] = {
+        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.2.json",
+        "version": "1.2",
+        "debug": False,
+        "paths": {
+            "winget-pkgs": "",
+            "winget-tools": ""
+        },
+        "repos": {
+            "winget-pkgs": "",
+            "winget-tools": ""
+        },
+        "git": {
+            "signature": False
+        },
+        "github": {
+            "pr": {
+                "maintainer_can_modify": False,
+                "mention_self_when_reviewer": False
+            }
+        },
+        "tools": {
+            "prune": {
+                "remote": {
+                    "prune_merged_branches": False,
+                    "prune_closed_branches": False
+                }
+            },
+            "verify": {
+                "show_warning_on_non-clean_windows": False
+            }
+        },
+        "cache": {
+            "validate": {
+                "schema": True
+            }
+        },
+        "i18n": {
+            "lang": "zh-cn"
+        }
+    }
+
+    布尔值项: list[str] = [
+        "debug",
+        "git.signature",
+        "github.pr.maintainer_can_modify", "github.pr.mention_self_when_reviewer",
+        "tools.prune.remote.prune_merged_branches", "tools.prune.remote.prune_closed_branches",
+        "tools.verify.show_warning_on_non-clean_windows",
+        "cache.validate.schema"
+    ]
+
+    最新版本: str = "1.2"
+
+    所在位置: str = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
 
 def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     """
@@ -10,12 +67,6 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     验证指定的配置项和配置值的配对是否有效，返回为什么无效。  
     有效返回 None，无效返回 str 原因。  
     配置项 = 键路径
-
-    > 有一个人前来买瓜(调用)。  
-    > ...  
-    > 你这瓜(配置值)要熟(有效)我肯定要(return None)啊。  
-    > 那它要是不熟(无效)怎么办啊？  
-    > 要是不熟，我自己吃了它(return str)，满意了吧。
     """
 
     if not 配置项:
@@ -47,11 +98,7 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
             else:
                 print(f"{消息头.错误} 仓库格式不正确，应为 owner/repo 的格式")
     # 布尔值的配置项
-    elif 配置项 in [
-        "git.signature", "github.pr.maintainer_can_modify", "tools.verify.check_url",
-        "tools.verify.show_warning_on_non-clean_windows",
-        "tools.prune.remote.prune_merged_branches", "tools.prune.remote.prune_closed_branches"
-    ]:
+    elif 配置项 in 配置信息.布尔值项:
         if isinstance(配置值, bool):
             return None
         return f"应是布尔值，但实际是 {Fore.BLUE}{type(配置值)}{Fore.RESET}"
@@ -63,10 +110,13 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
 
 def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
     """
-    [验证/转换后的配置值]  
-    读取 Sundry 配置文件的指定配置项，并返回配置值。  
+    [验证/转换后的配置值]
+    读取 Sundry 配置文件的指定配置项，并返回配置值。
     如果读取失败则返回 None。
     """
+
+    if 配置项 == "debug":
+        静默 = True
 
     配置值 = 读取配置项(配置项, 静默)
 
@@ -96,17 +146,15 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
 
 def 读取配置项(配置项: str, 静默: bool = False) -> str | bool | None:
     """
-    [原始字符串]  
-    读取指定配置项的值，并返回配置项值。  
+    [原始字符串]
+    读取指定配置项的值，并返回配置项值。
     预期返回非空 str 或 bool，读取失败返回 None。
     """
 
-    配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
-
-    if os.path.exists(配置文件):
+    if os.path.exists(配置信息.所在位置):
         try:
             键路径 = 配置项.split(".")
-            with open(配置文件, "r", encoding="utf-8") as f:
+            with open(配置信息.所在位置, "r", encoding="utf-8") as f:
                 配置数据 = json.load(f)
             当前字典 = 配置数据
             for 键 in 键路径[:-1]:
