@@ -1,12 +1,13 @@
 import os
 import json
+import jsonschema
 from typing import Any
 from colorama import init, Fore
 from function.print.print import 消息头
 from pygments import highlight # type: ignore
 from pygments.lexers import JsonLexer # type: ignore
 from pygments.formatters import TerminalFormatter
-from function.maintain.config import 读取配置, 验证配置, 配置信息
+from function.maintain.config import 读取配置, 验证配置, 读取配置项, 配置信息, 获取当前配置版本, 获取配置schema
 
 # 获取用户输入
 def 获取用户输入(键路径: str) -> str | bool:
@@ -203,9 +204,75 @@ def 修改配置项(条目: str, 值: str, 配置文件: str) -> int:
         print(f"{消息头.错误} 配置文件不存在")
         print(f"{消息头.提示} 运行 sundry config init 来初始化配置文件")
         return 1
+    
+def 更新配置() -> int:
+    """
+    尝试将旧的配置文件更新至最新版本的格式，旧配置缺失的键的值使用默认值。
+    """
 
-# 主程序
-def main(args: list[str]):
+    if not os.path.exists(配置信息.所在位置):
+        print(f"{消息头.错误} 配置文件不存在")
+        print(f"{消息头.提示} 运行 sundry config init 来初始化配置文件")
+        return 1
+
+    try:
+        当前配置版本 = 获取当前配置版本()
+
+        schema = 获取配置schema(当前配置版本)
+        if schema:
+            with open(配置信息.所在位置, "r") as f:
+                jsonschema.validate(json.load(f), schema)
+        else:
+            print(f"{消息头.警告} 未能获取到当前配置版本的 schema，跳过验证")
+    except Exception as e:
+        print(f"{消息头.错误} 当前的配置文件似乎无效: {Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
+        return 1
+
+    if 当前配置版本 < float(配置信息.最新版本):
+        print(f"{消息头.信息} 看起来当前的配置文件需要更新，正在尝试自动更新...")
+    else:
+        print(f"{消息头.消息} 看起来当前的配置文件已经是最新的了")
+        return 0
+
+    try:
+        新配置数据 = 配置信息.默认配置
+
+        def 递归获取配置值(配置字典: dict[str, Any], 当前路径: str="") -> None:
+            for 键, 值 in 配置字典.items():
+                新路径: str = 当前路径 + "." + 键 if 当前路径 else 键
+                值: dict[str, Any] | str | bool
+                if isinstance(值, dict):
+                    递归获取配置值(值, 新路径)
+                else:
+                    if not any(新路径.startswith(跳过键) for 跳过键 in {
+                        "$schema", "version", # 不需要从旧配置同步，直接用默认值
+                    }):
+                        配置值 = 读取配置项(新路径, 静默=True)
+                        if (配置值 is None):
+                            if (新路径 in 配置信息.必填项):
+                                from tools.maintain.config import 获取用户输入
+                                配置字典[键] = 获取用户输入(新路径)
+                        else:
+                            配置字典[键] = 配置值
+
+        递归获取配置值(新配置数据)
+
+        with open(配置信息.所在位置, "w", encoding="utf-8") as f:
+            json.dump(新配置数据, f, indent=4, ensure_ascii=False)
+
+        print(f"{消息头.成功} 成功更新配置文件 {Fore.RED}{当前配置版本}{Fore.RESET} -> {Fore.GREEN}{配置信息.最新版本}{Fore.RESET}")
+        return 0
+    except json.decoder.JSONDecodeError as e:
+        print(f"{消息头.错误} 更新配置文件失败，现有配置文件不是有效的 json 字段:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
+        return 1
+    except Exception as e:
+        print(f"{消息头.错误} 更新配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
+        return 1
+
+def main(args: list[str]) -> int:
     init(autoreset=True)
 
     # 配置文件路径
@@ -221,6 +288,8 @@ def main(args: list[str]):
             return 初始化配置文件(配置文件)
         elif args[0] == "show":
             return 展示配置文件(配置文件)
+        elif args[0] in ["update", "更新", "upgrade"]:
+            return 更新配置()
         elif len(args) == 2:
             条目 = args[0]
             值 = args[1]
