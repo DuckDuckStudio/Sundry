@@ -51,7 +51,7 @@ def main() -> int:
     elif tool in ["日志分析", "logs-analyse", "log-analyse", "logs_analyse", "Azure日志分析"]:
         import tools.logsAnalyse as logsAnalyse
         return logsAnalyse.main(args)
-    elif tool in ["verify", "test", "验证", "测试"]:
+    elif tool in ["verify", "验证"]:
         import tools.verify as verify
         return verify.main(args)
     # 未开源的
@@ -61,6 +61,9 @@ def main() -> int:
     # elif tool == "hash-update":
     #     import tools.hashUpdate as hashUpdate
     #     return hashUpdate.main(args)
+    # elif tool == "validate":
+    #     import tools.validate as validate
+    #     return validate.main(args)
     # 维护
     elif tool in ["config", "配置"]:
         import tools.maintain.config as config
@@ -92,11 +95,12 @@ def main() -> int:
         print("    单版本辅助修改: sundry modify <软件包标识符> <版本> [理由/解决的议题] (单改)")
         # print("    安装程序哈希值更新: sundry hash-update <软件包标识符> <软件包版本> [解决的议题]")
         print("    Azure Pipline 日志分析:")
-        print("        日志分析: sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]")
+        print("        日志分析: sundry logs-analyse <GitHub PR 或 Azure 管道运行链接> [是否保留日志文件] [是否显示一般错误/异常]")
         print("        清理下载的日志文件: sundry logs-analyse cleanup (等效于 sundry cleanup logs-analyse)")
         print("    清单验证:")
-        print("        本地清单: sundry verify <软件包标识符> <软件包版本>")
-        print("        PR 修改: sundry verify <PR链接>")
+        # print("        验证清单内容: sundry validate <清单路径> / sundry validate <包标识符> <包版本>")
+        print("        测试本地清单: sundry verify <软件包标识符> <软件包版本>")
+        print("        测试 PR 修改: sundry verify <PR链接>")
         print("    winget-tools 检查忽略: sundry ignore <add/remove/edit/list> [忽略字段] [理由]")
         print("    其他辅助命令:")
         print("        查看清单: sundry cat <软件包标识符> <版本> [清单类型] [区域设置(如果是locale类型)]")
@@ -108,11 +112,9 @@ def main() -> int:
         print("            初始化: sundry config init")
         print("            显示当前配置: sundry config show")
         print("            修改值: sundry config <条目> <值>")
-        print("        仓库:")
-        print("            还原本地仓库修改: sundry revert <仓库> <是否已提交> <是否丢弃>")
-        print("        其他维护命令:")
-        print("            fun.txt: sundry fun <random/list/edit/add/remove/import> [参数...]")
-        print("            清理产生的文件: sundry cleanup <工具名>")
+        print("        还原本地仓库修改: sundry revert <仓库> <是否已提交> <是否丢弃>")
+        print("        清理产生的文件: sundry cleanup <工具名>")
+        print("        fun.txt: sundry fun <random/list/edit/add/remove/import> [参数...]")
         print("    其他 Sundry 命令:")
         print("        查看版本: sundry ver")
         print("        查看帮助: sundry help")
