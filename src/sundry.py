@@ -112,6 +112,7 @@ def main() -> int:
         print("            初始化: sundry config init")
         print("            显示当前配置: sundry config show")
         print("            修改值: sundry config <条目> <值>")
+        print("            更新配置文件: sundry config update")
         print("        还原本地仓库修改: sundry revert <仓库> <是否已提交> <是否丢弃>")
         print("        清理产生的文件: sundry cleanup <工具名>")
         print("        fun.txt: sundry fun <random/list/edit/add/remove/import> [参数...]")
