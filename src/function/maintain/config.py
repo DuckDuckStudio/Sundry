@@ -59,6 +59,8 @@ class 配置信息:
 
     最新版本: str = "1.2"
 
+    所在位置: str = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
+
 def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     """
     [验证配置]
@@ -149,12 +151,10 @@ def 读取配置项(配置项: str, 静默: bool = False) -> str | bool | None:
     预期返回非空 str 或 bool，读取失败返回 None。
     """
 
-    配置文件 = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
-
-    if os.path.exists(配置文件):
+    if os.path.exists(配置信息.所在位置):
         try:
             键路径 = 配置项.split(".")
-            with open(配置文件, "r", encoding="utf-8") as f:
+            with open(配置信息.所在位置, "r", encoding="utf-8") as f:
                 配置数据 = json.load(f)
             当前字典 = 配置数据
             for 键 in 键路径[:-1]:
