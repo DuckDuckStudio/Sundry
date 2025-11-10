@@ -4,18 +4,22 @@ import requests
 from colorama import Fore
 from function.print.print import 消息头
 
+class 配置项信息:
+    布尔值项: list[str] = [
+        "debug",
+        "git.signature",
+        "github.pr.maintainer_can_modify", "github.pr.mention_self_when_reviewer",
+        "tools.prune.remote.prune_merged_branches", "tools.prune.remote.prune_closed_branches",
+        "tools.verify.show_warning_on_non-clean_windows",
+        "cache.validate.schema"
+    ]
+
 def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     """
     [验证配置]
     验证指定的配置项和配置值的配对是否有效，返回为什么无效。  
     有效返回 None，无效返回 str 原因。  
     配置项 = 键路径
-
-    > 有一个人前来买瓜(调用)。  
-    > ...  
-    > 你这瓜(配置值)要熟(有效)我肯定要(return None)啊。  
-    > 那它要是不熟(无效)怎么办啊？  
-    > 要是不熟，我自己吃了它(return str)，满意了吧。
     """
 
     if not 配置项:
@@ -47,11 +51,7 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
             else:
                 print(f"{消息头.错误} 仓库格式不正确，应为 owner/repo 的格式")
     # 布尔值的配置项
-    elif 配置项 in [
-        "git.signature", "github.pr.maintainer_can_modify", "tools.verify.check_url",
-        "tools.verify.show_warning_on_non-clean_windows",
-        "tools.prune.remote.prune_merged_branches", "tools.prune.remote.prune_closed_branches"
-    ]:
+    elif 配置项 in 配置项信息.布尔值项:
         if isinstance(配置值, bool):
             return None
         return f"应是布尔值，但实际是 {Fore.BLUE}{type(配置值)}{Fore.RESET}"
