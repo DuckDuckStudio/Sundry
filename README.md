@@ -27,6 +27,7 @@ sundry config init
 > [!TIP]  
 > 在 **1.1.0** 之前，配置文件在程序目录下的 `config.json` 中；在 **1.1.0** 之后，配置文件在用户目录下的 `.config/DuckStudio/Sundry/config.json` 中。 - 这是为更新时不覆盖配置文件考虑的，如果配置文件不对，请再次使用 `sundry config init`。  
 > ~~由于作者实在是太懒了~~，在卸载 Sundry 之后不会移除配置文件，如果需要可以手动移除。  
+> 如需从旧版配置文件迁移至新版配置文件，请尝试运行 `sundry config update` 命令。  
 > 参见 [Sundry 配置文件文档](docs/config/) 了解有关配置文件的更多说明。  
 
 初始化完配置文件后用以下命令确认下:  
@@ -285,8 +286,9 @@ sundry config "<条目>" "<值>"
   - 初始化配置: `sundry config init`
   - 显示当前配置: `sundry config show`
   - 修改配置项: `sundry config git.signature false`
+  - 更新配置文件: `sundry config update` (当然你直接重新 `init` 一份也可以)
 
-> 有关配置文件的更多信息，请参阅[配置文件 1.1 文档](docs/config/1.1/README.md)。
+> 有关配置文件的更多信息，请参阅[配置文件文档](docs/config/README.md)。
 
 </details>
 
