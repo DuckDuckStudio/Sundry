@@ -398,12 +398,16 @@ jobs:
           python ./Release/src/sundry.py cleanup autoremove
           ls -a -R /tmp/Sundry
 
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup aec)"
+          python ./Release/src/sundry.py cleanup
+          ls -a -R /tmp/Sundry
+
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup cache"
           python ./Release/src/sundry.py cleanup cache
           ls -a -R /tmp/Sundry
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup all)"
-          python ./Release/src/sundry.py cleanup
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup all"
+          python ./Release/src/sundry.py cleanup all
           ls -a /tmp
 
   test-ubuntu:
@@ -784,10 +788,14 @@ jobs:
           python ./Release/src/sundry.py cleanup autoremove
           tree -a -f /tmp/Sundry/
 
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup aec)"
+          python ./Release/src/sundry.py cleanup
+          tree -a -f /tmp/Sundry/
+
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup cache"
           python ./Release/src/sundry.py cleanup cache
           tree -a -f /tmp/Sundry/
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup all)"
-          python ./Release/src/sundry.py cleanup
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup all"
+          python ./Release/src/sundry.py cleanup all
           tree -d -f -L 1 /tmp/
