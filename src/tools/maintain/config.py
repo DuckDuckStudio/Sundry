@@ -6,7 +6,7 @@ from function.print.print import 消息头
 from pygments import highlight # type: ignore
 from pygments.lexers import JsonLexer # type: ignore
 from pygments.formatters import TerminalFormatter
-from function.maintain.config import 读取配置, 验证配置, 配置项信息
+from function.maintain.config import 读取配置, 验证配置, 配置信息
 
 # 获取用户输入
 def 获取用户输入(键路径: str) -> str | bool:
@@ -69,7 +69,7 @@ def 获取用户输入(键路径: str) -> str | bool:
                 return False
             else:
                 return True
-        elif 键路径 in 配置项信息.布尔值项:
+        elif 键路径 in 配置信息.布尔值项:
             if 值.lower() in ["y", "yes", "要", "是", "true"]:
                 return True
             else:
@@ -89,7 +89,7 @@ def 获取用户输入(键路径: str) -> str | bool:
 # 初始化配置文件
 def 初始化配置文件(配置文件: str) -> int:
     if not os.path.exists(配置文件) or (input(f"{消息头.警告} 已经存在了一份配置文件，要覆盖它吗? (默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in ["n", "no", "不要"]):
-        默认配置: dict[str, Any] = 配置项信息.默认配置
+        默认配置: dict[str, Any] = 配置信息.默认配置
 
         # 递归函数用于获取嵌套配置输入
         def 递归获取输入(配置字典: dict[str, Any], 当前路径: str="") -> None:
@@ -170,7 +170,7 @@ def 修改配置项(条目: str, 值: str, 配置文件: str) -> int:
             最后键 = 键路径列表[-1]
 
             # 根据键路径类型转换值
-            if 条目 in 配置项信息.布尔值项:
+            if 条目 in 配置信息.布尔值项:
                 if 值.lower() in ["true", "yes", "y", "是", "要"]:
                     配置值 = True
                 else:
