@@ -7,7 +7,7 @@
 ## 描述
 这是 Sundry 的配置文件 (`~/DuckStudio/Sundry/config.json`) 的 1.1 版本。**有关配置文件的详细说明，请参见 jsonc 中的注释。**  
 
-此版本的配置文件适用 Sundry 1.4.2 及后续版本。
+此版本的配置文件适用 Sundry 1.4.2 - Sundry 1.4.3。
 
 ### 与 1.0 版本的区别
 > [!WARNING]  
