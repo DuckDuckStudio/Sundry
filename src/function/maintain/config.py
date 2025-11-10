@@ -1,10 +1,53 @@
 import os
 import json
 import requests
+from typing import Any
 from colorama import Fore
 from function.print.print import 消息头
 
 class 配置项信息:
+    默认配置: dict[str, Any] = {
+        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.2.json",
+        "version": "1.2",
+        "debug": False,
+        "paths": {
+            "winget-pkgs": "",
+            "winget-tools": ""
+        },
+        "repos": {
+            "winget-pkgs": "",
+            "winget-tools": ""
+        },
+        "git": {
+            "signature": False
+        },
+        "github": {
+            "pr": {
+                "maintainer_can_modify": False,
+                "mention_self_when_reviewer": False
+            }
+        },
+        "tools": {
+            "prune": {
+                "remote": {
+                    "prune_merged_branches": False,
+                    "prune_closed_branches": False
+                }
+            },
+            "verify": {
+                "show_warning_on_non-clean_windows": False
+            }
+        },
+        "cache": {
+            "validate": {
+                "schema": True
+            }
+        },
+        "i18n": {
+            "lang": "zh-cn"
+        }
+    }
+
     布尔值项: list[str] = [
         "debug",
         "git.signature",
@@ -14,6 +57,8 @@ class 配置项信息:
         "cache.validate.schema"
     ]
 
+    最新版本: str = "1.2"
+
 def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     """
     [验证配置]
@@ -21,12 +66,6 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     有效返回 None，无效返回 str 原因。  
     配置项 = 键路径
     """
-
-    # 有一个人前来买瓜(调用)。  
-    # ...  
-    # 你这瓜(配置值)要熟(有效)我肯定要(return None)啊。  
-    # 那它要是不熟(无效)怎么办啊？  
-    # 要是不熟，我自己吃了它(return str)，满意了吧。
 
     if not 配置项:
         return "未指定配置项"

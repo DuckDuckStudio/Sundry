@@ -89,47 +89,7 @@ def 获取用户输入(键路径: str) -> str | bool:
 # 初始化配置文件
 def 初始化配置文件(配置文件: str) -> int:
     if not os.path.exists(配置文件) or (input(f"{消息头.警告} 已经存在了一份配置文件，要覆盖它吗? (默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in ["n", "no", "不要"]):
-        默认配置: dict[str, Any] = {
-            "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.2.json",
-            "version": "1.2",
-            "debug": False,
-            "paths": {
-                "winget-pkgs": "",
-                "winget-tools": ""
-            },
-            "repos": {
-                "winget-pkgs": "",
-                "winget-tools": ""
-            },
-            "git": {
-                "signature": False
-            },
-            "github": {
-                "pr": {
-                    "maintainer_can_modify": False,
-                    "mention_self_when_reviewer": False
-                }
-            },
-            "tools": {
-                "prune": {
-                    "remote": {
-                        "prune_merged_branches": False,
-                        "prune_closed_branches": False
-                    }
-                },
-                "verify": {
-                    "show_warning_on_non-clean_windows": False
-                }
-            },
-            "cache": {
-                "validate": {
-                    "schema": True
-                }
-            },
-            "i18n": {
-                "lang": "zh-cn"
-            }
-        }
+        默认配置: dict[str, Any] = 配置项信息.默认配置
 
         # 递归函数用于获取嵌套配置输入
         def 递归获取输入(配置字典: dict[str, Any], 当前路径: str="") -> None:
@@ -176,7 +136,7 @@ def 初始化配置文件(配置文件: str) -> int:
 def 展示配置文件(配置文件: str) -> int:
     if os.path.exists(配置文件):
         try:
-            print(f"{消息头.提示} 前往 https://github.com/DuckDuckStudio/Sundry/tree/main/docs/config/1.1 了解配置项的含义")
+            print(f"{消息头.提示} 前往 https://github.com/DuckDuckStudio/Sundry/tree/main/docs/config 了解配置项的含义")
             with open(配置文件, "r", encoding="utf-8") as f:
                 配置数据 = json.load(f)
             print(highlight(json.dumps(配置数据, indent=4, ensure_ascii=False), JsonLexer(), TerminalFormatter())) # pyright: ignore[reportUnknownArgumentType]
