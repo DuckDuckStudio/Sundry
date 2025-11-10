@@ -22,6 +22,12 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     配置项 = 键路径
     """
 
+    # 有一个人前来买瓜(调用)。  
+    # ...  
+    # 你这瓜(配置值)要熟(有效)我肯定要(return None)啊。  
+    # 那它要是不熟(无效)怎么办啊？  
+    # 要是不熟，我自己吃了它(return str)，满意了吧。
+
     if not 配置项:
         return "未指定配置项"
     if isinstance(配置值, str) and (not 配置值):
@@ -63,10 +69,13 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
 
 def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
     """
-    [验证/转换后的配置值]  
-    读取 Sundry 配置文件的指定配置项，并返回配置值。  
+    [验证/转换后的配置值]
+    读取 Sundry 配置文件的指定配置项，并返回配置值。
     如果读取失败则返回 None。
     """
+
+    if 配置项 == "debug":
+        静默 = True
 
     配置值 = 读取配置项(配置项, 静默)
 
@@ -96,8 +105,8 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
 
 def 读取配置项(配置项: str, 静默: bool = False) -> str | bool | None:
     """
-    [原始字符串]  
-    读取指定配置项的值，并返回配置项值。  
+    [原始字符串]
+    读取指定配置项的值，并返回配置项值。
     预期返回非空 str 或 bool，读取失败返回 None。
     """
 
