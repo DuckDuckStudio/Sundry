@@ -25,7 +25,7 @@ def main(args: list[str]) -> int:
 
     # 获取 Azure Pipeline 运行链接
     if len(args) < 1:
-        print(f"{消息头.错误} 请提供 Azure Pipeline Url")
+        print(f"{消息头.错误} 请提供 GitHub PR 或 Azure Pipeline Run 的链接")
         return 1
 
     if args[0].lower() in ["cleanup", "清理", "清理日志"]:
@@ -55,7 +55,7 @@ def main(args: list[str]) -> int:
         print(f"{消息头.错误} 这似乎不是验证管道的运行: {pipeline_name}")
         return 1
     
-    print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证提供的 Azure Pipeline Url。")
+    print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证提供的链接。")
 
     # ===========================================================================================
 
