@@ -1,12 +1,11 @@
 from colorama import Fore
-# 在各个工具中 init
+from typing_extensions import deprecated
 
-# WARNING
-# 整个项目有大量 (400+) 日志输出，如果统一修改用这个函数需要大量工作。
-# 一些新的工具可能会使用这个函数。
-
+@deprecated("请改用 function.print.print 的 消息头 类")
 def PrintLogs(消息: str, 等级: str = "INFO") -> None:
     '''
+    **已弃用，请改用 `function.print.print` 的 `消息头` 类**
+
     依据日志等级打印带有等级和对应颜色标头的日志消息。  
     例如 "SUCCESS" -> f"{Fore.GREEN}✓{Fore.RESET} {消息}"  
     等级有 [INFO, NOTICE, WARN, HINT, ERROR, SUCCESS]
