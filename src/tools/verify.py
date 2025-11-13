@@ -374,9 +374,7 @@ def 读取AAF字段():
                             子键名称 = winreg.EnumKey(key, index)
                             index += 1
                             with winreg.OpenKey(key, 子键名称) as 子键句柄:
-                                entry: dict[str, str | int] = {}
-                                # 添加ProductCode（子键名称）
-                                entry["ProductCode"] = 子键名称
+                                entry: dict[str, str | int] = {"ProductCode": 子键名称}
                                 # 读取所有关心的字段
                                 for 字段 in 关心的字段:
                                     值 = _读取注册表值(子键句柄, 字段)
