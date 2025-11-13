@@ -33,7 +33,7 @@ def main(哪个工具: str) -> int:
     临时目录 = os.path.join(tempfile.gettempdir(), "Sundry")
     
     if 哪个工具 == "logsAnalyse":
-        待清理文件路径 = os.path.join(临时目录, "AzurePiplines", "Logs")
+        待清理文件路径 = os.path.join(临时目录, "AzurePipelines", "Logs")
     elif 哪个工具 == "remove":
         待清理文件路径 = os.path.join(临时目录, "RemoveAndAutoRemove", "DownloadInstallers")
     elif 哪个工具 == "verify":
