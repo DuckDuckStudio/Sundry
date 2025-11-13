@@ -372,13 +372,13 @@ jobs:
 
           # 建立临时目录
           mkdir -p "/tmp/Sundry"
-          mkdir -p "/tmp/Sundry/AzurePiplines/Logs"
+          mkdir -p "/tmp/Sundry/AzurePipelines/Logs"
           mkdir -p "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers"
           mkdir -p "/tmp/Sundry/Cache/TestCI"
 
           # 产生一些文件
-          touch "/tmp/Sundry/AzurePiplines/Logs/log1.log"
-          touch "/tmp/Sundry/AzurePiplines/Logs/log2.log"
+          touch "/tmp/Sundry/AzurePipelines/Logs/log1.log"
+          touch "/tmp/Sundry/AzurePipelines/Logs/log2.log"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer1.exe"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer2.exe"
           touch "/tmp/Sundry/Cache/TestCI/log1.log"
@@ -758,13 +758,13 @@ jobs:
 
           # 建立临时目录
           mkdir -p "/tmp/Sundry"
-          mkdir -p "/tmp/Sundry/AzurePiplines/Logs"
+          mkdir -p "/tmp/Sundry/AzurePipelines/Logs"
           mkdir -p "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers"
           mkdir -p "/tmp/Sundry/Cache/TestCI"
 
           # 产生一些文件
-          touch "/tmp/Sundry/AzurePiplines/Logs/log1.log"
-          touch "/tmp/Sundry/AzurePiplines/Logs/log2.log"
+          touch "/tmp/Sundry/AzurePipelines/Logs/log1.log"
+          touch "/tmp/Sundry/AzurePipelines/Logs/log2.log"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer1.exe"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer2.exe"
           touch "/tmp/Sundry/Cache/TestCI/log1.log"

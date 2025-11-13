@@ -94,7 +94,7 @@ def main() -> int:
         # print("    多版本辅助修改: sundry change (多改)")
         print("    单版本辅助修改: sundry modify <软件包标识符> <版本> [理由/解决的议题] (单改)")
         # print("    安装程序哈希值更新: sundry hash-update <软件包标识符> <软件包版本> [解决的议题]")
-        print("    Azure Pipline 日志分析:")
+        print("    Azure Pipeline 日志分析:")
         print("        日志分析: sundry logs-analyse <GitHub PR 或 Azure 管道运行链接> [是否保留日志文件] [是否显示一般错误/异常]")
         print("        清理下载的日志文件: sundry logs-analyse cleanup (等效于 sundry cleanup logs-analyse)")
         print("    清单验证:")
