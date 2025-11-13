@@ -102,11 +102,9 @@ def main(args: list[str]) -> int:
         with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode="r", encoding="utf-8") as file:
             csv_reader = csv.DictReader(file)
             # 遍历 CSV 文件中的每一行
-            found = False # 标记是否找到了包标识符
             for row in csv_reader:
                 if row["PackageIdentifier"] == 软件包标识符:
-                    found = row["Account"]
-                    print(f"{Fore.YELLOW}⚠ 看起来此软件包在 Auth.csv 中被要求所有者({found})审查{Fore.RESET}")
+                    print(f"{Fore.YELLOW}⚠ 看起来此软件包在 Auth.csv 中被要求所有者({row["Account"]})审查{Fore.RESET}")
                     break # 找到后退出循环
 
     # 如果有任何一步失败了，就 return 1
