@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
 
       - name: 配置 Python
         uses: actions/setup-python@v6
@@ -61,14 +61,14 @@ jobs:
           cp -v requirements.txt Release/src
 
       - name: 签出 winget-pkgs
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
         with:
           repository: DuckDuckStudio/winget-pkgs
           path: winget-pkgs
           fetch-depth: 0
 
       - name: 签出 winget-tools
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
         with:
           repository: DuckDuckStudio/winget-tools
           path: winget-tools
@@ -413,7 +413,7 @@ jobs:
 
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
 
       - name: 配置 Python
         uses: actions/setup-python@v6
@@ -449,14 +449,14 @@ jobs:
           cp -v requirements.txt Release/src
 
       - name: 签出 winget-pkgs
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
         with:
           repository: DuckDuckStudio/winget-pkgs
           path: winget-pkgs
           fetch-depth: 0
 
       - name: 签出 winget-tools
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v5.0.1
         with:
           repository: DuckDuckStudio/winget-tools
           path: winget-tools
