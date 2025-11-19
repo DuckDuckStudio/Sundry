@@ -5,6 +5,7 @@ import subprocess
 from typing import Any
 import tools.remove as remove
 from colorama import Fore, init
+from function.constant import Response
 from function.print.print import 消息头
 from exception.request import RequestException
 from function.files.manifest import 获取现有包版本, 获取清单目录
@@ -46,9 +47,9 @@ def 检查软件包版本(软件包标识符: str, 版本列表: list[str], 跳�
                 continue
             else:
                 InstallerUrls验证结果 = 检查所有安装程序URL(软件包标识符, 版本) # 验证所有 InstallerUrl
-                if InstallerUrls验证结果[0] in [1, 2]:
+                if InstallerUrls验证结果[0] in {1, 2}:
                     print(f"{消息头.警告} 似乎有几个安装程序链接仍然有效，请检查它们。")
-                    if 是否中止(input(f"{消息头.问题} 还是要移除此版本? [y/N]: ")):
+                    if 是否中止(input(f"{消息头.问题} 要移除此版本吗? [y/N]: ")):
                         return
                 else:
                     验证结果.append(InstallerUrls验证结果[1])
@@ -138,24 +139,30 @@ def 检查所有安装程序URL(软件包标识符: str, 软件包版本: str) -
                 try:
                     # 尝试 HEAD 下
                     响应 = requests.head(InstallerUrl, allow_redirects=True)
-                    if 400 <= 响应.status_code < 500: # 客户端错误
+                    if 400 <= 响应.status_code:
                         raise RequestException
-                except requests.RequestException:
+                    else:
+                        检查响应类型(响应)
+                except (requests.RequestException, ValueError):
                     raise RequestException
             except RequestException:
                 try:
                     # 以 GET 方法重试
                     响应 = requests.get(InstallerUrl, allow_redirects=True)
-                    if 400 <= 响应.status_code < 500: # 客户端错误
+                    if 响应.status_code < 400:
+                        检查响应类型(响应)
+                    elif 响应.status_code < 500: # 4xx 客户端错误
                         失效数 += 1
                         结果 = f"失效 ({响应.status_code})"
                         结果 = f"{Fore.YELLOW}{结果}{Fore.RESET}"
+                    else:
+                        结果 = f"服务端错误 ({响应.status_code})，不计失败"
                 except requests.exceptions.SSLError:
                     # 这大概率是某个用证书加速的加速器干的。
                     结果 = 使用GitHubAPI检查安装程序URL(InstallerUrl)
                     if (Fore.YELLOW in 结果) or (Fore.RED in 结果):
                         失效数 += 1
-                except requests.RequestException as e:
+                except (requests.RequestException, ValueError) as e:
                     失效数 += 1
                     结果 = f"{Fore.RED}错误 ({e}){Fore.RESET}"
             print(f"\r{InstallerUrl} | {结果}")
@@ -172,12 +179,25 @@ def 检查所有安装程序URL(软件包标识符: str, 软件包版本: str) -
             raise e
         print(f"{消息头.错误} 检查安装程序清单中的 InstallerUrl(s) 失败:\n{Fore.RED}{e}{Fore.RESET}")
         return 3, ""
+    
+def 检查响应类型(response: requests.Response) -> None:
+    """
+    检查响应的类型是否是常见的意外类型
+
+    如果是，则 `raise ValueError`
+    """
+
+    contentType = response.headers.get("Content-Type")
+
+    if contentType and any(i in contentType for i in Response.unexpectedTypes):
+        raise ValueError(f"意外的类型 ({contentType})")
 
 def 检查重复拉取请求(软件包标识符: str, 软件包版本: str) -> bool:
     """
     检查上游仓库中是否有 相同 (软件包标识符、版本) 的且 打开的 拉取请求。
     如有，返回 True。否则返回 False。
     """
+
     result = subprocess.run(
         ["gh", "pr", "list", "-S", f"{软件包标识符} {软件包版本}", "--repo", "microsoft/winget-pkgs"],
         capture_output=True, text=True, check=True
@@ -191,7 +211,6 @@ def 移除软件包版本(软件包标识符: str, 版本: str, 原因: str) -> 
     if remove.main([软件包标识符, 版本, "True", 原因]):
         print(f"{消息头.错误} 尝试移除 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 失败！")
         raise KeyboardInterrupt
-
 
 def 是否中止(输入: str, 默认: str = "n") -> bool:
     """
