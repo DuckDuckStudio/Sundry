@@ -10,6 +10,7 @@ import shutil
 import tempfile
 import requests
 import subprocess
+from typing import Any
 import exception.request
 from colorama import Fore, init
 from function.print.print import 消息头
@@ -164,8 +165,8 @@ def 请求GitHubAPI(apiUrl: str, github_token: str | int):
 
 def 获取PR清单(PR编号: str, github_token: str | int, 清单目录: str) -> int:
     print(f"尝试获取 PR #{PR编号} 中的清单...")
-    清单文件路径 = 获取PR清单文件路径(PR编号, github_token)
-    if not 清单文件路径:
+    清单文件夹路径 = 获取PR清单文件夹路径(PR编号, github_token)
+    if not 清单文件夹路径:
         return 1
     结果 = 获取PR仓库和分支(PR编号, github_token)
     if not 结果:
@@ -193,24 +194,36 @@ def 获取PR清单(PR编号: str, github_token: str | int, 清单目录: str) ->
         # 移除 Authorization 头
         请求头.pop("Authorization", None)
 
-    for 文件路径 in 清单文件路径:
-        try:
-            # 由于政府政策，在中国大陆不允许使用 raw.githubusercontent.com
-            # 127.0.0.1 欢迎你 XD
-            # raw_url = f"https://raw.githubusercontent.com/{fork仓库}/refs/heads/{fork分支}/{文件路径}"
+    try:
+        api = f"https://api.github.com/repos/{fork仓库}/contents/{清单文件夹路径}?ref={fork分支}" # NOTE: 这里不对 url 进行编码，因为软件包标识符不允许出现特殊字符/中文
+        清单目录响应: list[dict[str, Any]] | None = 请求GitHubAPI(api, github_token)
+        if not isinstance(清单目录响应, list):
+            raise exception.request.RequestException(f"未获取到清单文件夹信息: {清单目录响应}")
 
-            api = f"https://api.github.com/repos/{fork仓库}/contents/{文件路径}?ref={fork分支}" # NOTE: 这里不对 url 进行编码，因为软件包标识符不允许出现特殊字符/中文
-            响应 = 请求GitHubAPI(api, github_token)
-            if not 响应:
-                raise exception.request.RequestException(f"响应为空: {响应}")
+        for 清单文件 in 清单目录响应: # 这里要改
+            api = 清单文件.get("url")
+            if not isinstance(api, str):
+                raise ValueError(f"未能获取到清单文件 api (url 字段): {清单文件}")
+            
+            文件名 = 清单文件.get("name")
+            if not isinstance(文件名, str):
+                raise ValueError(f"未能获取到清单文件名: {清单文件}")
+            
+            清单文件响应: dict[str, str | int | dict[str, str]] | None = 请求GitHubAPI(api, github_token)
+            if not 清单文件响应:
+                raise exception.request.RequestException(f"未获取到清单文件信息: {清单文件响应}")
 
-            清单内容 = base64.b64decode(响应["content"])
+            清单内容 = 清单文件响应.get("content")
+            if not isinstance(清单内容, str):
+                raise ValueError(f"未能获取到清单内容: {清单文件响应}")
 
-            with open(os.path.join(清单目录, os.path.basename(文件路径)), "wb") as 清单文件:
+            清单内容 = base64.b64decode(清单内容)
+
+            with open(os.path.join(清单目录, 文件名), "wb") as 清单文件:
                 清单文件.write(清单内容)
-        except Exception as e:
-            print(f"{消息头.错误} 下载清单文件失败:\n{e}")
-            return 1
+    except Exception as e:
+        print(f"{消息头.错误} 下载清单文件失败:\n{e}")
+        return 1
 
     print(f"成功获取 PR #{PR编号} 中的清单")
     return 0
@@ -227,7 +240,7 @@ def 获取PR仓库和分支(PR编号: str, github_token: str | int) -> None | tu
     else:
         return
 
-def 获取PR清单文件路径(PR编号: str, github_token: str | int) -> None | list[str]:
+def 获取PR清单文件夹路径(PR编号: str, github_token: str | int) -> None | str:
     api = f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{PR编号}/files"
     非预期状态 = True # 如果文件状态全是移除或没有状态，则为非预期状态
     清单文件夹 = None
@@ -256,8 +269,8 @@ def 获取PR清单文件路径(PR编号: str, github_token: str | int) -> None |
             print(f"{消息头.错误} 这是个纯移除或没有修改的 PR")
             return
         
-        print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取清单文件相对路径")
-        return 清单文件路径
+        print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取清单文件夹相对路径")
+        return 清单文件夹
     else:
         return
 
