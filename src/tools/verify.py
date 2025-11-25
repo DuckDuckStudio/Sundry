@@ -254,8 +254,8 @@ def 获取PR清单文件夹路径(PR编号: str, github_token: str | int) -> Non
             if 文件相对路径.endswith(".yaml") and 文件相对路径.startswith("manifests/"):
                 清单文件路径.append(文件相对路径)
                 if 清单文件夹 is None:
-                    清单文件夹 = os.path.normpath(os.path.dirname(文件相对路径))
-                elif 清单文件夹 != os.path.normpath(os.path.dirname(文件相对路径)):
+                    清单文件夹 = os.path.dirname(文件相对路径)
+                elif 清单文件夹 != os.path.dirname(文件相对路径):
                     print(f"{消息头.错误} 此 PR 修改了多个文件夹下的文件")
                     return
             else:
