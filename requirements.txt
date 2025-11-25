@@ -7,4 +7,4 @@ PyYAML==6.0.3 # 处理 YAML
 jsonschema==4.25.1 # 验证 YAML / JSON
 
 Pillow==12.0.0 # png 转 ico
-pyinstaller==6.16.0 # 打包 exe
+pyinstaller==6.17.0 # 打包 exe
