@@ -39,7 +39,7 @@ def 检查软件包版本(软件包标识符: str, 版本列表: list[str], 跳�
         移除理由 = "Attempt to download using WinGet failed."
         # TODO: 在参数中指定这个理由
 
-        print(f"\n{Fore.BLUE}INFO{Fore.RESET} 正在检查 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} ...")
+        print(f"\n{Fore.BLUE}INFO{Fore.RESET} 正在检查 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} ({版本列表.index(版本)+1}/{len(版本列表)}) ...")
         if not 跳过检查:
             验证结果 = remove.使用WinGet验证(软件包标识符, 版本, AutoRemove=True)
             if not 验证结果:
