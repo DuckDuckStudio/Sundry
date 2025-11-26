@@ -43,10 +43,11 @@ def main(args: list[str]) -> int:
         匹配 = re.match("https://github.com/microsoft/winget-pkgs/pull/(\\d+)", args[0])
         if 匹配:
             PR编号 = 匹配.group(1)
-            github_token = read_token()
+            github_token = read_token(silent=True)
             # 这里不做用户询问，测试时放 Token 确实有点...
             # 但为了速率，这里有读到 Token 就带 Token，没有就没有
-            print(f"{消息头.警告} 没有读到 Token，请求时不带 Token")
+            if not github_token:
+                print(f"{消息头.警告} 没有读到 Token，请求时不带 Token")
         else:
             # 不是链接，那就是路径
             清单文件目录 = os.path.normpath(os.path.abspath(args[0]))
