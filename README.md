@@ -343,9 +343,10 @@ sundry config "<条目>" "<值>"
 - 别名: `清理`, `cleanup`
 - 作用: **清理 Sundry 的各个工具运行时产生的文件。**
 - 用法: `sundry cleanup <工具名>`
-  - 可以被清理的工具有 `logs-analyse`, `autoremove`, `remove`, `verify`; 您还可以使用 `all` 来清理所有工具产生的文件。
+  - 除了工具名外，您还可以使用 `all` / `aec` 这些特殊标识来清理某部分的文件。有关这些特殊标识的说明请见下方的示例。
 - 示例:
-  - 清理所有: `sundry cleanup` (等效于 `sundry cleanup all`)
+  - 清理所有: `sundry cleanup all`
+  - 清理除缓存外所有: `sundry cleanup` (等效于 `sundry cleanup aec`)
   - 清理指定工具: `sundry cleanup logs-analyse` (等效于 `sundry logs-analyse cleanup`)
 
 </details>
