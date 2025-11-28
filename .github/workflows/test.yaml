@@ -26,7 +26,7 @@ jobs:
 
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
 
       - name: 配置 Python
         uses: actions/setup-python@v6
@@ -61,14 +61,14 @@ jobs:
           cp -v requirements.txt Release/src
 
       - name: 签出 winget-pkgs
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
         with:
           repository: DuckDuckStudio/winget-pkgs
           path: winget-pkgs
           fetch-depth: 0
 
       - name: 签出 winget-tools
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
         with:
           repository: DuckDuckStudio/winget-tools
           path: winget-tools
@@ -372,13 +372,13 @@ jobs:
 
           # 建立临时目录
           mkdir -p "/tmp/Sundry"
-          mkdir -p "/tmp/Sundry/AzurePiplines/Logs"
+          mkdir -p "/tmp/Sundry/AzurePipelines/Logs"
           mkdir -p "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers"
           mkdir -p "/tmp/Sundry/Cache/TestCI"
 
           # 产生一些文件
-          touch "/tmp/Sundry/AzurePiplines/Logs/log1.log"
-          touch "/tmp/Sundry/AzurePiplines/Logs/log2.log"
+          touch "/tmp/Sundry/AzurePipelines/Logs/log1.log"
+          touch "/tmp/Sundry/AzurePipelines/Logs/log2.log"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer1.exe"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer2.exe"
           touch "/tmp/Sundry/Cache/TestCI/log1.log"
@@ -417,7 +417,7 @@ jobs:
 
     steps:
       - name: 检出代码
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
 
       - name: 配置 Python
         uses: actions/setup-python@v6
@@ -453,14 +453,14 @@ jobs:
           cp -v requirements.txt Release/src
 
       - name: 签出 winget-pkgs
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
         with:
           repository: DuckDuckStudio/winget-pkgs
           path: winget-pkgs
           fetch-depth: 0
 
       - name: 签出 winget-tools
-        uses: actions/checkout@v5.0.0
+        uses: actions/checkout@v6.0.0
         with:
           repository: DuckDuckStudio/winget-tools
           path: winget-tools
@@ -762,13 +762,13 @@ jobs:
 
           # 建立临时目录
           mkdir -p "/tmp/Sundry"
-          mkdir -p "/tmp/Sundry/AzurePiplines/Logs"
+          mkdir -p "/tmp/Sundry/AzurePipelines/Logs"
           mkdir -p "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers"
           mkdir -p "/tmp/Sundry/Cache/TestCI"
 
           # 产生一些文件
-          touch "/tmp/Sundry/AzurePiplines/Logs/log1.log"
-          touch "/tmp/Sundry/AzurePiplines/Logs/log2.log"
+          touch "/tmp/Sundry/AzurePipelines/Logs/log1.log"
+          touch "/tmp/Sundry/AzurePipelines/Logs/log2.log"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer1.exe"
           touch "/tmp/Sundry/RemoveAndAutoRemove/DownloadInstallers/installer2.exe"
           touch "/tmp/Sundry/Cache/TestCI/log1.log"

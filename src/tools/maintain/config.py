@@ -95,13 +95,13 @@ def 初始化配置文件(配置文件: str) -> int:
 
         # 递归函数用于获取嵌套配置输入
         def 递归获取输入(配置字典: dict[str, Any], 当前路径: str="") -> None:
-            for 键, 值 in 配置字典.items():
-                新路径: str = 当前路径 + "." + 键 if 当前路径 else 键
-                值: dict[str, Any] | str | bool
-                if isinstance(值, dict):
-                    递归获取输入(值, 新路径)
+            for k, v in 配置字典.items():
+                新路径: str = 当前路径 + "." + k if 当前路径 else k
+                v: dict[str, Any] | str | bool
+                if isinstance(v, dict):
+                    递归获取输入(v, 新路径)
                 else:
-                    配置字典[键] = 获取用户输入(新路径)
+                    配置字典[k] = 获取用户输入(新路径)
 
         for 键 in ("paths", "repos"):
             # 必须要用户给的配置项

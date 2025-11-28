@@ -23,9 +23,9 @@ def main(args: list[str]) -> int:
 
     init(autoreset=True)
 
-    # 获取 Azure Pipline 运行链接
+    # 获取 Azure Pipeline 运行链接
     if len(args) < 1:
-        print(f"{消息头.错误} 请提供 Azure Pipline Url")
+        print(f"{消息头.错误} 请提供 GitHub PR 或 Azure Pipeline Run 的链接")
         return 1
 
     if args[0].lower() in ["cleanup", "清理", "清理日志"]:
@@ -55,15 +55,15 @@ def main(args: list[str]) -> int:
         print(f"{消息头.错误} 这似乎不是验证管道的运行: {pipeline_name}")
         return 1
     
-    print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证提供的 Azure Pipline Url。")
+    print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证提供的链接。")
 
     # ===========================================================================================
 
     print(f"{Fore.BLUE}INFO{Fore.RESET} 正在获取管道运行 ({build_id}) 的日志...")
 
-    # 获取日志下载链接，并将其下载到 %Temp%/Sundry/AzurePiplines/Logs/{build_id}/ 下，没有则创建文件夹
+    # 获取日志下载链接，并将其下载到 %Temp%/Sundry/AzurePipelines/Logs/{build_id}/ 下，没有则创建文件夹
     logs_url = f"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_apis/build/builds/{build_id}/artifacts?artifactName=InstallationVerificationLogs&api-version=7.1&%24format=zip"
-    logs_dir = os.path.join(tempfile.gettempdir(), "Sundry", "AzurePiplines", "Logs", build_id)
+    logs_dir = os.path.join(tempfile.gettempdir(), "Sundry", "AzurePipelines", "Logs", build_id)
     logs_zip_path = os.path.join(logs_dir, "logs.zip")
 
     # 如果原先存在同名zip文件
@@ -296,7 +296,7 @@ def 获取最新的验证管道评论(data: list[dict[str, Any]]) -> str | None:
 
 def 获取azp运行id(已知URL: str) -> str | None:
     """
-    给定当前已知的 URL (GitHub PR 或 Azure Pipline Run)，返回 *PR 最新的 / 指定的* Azure Pipline 运行的 id (buildId)。
+    给定当前已知的 URL (GitHub PR 或 Azure Pipeline Run)，返回 *PR 最新的 / 指定的* Azure Pipeline 运行的 id (buildId)。
 
     没有获取到则返回 None，错误输出函数内处理。
     """
@@ -320,7 +320,7 @@ def 获取azp运行id(已知URL: str) -> str | None:
     # 从 URL 中提取 buildId
     buildId = parse_qs(urlparse(azpUrl).query).get("buildId", [None])[0]
     if not buildId:
-        print(f"{消息头.错误} 未能从 Azure Pipline 运行链接中获取 buildId 参数的值")
+        print(f"{消息头.错误} 未能从 Azure Pipeline 运行链接中获取 buildId 参数的值")
         return None
 
     return buildId

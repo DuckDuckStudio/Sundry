@@ -135,7 +135,7 @@ sundry config "<条目>" "<值>"
 - 别名: `日志分析`, `logs-analyse`, `logs_analyse`, `Azure日志分析`
 - 作用: **分析 [Azure Validation Pipeline Run](https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=验证管道日志在哪看？) 失败时的日志，来自动查找具体哪里失败了。**
 - 用法:
-  - 分析日志: `sundry logs-analyse <Azure Pipline Url> [是否保留日志文件] [是否显示一般错误/异常]`
+  - 分析日志: `sundry logs-analyse <Azure Pipeline Url> [是否保留日志文件] [是否显示一般错误/异常]`
   - 清理之前下载的日志: `sundry logs-analyse cleanup`
 - 示例:
   - 分析日志

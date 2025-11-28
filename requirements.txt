@@ -1,10 +1,10 @@
-requests==2.32.5 # 发请求
-keyring==25.6.0 # 读Token
-colorama==0.4.6 # 输颜色
-translate==3.8.0 # 翻结果
-pygments==2.19.2 # 高亮文本
+requests>=2.32.5 # 发请求
+keyring>=25.6.0 # 读Token
+colorama>=0.4.6 # 输颜色
+translate>=3.7.1 # 翻结果
+pygments>=2.19.1 # 高亮文本
 PyYAML==6.0.3 # 处理 YAML
 jsonschema==4.25.1 # 验证 YAML / JSON
 
 Pillow==12.0.0 # png 转 ico
-pyinstaller==6.16.0 # 打包 exe
+pyinstaller==6.17.0 # 打包 exe

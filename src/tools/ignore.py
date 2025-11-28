@@ -97,7 +97,7 @@ def 编辑忽略字段(检测程序路径: str) -> None:
 
 
 # 创建拉取请求
-def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = None, 格式化忽略字段: str | None = None, 理由: str | None = None) -> str | int:
+def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = None, 理由: str | None = None) -> str | int:
     github_token = read_token()
     if not github_token:
         print(f"{消息头.错误} 拉取请求创建失败: Token 读取失败")
@@ -235,7 +235,7 @@ def main(args: list[str]):
         subprocess.run(["git", "commit", "-m", f"[Auto] 自动忽略追加 - {忽略字段}"], check=True)
         subprocess.run(["git", "push", "--set-upstream", "origin", 新分支名], check=True)
         print(f"{消息头.成功} 成功推送到远程")
-        if not 创建拉取请求(新分支名, owner, 忽略字段, 格式化忽略字段):
+        if not 创建拉取请求(新分支名, owner, 忽略字段):
             失败 = True
     elif (操作 == "remove"):
         print(f"{消息头.信息} 开始移除...")
@@ -251,7 +251,7 @@ def main(args: list[str]):
         subprocess.run(["git", "commit", "-m", f"[Auto] 自动忽略移除 - {格式化忽略字段}"], check=True)
         subprocess.run(["git", "push", "--set-upstream", "origin", 新分支名], check=True)
         print(f"{消息头.成功} 成功推送到远程")
-        if not 创建拉取请求(新分支名, owner, 忽略字段, 格式化忽略字段, 理由):
+        if not 创建拉取请求(新分支名, owner, 忽略字段, 理由):
             失败 = True
     elif (操作 == "list"):
         print(f"{消息头.信息} 现有忽略条目:")
