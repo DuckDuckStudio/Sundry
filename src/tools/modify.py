@@ -79,7 +79,7 @@ def main(args: list[str]):
             if not (我是谁 in 审查者列表) and (not 读取配置("github.pr.mention_self_when_reviewer")):
                 if 我是谁 not in 审查者列表:
                     try:
-                        input(f"{Fore.YELLOW}⚠ 看起来此包在 Auth.csv 中被要求所有者({", ".join(审查者列表)})审查，您还是想要修改此软件包吗 (这将在 PR 中 @审查者): [ENTER/CTRL+C]{Fore.RESET}")
+                        input(f"{Fore.YELLOW}⚠ 看起来此包在 Auth.csv 中被要求所有者({", ".join(审查者列表)})审查，您还是想要修改此包吗 (这将在 PR 中 @审查者): [ENTER/CTRL+C]{Fore.RESET}")
                     except KeyboardInterrupt:
                         return 1
 
