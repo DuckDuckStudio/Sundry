@@ -14,7 +14,7 @@ from function.print.print import 消息头
 from function.maintain.config import 读取配置
 from function.files.manifest import 获取清单目录
 from translate import Translator # type: ignore
-from function.github.token import read_token
+from function.github.token import read_token, 这是谁的Token
 
 # 创建拉取请求
 def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹: str, 理由: str):
@@ -158,13 +158,17 @@ def main(args: list[str]):
                         break # 找到后退出循环
 
                 if found:
-                    try:
-                        input(f"{Fore.YELLOW}⚠ 看起来此包在 Auth.csv 中被要求所有者({found})审查，您还是想要移除此包版本吗(这将在 PR 中 @审查者): [ENTER/CTRL+C]")
-                    except KeyboardInterrupt:
-                        return 1
                     审查者列表 = found.split('/')
-                    格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
-                    理由 = f"{理由}\n\n{格式化审查者} PTAL"
+                    我是谁 = 这是谁的Token(read_token(silent=True))
+                    if not (我是谁 in 审查者列表) and (not 读取配置("github.pr.mention_self_when_reviewer")):
+                        if 我是谁 not in 审查者列表:
+                            try:
+                                input(f"{Fore.YELLOW}⚠ 看起来此包在 Auth.csv 中被要求所有者({", ".join(审查者列表)})审查，您还是想要移除此包版本吗 (这将在 PR 中 @审查者): [ENTER/CTRL+C]{Fore.RESET}")
+                            except KeyboardInterrupt:
+                                return 1
+
+                        格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
+                        理由 = f"{理由}\n\n{格式化审查者} PTAL"
 
             验证结果日志 = 使用WinGet验证(软件包标识符, 软件包版本)
             if 验证结果日志:

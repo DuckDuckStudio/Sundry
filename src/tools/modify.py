@@ -10,9 +10,9 @@ from colorama import init, Fore
 from function.print.print import 消息头
 from function.files.open import open_file
 from function.files.manifest import 清单信息
-from function.github.token import read_token
 from function.maintain.config import 读取配置
 from function.files.manifest import 获取清单目录
+from function.github.token import read_token, 这是谁的Token
 
 def main(args: list[str]):
     global 软件包标识符, 软件包版本, 日志文件路径
@@ -74,13 +74,17 @@ def main(args: list[str]):
                 break # 找到后退出循环
 
         if found:
-            try:
-                input(f"{Fore.YELLOW}⚠ 看起来此软件包在 Auth.csv 中被要求所有者({found})审查，您还是想要更新此软件包吗(这将在 PR 中 @审查者): [ENTER/CTRL+C]{Fore.RESET}")
-            except KeyboardInterrupt:
-                return 1
             审查者列表 = found.split('/')
-            格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
-            首个_PR = "是"
+            我是谁 = 这是谁的Token(read_token(silent=True))
+            if not (我是谁 in 审查者列表) and (not 读取配置("github.pr.mention_self_when_reviewer")):
+                if 我是谁 not in 审查者列表:
+                    try:
+                        input(f"{Fore.YELLOW}⚠ 看起来此包在 Auth.csv 中被要求所有者({", ".join(审查者列表)})审查，您还是想要修改此包吗 (这将在 PR 中 @审查者): [ENTER/CTRL+C]{Fore.RESET}")
+                    except KeyboardInterrupt:
+                        return 1
+
+                格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
+                首个_PR = "是"
 
     # ========= 日志 配置 开始 =========
     os.chdir(程序所在目录)
@@ -186,7 +190,7 @@ def 写入日志(消息: str, 等级: str="INFO"):
 # 创建拉取请求
 def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> str | int:
     # 审查:
-    # False -> 不请求审查
+    # "" -> 不请求审查
     # 带 @ 的字符串 -> 在 PR body 中 @ 审查者
     # 不带 @ 的字符串 -> 在 PR body 中引用首个拉取请求
     global 解决
