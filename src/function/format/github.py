@@ -13,12 +13,15 @@ def IssueNumber(输入: str | int | None) -> str | None:
         # 妈的懒到家了
         return str(输入)
     # ===============
+    输入 = 输入.strip()
+    if (not 输入) or (输入 == "0"):
+        return None
     elif 输入.isdigit():
         return 输入
     elif 输入.startswith("#") and 输入[1:].isdigit():
         return 输入[1:]
     elif 输入.startswith("https://"):
-        for path in 输入.split("/"):
+        for path in reversed(输入.split("#", 1)[0].split("/")):
             if path.isdigit():
                 return path
 
