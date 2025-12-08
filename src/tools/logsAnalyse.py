@@ -10,10 +10,10 @@ from typing import Any
 from colorama import Fore, init
 from function.print.print import 消息头
 import tools.maintain.cleanup as cleanup
-from function.files.open import open_file
 from urllib.parse import urlparse, parse_qs
 from function.github.token import read_token
 from function.maintain.config import 读取配置
+from catfood.functions.files import open_file
 from function.format.github import IssueNumber
 from function.github.api import 获取GitHub文件内容
 from catfood.exceptions.operation import TryOtherMethods

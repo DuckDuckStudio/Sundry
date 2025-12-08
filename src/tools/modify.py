@@ -8,9 +8,9 @@ import subprocess
 from datetime import datetime
 from colorama import init, Fore
 from function.print.print import 消息头
-from function.files.open import open_file
 from function.files.manifest import 清单信息
 from function.maintain.config import 读取配置
+from catfood.functions.files import open_file
 from function.files.manifest import 获取清单目录
 from function.github.token import read_token, 这是谁的Token
 
