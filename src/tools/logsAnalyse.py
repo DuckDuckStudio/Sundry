@@ -15,8 +15,8 @@ from function.github.token import read_token
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
 from function.format.github import IssueNumber
-from function.github.api import 获取GitHub文件内容
 from catfood.exceptions.operation import TryOtherMethods
+from catfood.functions.github.api import 获取GitHub文件内容
 
 def main(args: list[str]) -> int:
     """`sundry logs-analyse <Url> [是否保留日志文件] [是否显示一般错误/异常]`"""
@@ -355,8 +355,7 @@ def 查找错误代码解释(ExitCode: str):
     except TryOtherMethods:
         # 既然用户本地无法读取这个文件，就从 GitHub 上获取
         # https://github.com/microsoft/winget-pkgs/blob/master/Tools/ManualValidation/ExitCodes.csv
-        github_token = read_token()
-        csvStr = 获取GitHub文件内容(github_token, "microsoft/winget-pkgs", "Tools/ManualValidation/ExitCodes.csv")
+        csvStr = 获取GitHub文件内容("microsoft/winget-pkgs", "Tools/ManualValidation/ExitCodes.csv", read_token(silent=True))
         if csvStr:
             ExitCodes = io.StringIO(csvStr)
 

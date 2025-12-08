@@ -1,7 +1,7 @@
 import keyring
 from typing import cast, Any
 from function.print.print import 消息头
-from function.github.api import 请求GitHubAPI
+from catfood.functions.github.api import 请求GitHubAPI
 
 def read_token(silent: bool = False):
     """尝试从钥匙环中读取 github-access-token.glm 密钥 (aka GitHub Token)"""
