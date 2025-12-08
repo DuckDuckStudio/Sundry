@@ -5,9 +5,9 @@ import requests
 import subprocess
 from colorama import init, Fore
 from function.print.print import 消息头
-from function.github.token import read_token
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
+from catfood.functions.github.token import read_token
 
 def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> bool | str:
     with open(检测程序路径, 'r', encoding='utf-8') as file:

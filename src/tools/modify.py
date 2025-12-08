@@ -12,7 +12,7 @@ from function.files.manifest import 清单信息
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
 from function.files.manifest import 获取清单目录
-from function.github.token import read_token, 这是谁的Token
+from catfood.functions.github.token import read_token, 这是谁的Token
 
 def main(args: list[str]):
     global 软件包标识符, 软件包版本, 日志文件路径

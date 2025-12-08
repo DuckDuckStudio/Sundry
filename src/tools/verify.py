@@ -13,12 +13,12 @@ import subprocess
 from typing import Any
 from colorama import Fore, init
 from function.print.print import 消息头
-from function.github.token import read_token
 from function.maintain.config import 读取配置
 from pygments import highlight # pyright: ignore[reportUnknownVariableType]
 from pygments.lexers import YamlLexer # pyright: ignore[reportUnknownVariableType]
 from function.files.manifest import 获取清单目录
 from pygments.formatters import TerminalFormatter
+from catfood.functions.github.token import read_token
 from catfood.exceptions.request import RequestException
 
 def main(args: list[str]) -> int:
@@ -30,7 +30,7 @@ def main(args: list[str]) -> int:
     PR编号: str = ""
     清单目录: str | None = None
     winget_pkgs目录 = ""
-    github_token = 0
+    github_token = None
 
     # 解析参数
     if (len(args) == 2): # 符合参数个数要求
@@ -143,7 +143,7 @@ def main(args: list[str]) -> int:
                 print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 {软件包标识符} {软件包版本} 的本地清单")
             return 0
 
-def 请求GitHubAPI(apiUrl: str, github_token: str | int):
+def 请求GitHubAPI(apiUrl: str, github_token: str | None):
     请求头 = {
         "Authorization": f"token {github_token}",
         "Accept": "application/vnd.github.v3+json"
@@ -164,7 +164,7 @@ def 请求GitHubAPI(apiUrl: str, github_token: str | int):
         print(f"{消息头.错误} 请求 GitHub API 失败:\n{e}")
         return
 
-def 获取PR清单(PR编号: str, github_token: str | int, 清单目录: str) -> int:
+def 获取PR清单(PR编号: str, github_token: str | None, 清单目录: str) -> int:
     print(f"尝试获取 PR #{PR编号} 中的清单...")
     清单文件夹路径 = 获取PR清单文件夹路径(PR编号, github_token)
     if not 清单文件夹路径:
@@ -229,7 +229,7 @@ def 获取PR清单(PR编号: str, github_token: str | int, 清单目录: str) ->
     print(f"成功获取 PR #{PR编号} 中的清单")
     return 0
 
-def 获取PR仓库和分支(PR编号: str, github_token: str | int) -> None | tuple[str, str]:
+def 获取PR仓库和分支(PR编号: str, github_token: str | None) -> None | tuple[str, str]:
     api = f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{PR编号}"
 
     响应 = 请求GitHubAPI(api, github_token)
@@ -241,7 +241,7 @@ def 获取PR仓库和分支(PR编号: str, github_token: str | int) -> None | tu
     else:
         return
 
-def 获取PR清单文件夹路径(PR编号: str, github_token: str | int) -> None | str:
+def 获取PR清单文件夹路径(PR编号: str, github_token: str | None) -> None | str:
     api = f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{PR编号}/files"
     非预期状态 = True # 如果文件状态全是移除或没有状态，则为非预期状态
     清单文件夹 = None
