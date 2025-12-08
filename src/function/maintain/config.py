@@ -4,7 +4,7 @@ import requests
 from typing import Any
 from colorama import Fore
 from function.print.print import 消息头
-from exception.operation import TryOtherMethods
+from catfood.exceptions.operation import TryOtherMethods
 
 class 配置信息:
     默认配置: dict[str, Any] = {

@@ -11,7 +11,6 @@ import tempfile
 import requests
 import subprocess
 from typing import Any
-import exception.request
 from colorama import Fore, init
 from function.print.print import 消息头
 from function.github.token import read_token
@@ -20,6 +19,7 @@ from pygments import highlight # pyright: ignore[reportUnknownVariableType]
 from pygments.lexers import YamlLexer # pyright: ignore[reportUnknownVariableType]
 from function.files.manifest import 获取清单目录
 from pygments.formatters import TerminalFormatter
+from catfood.exceptions.request import RequestException
 
 def main(args: list[str]) -> int:
     init(autoreset=True)
@@ -155,12 +155,12 @@ def 请求GitHubAPI(apiUrl: str, github_token: str | int):
         响应 = requests.get(apiUrl, headers=请求头)
         
         if 响应.status_code == 404:
-            raise exception.request.RequestException("PR 不存在或对应分支已被删除")
+            raise RequestException("PR 不存在或对应分支已被删除")
         elif 响应.status_code >= 400:
-            raise exception.request.RequestException(响应)
+            raise RequestException(响应)
         else:
             return 响应.json()
-    except exception.request.RequestException as e:
+    except RequestException as e:
         print(f"{消息头.错误} 请求 GitHub API 失败:\n{e}")
         return
 
@@ -199,7 +199,7 @@ def 获取PR清单(PR编号: str, github_token: str | int, 清单目录: str) ->
         api = f"https://api.github.com/repos/{fork仓库}/contents/{清单文件夹路径}?ref={fork分支}" # NOTE: 这里不对 url 进行编码，因为软件包标识符不允许出现特殊字符/中文
         清单目录响应: list[dict[str, Any]] | None = 请求GitHubAPI(api, github_token)
         if not isinstance(清单目录响应, list):
-            raise exception.request.RequestException(f"未获取到清单文件夹信息: {清单目录响应}")
+            raise RequestException(f"未获取到清单文件夹信息: {清单目录响应}")
 
         for 清单文件 in 清单目录响应: # 这里要改
             api = 清单文件.get("url")
@@ -212,7 +212,7 @@ def 获取PR清单(PR编号: str, github_token: str | int, 清单目录: str) ->
             
             清单文件响应: dict[str, str | int | dict[str, str]] | None = 请求GitHubAPI(api, github_token)
             if not 清单文件响应:
-                raise exception.request.RequestException(f"未获取到清单文件信息: {清单文件响应}")
+                raise RequestException(f"未获取到清单文件信息: {清单文件响应}")
 
             清单内容 = 清单文件响应.get("content")
             if not isinstance(清单内容, str):

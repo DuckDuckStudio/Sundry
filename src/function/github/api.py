@@ -1,7 +1,7 @@
 import base64
 import requests
 from typing import Any
-from exception.request import RequestException
+from catfood.exceptions.request import RequestException
 
 def 获取GitHub文件内容(github_token: str | int | None, 仓库: str, 文件路径: str) -> str | None:
     """

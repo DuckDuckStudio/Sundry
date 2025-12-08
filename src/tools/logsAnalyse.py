@@ -15,8 +15,8 @@ from urllib.parse import urlparse, parse_qs
 from function.github.token import read_token
 from function.maintain.config import 读取配置
 from function.format.github import IssueNumber
-from exception.operation import TryOtherMethods
 from function.github.api import 获取GitHub文件内容
+from catfood.exceptions.operation import TryOtherMethods
 
 def main(args: list[str]) -> int:
     """`sundry logs-analyse <Url> [是否保留日志文件] [是否显示一般错误/异常]`"""
