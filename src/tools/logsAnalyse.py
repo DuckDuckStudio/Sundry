@@ -8,8 +8,8 @@ import tempfile
 import requests
 from typing import Any
 from colorama import Fore, init
-from function.print.print import 消息头
 import tools.maintain.cleanup as cleanup
+from catfood.functions.print import 消息头
 from urllib.parse import urlparse, parse_qs
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file

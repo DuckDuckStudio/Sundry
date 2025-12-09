@@ -10,7 +10,7 @@ import webbrowser
 import tools.cat as cat
 import tools.sync as sync
 from colorama import init, Fore
-from function.print.print import 消息头
+from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 from function.files.manifest import 获取清单目录
 from translate import Translator # type: ignore

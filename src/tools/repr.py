@@ -1,6 +1,6 @@
 import os
 from colorama import Fore, init
-from function.print.print import 消息头
+from catfood.functions.print import 消息头
 
 def main(args: list[str]):
     init(autoreset=True)

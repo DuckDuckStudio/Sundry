@@ -1,7 +1,7 @@
 import os
 import random
 from colorama import init, Fore
-from function.print.print import 消息头
+from catfood.functions.print import 消息头
 from catfood.functions.files import open_file
 
 def main(args: list[str]) -> int:

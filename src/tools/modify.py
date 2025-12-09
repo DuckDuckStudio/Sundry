@@ -7,7 +7,7 @@ import requests
 import subprocess
 from datetime import datetime
 from colorama import init, Fore
-from function.print.print import 消息头
+from catfood.functions.print import 消息头
 from function.files.manifest import 清单信息
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file

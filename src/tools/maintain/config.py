@@ -3,7 +3,7 @@ import json
 import jsonschema
 from typing import Any
 from colorama import init, Fore
-from function.print.print import 消息头
+from catfood.functions.print import 消息头
 from pygments import highlight # type: ignore
 from catfood.functions.files import open_file
 from pygments.lexers import JsonLexer # type: ignore

@@ -1,7 +1,7 @@
 import os
 import subprocess
 from colorama import init, Fore
-from function.print.print import 消息头
+from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 from catfood.exceptions.operation import OperationFailed
 

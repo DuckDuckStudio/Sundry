@@ -1,6 +1,6 @@
 import os
 import sys
-from function.print.print import 消息头
+from catfood.functions.print import 消息头
 
 def main() -> int:
     try:

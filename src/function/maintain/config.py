@@ -3,7 +3,7 @@ import json
 import requests
 from typing import Any
 from colorama import Fore
-from function.print.print import 消息头
+from catfood.functions.print import 消息头
 from catfood.exceptions.operation import TryOtherMethods
 
 class 配置信息:

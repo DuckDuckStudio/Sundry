@@ -12,7 +12,7 @@ import requests
 import subprocess
 from typing import Any
 from colorama import Fore, init
-from function.print.print import 消息头
+from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 from pygments import highlight # pyright: ignore[reportUnknownVariableType]
 from pygments.lexers import YamlLexer # pyright: ignore[reportUnknownVariableType]
