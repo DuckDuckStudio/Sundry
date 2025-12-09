@@ -6,8 +6,8 @@ from typing import Any
 import tools.remove as remove
 from colorama import Fore, init
 from function.constant import Response
-from function.print.print import 消息头
-from exception.request import RequestException
+from catfood.functions.print import 消息头
+from catfood.exceptions.request import RequestException
 from function.files.manifest import 获取现有包版本, 获取清单目录
 
 def main(args: list[str]) -> int:

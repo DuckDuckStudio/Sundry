@@ -3,8 +3,8 @@ import json
 import requests
 from typing import Any
 from colorama import Fore
-from function.print.print import 消息头
-from exception.operation import TryOtherMethods
+from catfood.functions.print import 消息头
+from catfood.exceptions.operation import TryOtherMethods
 
 class 配置信息:
     默认配置: dict[str, Any] = {
@@ -215,11 +215,11 @@ def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
 
     try:
         # NOTE 这里的导入不要放顶级，会出现循环导入
-        from function.github.token import read_token
-        from function.github.api import 获取GitHub文件内容
+        from catfood.functions.github.token import read_token
+        from catfood.functions.github.api import 获取GitHub文件内容
 
         print(f"{消息头.信息} 尝试从 GitHub API 获取配置文件 schema ...")
-        schema文件 = 获取GitHub文件内容(read_token(silent=True), "DuckDuckStudio/yazicbs.github.io", f"Tools/Sundry/config/schema/{版本}.json")
+        schema文件 = 获取GitHub文件内容("DuckDuckStudio/yazicbs.github.io", f"Tools/Sundry/config/schema/{版本}.json", read_token(silent=True))
         if not schema文件:
             raise TryOtherMethods("未获取到内容")
         print(f"{消息头.信息} 获取配置文件 schema 成功")

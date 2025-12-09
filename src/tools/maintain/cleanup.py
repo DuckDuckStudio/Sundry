@@ -2,7 +2,7 @@ import os
 import shutil
 import tempfile
 from colorama import Fore, init
-from function.print.print import 消息头
+from catfood.functions.print import 消息头
 
 def main(哪个工具: str) -> int:
     """

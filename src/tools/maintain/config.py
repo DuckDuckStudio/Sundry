@@ -3,9 +3,9 @@ import json
 import jsonschema
 from typing import Any
 from colorama import init, Fore
-from function.print.print import 消息头
-from function.files.open import open_file
+from catfood.functions.print import 消息头
 from pygments import highlight # type: ignore
+from catfood.functions.files import open_file
 from pygments.lexers import JsonLexer # type: ignore
 from pygments.formatters import TerminalFormatter
 from function.maintain.config import 读取配置, 验证配置, 读取配置项, 配置信息, 获取当前配置版本, 获取配置schema
