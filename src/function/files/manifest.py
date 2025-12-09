@@ -4,9 +4,9 @@ from function.maintain.config import 读取配置
 from catfood.exceptions.operation import TryOtherMethods
 
 class 清单信息:
-    版本列表= ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0", "1.10.0"]
+    版本列表= ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0", "1.10.0", "1.12.0"]
     旧版本列表 = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0"]
-    最新版本 = "1.10.0"
+    最新版本 = "1.12.0"
     类型列表 = ["installer", "defaultLocale", "locale", "version", "singleton"]
 
 def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_pkgs目录: str | None = None) -> str | None:
