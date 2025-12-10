@@ -5,8 +5,8 @@ import time
 import random
 import requests
 import subprocess
+from colorama import Fore
 from datetime import datetime
-from colorama import init, Fore
 from catfood.functions.print import 消息头
 from function.files.manifest import 清单信息
 from function.maintain.config import 读取配置
@@ -18,8 +18,6 @@ def main(args: list[str]):
     global 软件包标识符, 软件包版本, 日志文件路径
     global 解决, 清单目录, 首个_PR, 格式化审查者, 程序所在目录
     global owner
-
-    init(autoreset=True)
 
     # 目录路径
     # 尝试从参数中获取软件包标识符和版本

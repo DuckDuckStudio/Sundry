@@ -1,9 +1,8 @@
 import os
-from colorama import Fore, init
+from colorama import Fore
 from catfood.functions.print import 消息头
 
-def main(args: list[str]):
-    init(autoreset=True)
+def main(args: list[str]) -> int:
 
     if (len(args) == 1):
         if os.path.exists(args[0]):

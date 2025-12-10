@@ -3,8 +3,8 @@ import yaml
 import requests
 import subprocess
 from typing import Any
+from colorama import Fore
 import tools.remove as remove
-from colorama import Fore, init
 from function.constant import Response
 from catfood.functions.print import 消息头
 from catfood.exceptions.request import RequestException
@@ -12,7 +12,6 @@ from function.files.manifest import 获取现有包版本, 获取清单目录
 
 def main(args: list[str]) -> int:
     try:
-        init(autoreset=True)
         if not args:
             print(f"{消息头.错误} 请传递参数")
             raise KeyboardInterrupt

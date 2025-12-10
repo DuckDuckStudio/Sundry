@@ -1,8 +1,11 @@
 import os
 import sys
+from colorama import init
 from catfood.functions.print import 消息头
 
 def main() -> int:
+    init(autoreset=True)
+
     try:
         tool = sys.argv[1].lower()
         args = sys.argv[2:]
@@ -19,7 +22,6 @@ def main() -> int:
         "忽略", "检查忽略", "ignore", # 不确定如何读取 Token
         "verify", "test", "验证", "测试", # 仅 Windows
     ]):
-        from colorama import Fore
         print(f"{消息头.错误} 该操作仅可在 Windows 上运行")
         return 1
 

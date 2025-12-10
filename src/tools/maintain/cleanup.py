@@ -1,7 +1,7 @@
 import os
 import shutil
 import tempfile
-from colorama import Fore, init
+from colorama import Fore
 from catfood.functions.print import 消息头
 
 def main(哪个工具: str) -> int:
@@ -9,8 +9,6 @@ def main(哪个工具: str) -> int:
     清理指定工具运行产生的文件。  
     参数 1: 指定哪个工具
     """
-
-    init(autoreset=True)
 
     if not 哪个工具:
         print(f"{消息头.警告} 未指定清理哪个工具产生的文件，默认清理除缓存外所有 Sundry 产生的文件 (aec)")
