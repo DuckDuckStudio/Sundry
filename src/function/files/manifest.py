@@ -5,9 +5,16 @@ from catfood.exceptions.operation import TryOtherMethods
 
 class 清单信息:
     版本列表= ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0", "1.10.0", "1.12.0"]
-    旧版本列表 = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0"]
-    最新版本 = "1.12.0"
-    类型列表 = ["installer", "defaultLocale", "locale", "version", "singleton"]
+    旧版本列表 = 版本列表[:-1]
+    最新版本 = 版本列表[-1]
+    类型列表 = [
+        "installer", # 安装程序清单
+        "defaultLocale", # 默认本地化清单
+        "locale", # 本地化清单
+        "version", # 版本清单
+        "singleton", # 单例清单，已弃用
+        "merged" # 合并后的清单，常见于验证管道
+    ]
 
 def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_pkgs目录: str | None = None) -> str | None:
     """
