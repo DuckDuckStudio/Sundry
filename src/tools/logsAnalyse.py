@@ -7,7 +7,7 @@ import zipfile
 import tempfile
 import requests
 from typing import Any
-from colorama import Fore, init
+from colorama import Fore
 import tools.maintain.cleanup as cleanup
 from catfood.functions.print import 消息头
 from urllib.parse import urlparse, parse_qs
@@ -20,8 +20,6 @@ from catfood.functions.github.api import 获取GitHub文件内容
 
 def main(args: list[str]) -> int:
     """`sundry logs-analyse <Url> [是否保留日志文件] [是否显示一般错误/异常]`"""
-
-    init(autoreset=True)
 
     # 获取 Azure Pipeline 运行链接
     if len(args) < 1:

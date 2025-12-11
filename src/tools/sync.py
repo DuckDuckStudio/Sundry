@@ -1,12 +1,10 @@
 import os
 import subprocess
-from colorama import init, Fore
+from colorama import Fore
 from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 
-def main():
-    init(autoreset=True)
-
+def main() -> int:
     try:
         winget_pkgs目录 = 读取配置("paths.winget-pkgs")
         if not isinstance(winget_pkgs目录, str):

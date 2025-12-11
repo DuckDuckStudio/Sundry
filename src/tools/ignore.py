@@ -3,7 +3,7 @@ import re
 import time
 import requests
 import subprocess
-from colorama import init, Fore
+from colorama import Fore
 from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
@@ -153,9 +153,7 @@ def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = No
         print(f"{消息头.错误} 拉取请求创建失败: {response.status_code} - {response.text}")
         return 0
 
-def main(args: list[str]):
-    init(autoreset=True)
-
+def main(args: list[str]) -> int:
     winget_tools目录 = 读取配置("paths.winget-tools")
     if not isinstance(winget_tools目录, str):
         return 1

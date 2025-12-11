@@ -2,7 +2,7 @@ import os
 import json
 import jsonschema
 from typing import Any
-from colorama import init, Fore
+from colorama import Fore
 from catfood.functions.print import 消息头
 from pygments import highlight # type: ignore
 from catfood.functions.files import open_file
@@ -274,8 +274,6 @@ def 更新配置() -> int:
         return 1
 
 def main(args: list[str]) -> int:
-    init(autoreset=True)
-
     # 配置文件路径
     配置文件 = 配置信息.所在位置
 

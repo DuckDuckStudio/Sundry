@@ -9,7 +9,7 @@ import subprocess
 import webbrowser
 import tools.cat as cat
 import tools.sync as sync
-from colorama import init, Fore
+from colorama import Fore
 from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 from function.files.manifest import 获取清单目录
@@ -62,10 +62,8 @@ def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹:
             except KeyboardInterrupt:
                 return 1
 
-def main(args: list[str]):
+def main(args: list[str]) -> int:
     global 手动验证结果, owner
-
-    init(autoreset=True)
 
     winget_pkgs目录 = 读取配置("paths.winget-pkgs")
     if not isinstance(winget_pkgs目录, str):

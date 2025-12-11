@@ -11,7 +11,7 @@ import tempfile
 import requests
 import subprocess
 from typing import Any
-from colorama import Fore, init
+from colorama import Fore
 from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 from pygments import highlight # pyright: ignore[reportUnknownVariableType]
@@ -22,8 +22,6 @@ from catfood.functions.github.token import read_token
 from catfood.exceptions.request import RequestException
 
 def main(args: list[str]) -> int:
-    init(autoreset=True)
-
     # 初始化
     软件包标识符: str = ""
     软件包版本: str = ""

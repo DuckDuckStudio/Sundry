@@ -1,12 +1,10 @@
 import os
 import random
-from colorama import init, Fore
+from colorama import Fore
 from catfood.functions.print import 消息头
 from catfood.functions.files import open_file
 
 def main(args: list[str]) -> int:
-    init(autoreset=True)
-
     fun位置 = os.path.normpath(os.path.join(args[0], "fun.txt"))
 
     if (1 <= len(args) <= 3): # 这里就这样，不然在 else 里要加一堆参数错误

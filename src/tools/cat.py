@@ -1,5 +1,5 @@
 import os
-from colorama import init, Fore
+from colorama import Fore
 from catfood.functions.print import 消息头
 from pygments import highlight # type: ignore
 from pygments.lexers import YamlLexer # type: ignore
@@ -33,9 +33,7 @@ def 读取和输出(清单文件: str):
         print(f"{消息头.错误} 读取清单文件失败: {Fore.RED}文件不存在{Fore.RESET}")
         return 1
 
-def main(args: list[str]):
-    init(autoreset=True)
-
+def main(args: list[str]) -> int:
     winget_pkgs目录 = 读取配置("paths.winget-pkgs")
     if not isinstance(winget_pkgs目录, str):
         return 1
