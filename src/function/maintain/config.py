@@ -87,6 +87,7 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
         if (not os.path.exists(配置值)):
             return f"配置文件中的目录 {Fore.BLUE}{配置值}{Fore.RESET} 不存在"
         return None
+
     elif 配置项.startswith("repos.") and isinstance(配置值, str):
         while True:
             parts = 配置值.split("/")
@@ -105,16 +106,13 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
                     return None # NOTE 避免网络问题导致的假性配置错误
             else:
                 return "仓库格式不正确，应为 owner/repo 的格式"
-    # 布尔值的配置项
-    elif 配置项 in 配置信息.布尔值项:
-        if isinstance(配置值, bool):
-            return None
+
+    elif (配置项 in 配置信息.布尔值项) and (not isinstance(配置值, bool)):
         return f"应是布尔值，但实际是 {Fore.BLUE}{type(配置值)}{Fore.RESET}"
-    elif 配置项 == "i18n.lang":
-        if 配置值 not in ["zh-cn", "en-us"]:
-            return f"不支持的语言 {Fore.BLUE}{配置值}{Fore.RESET}"
-        else:
-            return None
+
+    elif (配置项 == "i18n.lang") and (配置值 not in ["zh-cn", "en-us"]):
+        return f"不支持的语言 {Fore.BLUE}{配置值}{Fore.RESET}"
+
     else:
         return None
 
