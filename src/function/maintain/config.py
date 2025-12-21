@@ -4,7 +4,7 @@ import requests
 from typing import Any
 from colorama import Fore
 from catfood.functions.print import 消息头
-from catfood.exceptions.operation import TryOtherMethods
+from catfood.exceptions.operation import TryOtherMethods, OperationFailed
 
 class 配置信息:
     默认配置: dict[str, Any] = {
@@ -123,31 +123,41 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
     如果读取失败则返回 None。
     """
 
-    if 配置项 == "debug":
-        静默 = True
+    try:
+        配置值: str | bool | None = 读取配置项(配置项, 静默)
 
-    配置值 = 读取配置项(配置项, 静默)
-
-    if 配置值 is None:
-        return None
-
-    if 验证结果 := 验证配置(配置项, 配置值):
-        if not 静默:
-            print(f"{消息头.错误} 验证配置值失败: {Fore.RED}{验证结果}{Fore.RESET}")
-        return None
-
-    if 配置项.startswith("repos.") and isinstance(配置值, str):
-        # 分隔 owner 和 repo
-        try:
-            owner, repo = 配置值.split("/")
-            return owner, repo
-        except Exception as e:
-            if not 静默:
-                print(f"{消息头.错误} 读取配置文件失败: {Fore.RED}分割 owner 和 repo 失败{Fore.RESET}\n{Fore.RED}{e}{Fore.RESET}")
+        if 配置值 is None:
             return None
-    else:
-        # 直接返回
-        return 配置值
+        
+        # 验证前就要转换
+        if 配置项.startswith("paths."):
+            if isinstance(配置值, str):
+                配置值 = os.path.normpath(配置值)
+            else:
+                if not 静默:
+                    raise OperationFailed(f"配置值的类型不是 str (实际是{type(配置值)})")
+
+        if 验证结果 := 验证配置(配置项, 配置值):
+            if not 静默:
+                raise OperationFailed(f"验证配置值失败: {Fore.RED}{验证结果}{Fore.RESET}")
+            return None
+
+        if 配置项.startswith("repos.") and isinstance(配置值, str):
+            # 分隔 owner 和 repo
+            try:
+                owner, repo = 配置值.split("/")
+                return owner, repo
+            except Exception as e:
+                if not 静默:
+                    raise OperationFailed(f"分割 owner 和 repo 失败\n{e}")
+                return None
+        else:
+            # 直接返回
+            return 配置值
+    except OperationFailed as e:
+        if not 静默:
+            print(f"{消息头.错误} 读取配置 {配置项} 失败: {Fore.RED}{e}{Fore.RESET}")
+        return None
 
 def 读取配置项(配置项: str, 静默: bool = False) -> str | bool | None:
     """
