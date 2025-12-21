@@ -11,9 +11,9 @@ from colorama import Fore
 import tools.maintain.cleanup as cleanup
 from catfood.functions.print import 消息头
 from urllib.parse import urlparse, parse_qs
+from function.github.token import read_token
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
-from catfood.functions.github.token import read_token
 from catfood.functions.format.github import IssueNumber
 from catfood.exceptions.operation import TryOtherMethods
 from catfood.functions.github.api import 获取GitHub文件内容

@@ -14,7 +14,7 @@ from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 from function.files.manifest import 获取清单目录
 from translate import Translator # type: ignore
-from catfood.functions.github.token import read_token, 这是谁的Token
+from function.github.token import read_token, 这是谁的Token
 
 # 创建拉取请求
 def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹: str, 理由: str):

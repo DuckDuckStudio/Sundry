@@ -13,12 +13,12 @@ import subprocess
 from typing import Any
 from colorama import Fore
 from catfood.functions.print import 消息头
+from function.github.token import read_token
 from function.maintain.config import 读取配置
 from pygments import highlight # pyright: ignore[reportUnknownVariableType]
 from pygments.lexers import YamlLexer # pyright: ignore[reportUnknownVariableType]
 from function.files.manifest import 获取清单目录
 from pygments.formatters import TerminalFormatter
-from catfood.functions.github.token import read_token
 from catfood.exceptions.request import RequestException
 
 def main(args: list[str]) -> int:

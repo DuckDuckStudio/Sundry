@@ -215,7 +215,7 @@ def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
 
     try:
         # NOTE 这里的导入不要放顶级，会出现循环导入
-        from catfood.functions.github.token import read_token
+        from function.github.token import read_token
         from catfood.functions.github.api import 获取GitHub文件内容
 
         print(f"{消息头.信息} 尝试从 GitHub API 获取配置文件 schema ...")
