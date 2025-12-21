@@ -85,7 +85,7 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     if 配置项.startswith("paths.") and isinstance(配置值, str):
         配置值 = os.path.normpath(配置值)
         if (not os.path.exists(配置值)):
-            return f"{Fore.BLUE}{配置值}{Fore.RESET} 不存在"
+            return f"配置文件中的目录 {Fore.BLUE}{配置值}{Fore.RESET} 不存在"
         return None
     elif 配置项.startswith("repos.") and isinstance(配置值, str):
         while True:
@@ -104,7 +104,7 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
                 except Exception:
                     return None # NOTE 避免网络问题导致的假性配置错误
             else:
-                print(f"{消息头.错误} 仓库格式不正确，应为 owner/repo 的格式")
+                return "仓库格式不正确，应为 owner/repo 的格式"
     # 布尔值的配置项
     elif 配置项 in 配置信息.布尔值项:
         if isinstance(配置值, bool):
@@ -115,6 +115,8 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
             return f"不支持的语言 {Fore.BLUE}{配置值}{Fore.RESET}"
         else:
             return None
+    else:
+        return None
 
 def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
     """
@@ -131,15 +133,12 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
     if 配置值 is None:
         return None
 
-    if 配置项.startswith("paths.") and isinstance(配置值, str):
-        验证结果 = 验证配置(配置项, 配置值)
-        if 验证结果:
-            if not 静默:
-                print(f"{消息头.错误} 配置文件中的目录 {验证结果}")
-                print(f"{消息头.消息} 运行 sundry config {配置项} <路径> 来修改配置文件中的值")
-            return None
-        return 配置值
-    elif 配置项.startswith("repos.") and isinstance(配置值, str):
+    if 验证结果 := 验证配置(配置项, 配置值):
+        if not 静默:
+            print(f"{消息头.错误} 验证配置值失败: {Fore.RED}{验证结果}{Fore.RESET}")
+        return None
+
+    if 配置项.startswith("repos.") and isinstance(配置值, str):
         # 分隔 owner 和 repo
         try:
             owner, repo = 配置值.split("/")
@@ -201,7 +200,7 @@ def 获取当前配置版本() -> float:
     except ValueError as e:
         raise ValueError(f"获取到的当前配置文件版本无效: ({e})")
 
-    if not (1.1 <= 配置版本 <= 1.2):
+    if not (1.1 <= 配置版本):
         raise ValueError(f"获取到的当前配置文件版本无效 ({配置版本})")
     
     return 配置版本
