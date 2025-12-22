@@ -19,40 +19,43 @@ on:
 permissions: {}
 
 jobs:
-  test-windows:
-    runs-on: windows-2025 # 自此版本开始自带 WinGet
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: true
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
     env:
       PYTHONIOENCODING: utf-8
 
     steps:
-      - name: 检出代码
+      - name: 签出代码
         uses: actions/checkout@v6.0.1
 
       - name: 配置 Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v6.1.0
         with:
-          python-version: 3.x
+          python-version: 3.13.x
 
       - name: 更新版本号
-        # 前面已经配置过 Python 了，这个脚本只用 os 和 sys 这两个标准库，不用再装依赖
-        run: |
-          python "自动化脚本/修改版本号.py" "123.456.789"
+        run: python "自动化脚本/修改版本号.py" "123.456.789"
 
       - name: 假装静默
         shell: bash
-        run: |
+        run: |-
           echo "[DEBUG] 先通过修改源代码来假装获取到了用户输入，从而假装静默..."
           python "./自动化脚本/假装静默.py"
 
       - name: 安装依赖
-        shell: bash
-        run: |
-          pip install -r "requirements.txt"
+        run: |-
+          pip install -r requirements.txt
           pip list
 
       - name: 整理源码
         shell: bash
-        run: |
+        run: |-
           cp -v LICENSE src/LICENSE
           mkdir Release
           mkdir Release/src
@@ -74,19 +77,20 @@ jobs:
           path: winget-tools
           fetch-depth: 0
 
-      - name: 配置前
+      - name: 配置 Sundry
         shell: bash
-        run: |
+        run: |-
+          # 设置 Git
           git config --global user.name "Sundry Test Workflow"
           git config --global user.email "SundryTestWorkflow@example.com"
+
+          # 获取 winget-pkgs 上游
           cd "$GITHUB_WORKSPACE/winget-pkgs"
           git remote add upstream https://github.com/microsoft/winget-pkgs.git
           git fetch upstream
           cd "$GITHUB_WORKSPACE"
 
-      - name: 配置 Sundry
-        shell: bash
-        run: |
+          # 设置 Sundry 配置
           mkdir -p "$HOME/.config/DuckStudio/Sundry"
           # 为了测试 sundry config update，这里的配置文件应该是旧的版本
           echo "{
@@ -128,8 +132,7 @@ jobs:
 
       - name: 测试 - Sundry 基本命令
         shell: bash
-        run: |
-          # 运行测试
+        run: |-
           echo "[DEBUG] 运行 python ./Release/src/sundry.py help"
           python ./Release/src/sundry.py help
           echo =================================================================
@@ -138,8 +141,7 @@ jobs:
 
       - name: 测试 - config
         shell: bash
-        run: |
-          # 运行测试
+        run: |-
           echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
           python ./Release/src/sundry.py config show
           echo =================================================================
@@ -156,24 +158,29 @@ jobs:
 
       - name: 测试 - autoremove
         shell: bash
-        run: |
-          # 运行测试
+        if: ${{ runner.os == 'Windows' }}
+        run: |-
           echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.GitHubView"
           python ./Release/src/sundry.py autoremove DuckStudio.GitHubView
 
       - name: 测试 - logs-analyse
         shell: bash
-        run: |
-          # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164\" y y"
-          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164" y y
+        run: |-
+          if [[ "${{ runner.os }}" == "Windows" ]]; then
+            ARG="y y"
+          else
+            ARG="n y"
+          fi
+
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164\" $ARG"
+          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164" $ARG
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
           python ./Release/src/sundry.py logs-analyse cleanup
 
       - name: 测试 - verify
         shell: bash
-        run: |
-          # 运行测试
+        if: ${{ runner.os == 'Windows' }}
+        run: |-
           echo "[DEBUG] 运行 python ./Release/src/sundry.py verify yugecin.osukps v6"
           # 我确信 GitHub Action Runner 没有预装 yugecin.osukps
           python ./Release/src/sundry.py verify yugecin.osukps v6
@@ -186,15 +193,14 @@ jobs:
 
       - name: 测试 - ignore
         shell: bash
-        run: |
-          # 运行测试
+        if: ${{ runner.os == 'Windows' }}
+        run: |-
           echo "[DEBUG] 运行 python ./Release/src/sundry.py ignore list"
           python ./Release/src/sundry.py ignore list
 
       - name: 测试 - cat
         shell: bash
-        run: |
-          # 运行测试
+        run: |-
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2"
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2
           echo =================================================================
@@ -212,8 +218,7 @@ jobs:
 
       - name: 测试 - sync
         shell: bash
-        run: |
-          # 运行测试
+        run: |-
           echo "[DEBUG] 模拟本地记录落后..."
           cd "$GITHUB_WORKSPACE/winget-pkgs"
           git reset --hard HEAD~666
@@ -228,8 +233,7 @@ jobs:
 
       - name: 测试 - repr
         shell: bash
-        run: |
-          # 运行测试
+        run: |-
           echo "[DEBUG] 运行 python ./Release/src/sundry.py repr C:/a/Sundry/Sundry/fun.txt"
           python ./Release/src/sundry.py repr C:/a/Sundry/Sundry/fun.txt
           echo =================================================================
@@ -239,8 +243,7 @@ jobs:
 
       - name: 测试 - revert
         shell: bash
-        run: |
-          # 运行测试
+        run: |-
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
           cd "$GITHUB_WORKSPACE/winget-pkgs"
           echo "[DEBUG] 运行 git checkout -b Ciallo"
@@ -337,8 +340,7 @@ jobs:
 
       - name: 测试 - fun
         shell: bash
-        run: |
-          # 运行测试
+        run: |-
           echo "[DEBUG] 运行 python ./Release/src/sundry.py fun"
           python ./Release/src/sundry.py fun
           echo =================================================================
@@ -365,9 +367,10 @@ jobs:
           echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
           python ./Release/src/sundry.py fun list
 
-      - name: 测试 - cleanup
+      - name: 测试 - cleanup (Windows)
         shell: bash
-        run: |
+        if: ${{ runner.os == 'Windows' }}
+        run: |-
           echo "[DEBUG] 产生测试文件"
 
           # 建立临时目录
@@ -388,7 +391,6 @@ jobs:
 
           ls -a -R /tmp/Sundry
 
-          # 运行测试
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup logs-analyse"
           python ./Release/src/sundry.py cleanup logs-analyse
           # logs-analyse cleanup 前面测试过了，一样的
@@ -410,354 +412,10 @@ jobs:
           python ./Release/src/sundry.py cleanup all
           ls -a /tmp
 
-  test-ubuntu:
-    runs-on: ubuntu-latest
-    env:
-      PYTHONIOENCODING: utf-8
-
-    steps:
-      - name: 检出代码
-        uses: actions/checkout@v6.0.1
-
-      - name: 配置 Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.x
-
-      - name: 更新版本号
-        run: |
-          python "自动化脚本/修改版本号.py" "123.456.789"
-
-      # - name: 假装静默
-      #   env:
-      #     PYTHONIOENCODING: utf-8
-      #   shell: bash
-      #   run: |
-      #     echo "[DEBUG] 先通过修改源代码来假装获取到了用户输入，从而假装静默..."
-      #     python "./自动化脚本/假装静默.py"
-
-      - name: 安装依赖
+      - name: 测试 - cleanup (Linux)
         shell: bash
-        run: |
-          pip install -r "requirements.txt"
-          pip list
-
-      - name: 整理源码
-        shell: bash
-        run: |
-          cp -v LICENSE src/LICENSE
-          mkdir Release
-          mkdir Release/src
-          cp -rv src/ Release
-          cp -v LICENSE Release/src
-          cp -v requirements.txt Release/src
-
-      - name: 签出 winget-pkgs
-        uses: actions/checkout@v6.0.1
-        with:
-          repository: DuckDuckStudio/winget-pkgs
-          path: winget-pkgs
-          fetch-depth: 0
-
-      - name: 签出 winget-tools
-        uses: actions/checkout@v6.0.1
-        with:
-          repository: DuckDuckStudio/winget-tools
-          path: winget-tools
-          fetch-depth: 0
-
-      - name: 配置前
-        shell: bash
-        run: |
-          git config --global user.name "Sundry Test Workflow"
-          git config --global user.email "SundryTestWorkflow@example.com"
-          cd "$GITHUB_WORKSPACE/winget-pkgs"
-          git remote add upstream https://github.com/microsoft/winget-pkgs.git
-          git fetch upstream
-          cd "$GITHUB_WORKSPACE"
-
-      - name: 配置 Sundry
-        shell: bash
-        run: |
-          mkdir -p "$HOME/.config/DuckStudio/Sundry"
-          # 为了测试 sundry config update，这里的配置文件应该是旧的版本
-          echo "{
-            \"$schema\": \"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.1.json\",
-            \"version\": \"1.1\",
-            \"paths\": {
-              \"winget-pkgs\": \"${GITHUB_WORKSPACE//\\//}/winget-pkgs/\",
-              \"winget-tools\": \"${GITHUB_WORKSPACE//\\//}/winget-tools/\"
-            },
-            \"repos\": {
-              \"winget-pkgs\": \"DuckDuckStudio/winget-pkgs\",
-              \"winget-tools\": \"DuckDuckStudio/winget-tools\"
-            },
-            \"git\": {
-              \"signature\": false
-            },
-            \"github\": {
-              \"pr\": {
-                \"maintainer_can_modify\": false
-              }
-            },
-            \"tools\": {
-              \"verify\": {
-                \"check_url\": false,
-                \"show_warning_on_non-clean_windows\": false
-              },
-              \"prune\": {
-                \"remote\": {
-                  \"prune_merged_branches\": false,
-                  \"prune_closed_branches\": false
-                }
-              }
-            },
-            \"i18n\": {
-              \"lang\": \"zh-cn\"
-            }
-          }" > "$HOME/.config/DuckStudio/Sundry/config.json"
-          cat "$HOME/.config/DuckStudio/Sundry/config.json"
-
-      - name: 测试 - Sundry 基本命令
-        shell: bash
-        run: |
-          # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py help"
-          python ./Release/src/sundry.py help
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py ver"
-          python ./Release/src/sundry.py ver
-
-      - name: 测试 - config
-        shell: bash
-        run: |
-          # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
-          python ./Release/src/sundry.py config show
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config update"
-          python ./Release/src/sundry.py config update
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
-          python ./Release/src/sundry.py config show
-          echo =================================================================
-          # 这之后的修改对应新版配置文件
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config debug y"
-          python ./Release/src/sundry.py config debug y
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
-          python ./Release/src/sundry.py config show
-
-      # - name: 测试 - autoremove
-      #   shell: bash
-      #   run: |
-      #     # 运行测试
-      #     echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.GitHubView"
-      #     python ./Release/src/sundry.py autoremove DuckStudio.GitHubView
-
-      - name: 测试 - logs-analyse
-        shell: bash
-        run: |
-          # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164\" n y"
-          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164" n y
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
-          python ./Release/src/sundry.py logs-analyse cleanup
-
-      # - name: 测试 - verify
-      #   env:
-      #     PYTHONIOENCODING: utf-8
-      #   shell: bash
-      #   run: |
-      #     # 运行测试
-      #     echo "[DEBUG] 运行 python ./Release/src/sundry.py verify yugecin.osukps v6"
-      #     # 我确信 GitHub Action Runner 没有预装 yugecin.osukps
-      #     python ./Release/src/sundry.py verify yugecin.osukps v6
-
-      # - name: 测试 - ignore
-      #   env:
-      #     PYTHONIOENCODING: utf-8
-      #   shell: bash
-      #   run: |
-      #     # 运行测试
-      #     echo "[DEBUG] 运行 python ./Release/src/sundry.py ignore list"
-      #     python ./Release/src/sundry.py ignore list
-
-      - name: 测试 - cat
-        shell: bash
-        run: |
-          # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 i"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 i
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 l zh-CN"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 l zh-CN
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 v"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 v
-
-      - name: 测试 - sync
-        shell: bash
-        run: |
-          # 运行测试
-          echo "[DEBUG] 模拟本地记录落后..."
-          cd "$GITHUB_WORKSPACE/winget-pkgs"
-          git reset --hard HEAD~666
-          cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py sync"
-          python ./Release/src/sundry.py sync || exit_code=$?
-          if [ "${exit_code:-0}" -eq 1 ]; then
-            # 403
-            exit 0
-          fi
-          exit ${exit_code:-0}
-
-      - name: 测试 - repr
-        shell: bash
-        run: |
-          # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py repr C:/a/Sundry/Sundry/fun.txt"
-          python ./Release/src/sundry.py repr C:/a/Sundry/Sundry/fun.txt
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py repr <多行字符>"
-          python ./Release/src/sundry.py repr "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-          BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
-
-      - name: 测试 - revert
-        shell: bash
-        run: |
-          # 运行测试
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
-          cd "$GITHUB_WORKSPACE/winget-pkgs"
-          echo "[DEBUG] 运行 git checkout -b Ciallo"
-          git checkout -b Ciallo
-          echo "[DEBUG] 运行 echo <文本> > ffffffffff.txt"
-          echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "ffffffffff.txt" # 创建一些测试文件
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
-          cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert pkgs n y"
-          python ./Release/src/sundry.py revert pkgs n y
-          echo =================================================================
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-tools"
-          cd "$GITHUB_WORKSPACE/winget-tools"
-          echo "[DEBUG] 运行 git checkout -b Ciallo"
-          git checkout -b Ciallo
-          echo "[DEBUG] 运行 echo <文本> > ffffffffff.txt"
-          echo "https://www.bilibili.com/video/BV1nKNyzREiY/" > "ffffffffff.txt" # 创建一些测试文件
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
-          cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert tools n y"
-          python ./Release/src/sundry.py revert tools n y
-          echo =================================================================
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-tools"
-          cd "$GITHUB_WORKSPACE/winget-tools"
-          echo "[DEBUG] 运行 git checkout -b Ciallo"
-          git checkout -b Ciallo
-          echo "[DEBUG] 运行 echo <文本> > ffffffffff.txt"
-          echo "【19号来的，19号被抓的。去了三个地方，一分钱没拿到】https://www.bilibili.com/video/BV1rfKwzGEJu/" > "ffffffffff.txt" # 创建一些测试文件
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
-          cd "$GITHUB_WORKSPACE/winget-pkgs"
-          echo "[DEBUG] 运行 git checkout -b Ciallo"
-          git checkout -b Ciallo
-          echo "[DEBUG] 运行 echo <文本> > ffffffffff.txt"
-          echo "【大脑里有像电视屏幕的东西？3天记3年单词？】https://www.bilibili.com/video/BV17yKGzYEVq/" > "ffffffffff.txt" # 创建一些测试文件
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
-          cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert all n y"
-          python ./Release/src/sundry.py revert all n y
-          echo =================================================================
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
-          cd "$GITHUB_WORKSPACE/winget-pkgs"
-          echo "[DEBUG] 运行 git checkout -b Ciallo"
-          git checkout -b Ciallo
-          echo "[DEBUG] 运行 echo <文本> > ffffffffff.txt"
-          echo "【晚安~玛卡巴卡~】https://www.bilibili.com/video/BV1FiKgzcEh9/" > "ffffffffff.txt" # 创建一些测试文件
-          echo "[DEBUG] 运行 git add ."
-          git add .
-          echo "[DEBUG] 运行 git commit -m <文本>"
-          git commit -m "https://www.bilibili.com/video/BV1GUjbzcE2J/"
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
-          cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert pkgs y y"
-          python ./Release/src/sundry.py revert pkgs y y
-          echo =================================================================
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-tools"
-          cd "$GITHUB_WORKSPACE/winget-tools"
-          echo "[DEBUG] 运行 git checkout -b Ciallo"
-          git checkout -b Ciallo
-          echo "[DEBUG] 运行 echo <文本> > ffffffffff.txt"
-          echo "https://www.bilibili.com/video/BV1G3EFzDELZ/" > "ffffffffff.txt" # 创建一些测试文件
-          echo "[DEBUG] 运行 git add ."
-          git add .
-          echo "[DEBUG] 运行 git commit -m <文本>"
-          git commit -m "https://www.bilibili.com/video/BV1CKJNzpEBL/"
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
-          cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert tools y y"
-          python ./Release/src/sundry.py revert tools y y
-          echo =================================================================
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-tools"
-          cd "$GITHUB_WORKSPACE/winget-tools"
-          echo "[DEBUG] 运行 git checkout -b Ciallo"
-          git checkout -b Ciallo
-          echo "[DEBUG] 运行 echo <文本> > ffffffffff.txt"
-          echo "那我问你，你头顶怎么尖尖的！" > "ffffffffff.txt" # 创建一些测试文件
-          echo "[DEBUG] 运行 git add ."
-          git add .
-          echo "[DEBUG] 运行 git commit -m <文本>"
-          git commit -m "每个人一天 18 公斤的凤梨，吃个两个礼拜，很难吗？一颗就 3 公斤，很难吗？一点都不难，我们怕什么？"
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
-          cd "$GITHUB_WORKSPACE/winget-pkgs"
-          echo "[DEBUG] 运行 git checkout -b Ciallo"
-          git checkout -b Ciallo
-          echo "[DEBUG] 运行 echo <文本> > ffffffffff.txt"
-          echo "不要，不要，同时吃太多凤梨会死的，应付不过来了，求求你慢点，呜哦哦，要头昏眼花了哦齁哦哦哦哦哦哦" > "ffffffffff.txt" # 创建一些测试文件
-          echo "[DEBUG] 运行 git add ."
-          git add .
-          echo "[DEBUG] 运行 git commit -m <文本>"
-          git commit -m "唉乌蒙吃。"
-          echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
-          cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert all y y"
-          python ./Release/src/sundry.py revert all y y
-
-      - name: 测试 - fun
-        shell: bash
-        run: |
-          # 运行测试
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun"
-          python ./Release/src/sundry.py fun
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun random"
-          python ./Release/src/sundry.py fun random
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
-          python ./Release/src/sundry.py fun list
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun add <文本>"
-          python ./Release/src/sundry.py fun add "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
-          python ./Release/src/sundry.py fun list
-          echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun remove <文本>"
-          python ./Release/src/sundry.py fun remove "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
-          python ./Release/src/sundry.py fun list
-          echo =================================================================
-          echo "[DEBUG] 运行 echo \"你以为你是谁啊？！\" > ffffffffff.txt"
-          echo "你以为你是谁啊？！" > "ffffffffff.txt"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun import ffffffffff.txt"
-          python ./Release/src/sundry.py fun import "ffffffffff.txt"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
-          python ./Release/src/sundry.py fun list
-
-      - name: 测试 - cleanup
-        shell: bash
-        run: |
+        if: ${{ runner.os == 'Linux' }}
+        run: |-
           echo "[DEBUG] 产生测试文件"
 
           # 建立临时目录
@@ -778,7 +436,6 @@ jobs:
 
           tree -a -f /tmp/Sundry/
 
-          # 运行测试
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup logs-analyse"
           python ./Release/src/sundry.py cleanup logs-analyse
           # logs-analyse cleanup 前面测试过了，一样的
