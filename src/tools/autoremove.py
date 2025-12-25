@@ -1,12 +1,14 @@
 import os
 import yaml
 import requests
+import webbrowser
 import subprocess
 from typing import Any
 from colorama import Fore
 import tools.remove as remove
 from function.constant import Response
 from catfood.functions.print import 消息头
+from function.maintain.config import 读取配置
 from catfood.exceptions.request import RequestException
 from function.files.manifest import 获取现有包版本, 获取清单目录
 
@@ -26,6 +28,7 @@ def main(args: list[str]) -> int:
         if not 版本列表:
             print(f"{消息头.错误} 未能获取到版本列表")
             raise KeyboardInterrupt
+        # NOTE: 对版本列表切片可以只检查指定版本（及）以后的版本
         检查软件包版本(args[0], 版本列表, (args[1].lower() in ["y", "yes", "skip", "skip-check"]))
         print(f"{消息头.成功} 成功检查 {Fore.BLUE}{args[0]}{Fore.RESET} 的所有版本")
         return 0
@@ -34,6 +37,10 @@ def main(args: list[str]) -> int:
         return 1
 
 def 检查软件包版本(软件包标识符: str, 版本列表: list[str], 跳过检查: bool) -> None:
+    在浏览器中打开 = 读取配置("tools.autoremove.open_in_browser")
+    if not isinstance(在浏览器中打开, bool):
+        在浏览器中打开 = False
+
     for 版本 in 版本列表:
         移除理由 = "Attempt to download using WinGet failed."
         # TODO: 在参数中指定这个理由
@@ -45,7 +52,7 @@ def 检查软件包版本(软件包标识符: str, 版本列表: list[str], 跳�
                 print(f"{消息头.成功} 验证 {Fore.BLUE}{软件包标识符} {版本}{Fore.RESET} 通过！")
                 continue
             else:
-                InstallerUrls验证结果 = 检查所有安装程序URL(软件包标识符, 版本) # 验证所有 InstallerUrl
+                InstallerUrls验证结果 = 检查所有安装程序URL(软件包标识符, 版本, 在浏览器中打开)
                 if InstallerUrls验证结果[0] in {1, 2}:
                     print(f"{消息头.警告} 似乎有几个安装程序链接仍然有效，请检查它们。")
                     if 是否中止(input(f"{消息头.问题} 要移除此版本吗? [y/N]: ")):
@@ -95,7 +102,7 @@ def 使用GitHubAPI检查安装程序URL(InstallerUrl: str) -> str:
     except ValueError as e:
         return f"{Fore.RED}错误 ({e}){Fore.RESET}"
 
-def 检查所有安装程序URL(软件包标识符: str, 软件包版本: str) -> tuple[int, str]:
+def 检查所有安装程序URL(软件包标识符: str, 软件包版本: str, 在浏览器中打开: bool) -> tuple[int, str]:
     """
     检查指定 软件包标识符 软件包版本 的安装程序清单中的所有 InstallerUrl 是否有失效的。
 
@@ -135,6 +142,8 @@ def 检查所有安装程序URL(软件包标识符: str, 软件包版本: str) -
         for InstallerUrl in InstallerUrls:
             print(f"正在检查 {InstallerUrl} ...", end="")
             try:
+                if 在浏览器中打开:
+                    webbrowser.open(InstallerUrl)
                 try:
                     # 尝试 HEAD 下
                     响应 = requests.head(InstallerUrl, allow_redirects=True)
