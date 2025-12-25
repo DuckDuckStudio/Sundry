@@ -8,6 +8,7 @@ import subprocess
 from colorama import Fore
 from datetime import datetime
 from catfood.functions.print import 消息头
+from function.git.format import branchName
 from function.files.manifest import 清单信息
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
@@ -236,7 +237,7 @@ def 修改版本(版本文件夹: str):
     版本文件夹路径 = os.path.join(清单目录, 版本文件夹)
 
     # 创建并切换到新的分支
-    新分支 = f"Modify-S-{软件包标识符}-{版本文件夹}-{int(time.time())}"
+    新分支 = branchName(f"Modify-S-{软件包标识符}-{版本文件夹}-{int(time.time())}")
     print(f"  创建并切换到新分支: {新分支}")
     写入日志(f"  Create and checkout to a new branch: {新分支}")
     subprocess.run(["git", "checkout", "master"], check=True) # 确保从 master 分支开始
