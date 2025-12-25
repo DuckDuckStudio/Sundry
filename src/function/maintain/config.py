@@ -8,8 +8,8 @@ from catfood.exceptions.operation import TryOtherMethods, OperationFailed
 
 class 配置信息:
     默认配置: dict[str, Any] = {
-        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.2.json",
-        "version": "1.2",
+        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.3.json",
+        "version": "1.3",
         "debug": False,
         "paths": {
             "winget-pkgs": "",
@@ -26,9 +26,13 @@ class 配置信息:
             "pr": {
                 "maintainer_can_modify": False,
                 "mention_self_when_reviewer": False
-            }
+            },
+            "token": "glm",
         },
         "tools": {
+            "autoremove": {
+                "open_in_browser": False
+            },
             "prune": {
                 "remote": {
                     "prune_merged_branches": False,
@@ -53,6 +57,7 @@ class 配置信息:
         "debug",
         "git.signature",
         "github.pr.maintainer_can_modify", "github.pr.mention_self_when_reviewer",
+        "tools.autoremove.open_in_browser",
         "tools.prune.remote.prune_merged_branches", "tools.prune.remote.prune_closed_branches",
         "tools.verify.show_warning_on_non-clean_windows",
         "cache.validate.schema"
@@ -65,7 +70,7 @@ class 配置信息:
         "repos.winget-tools"
     ]
 
-    最新版本: str = "1.2"
+    最新版本: str = "1.3"
 
     所在位置: str = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
 
@@ -112,6 +117,9 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
 
     elif (配置项 == "i18n.lang") and (配置值 not in ["zh-cn", "en-us"]):
         return f"不支持的语言 {Fore.BLUE}{配置值}{Fore.RESET}"
+
+    elif (配置项 == "github.token") and (配置值 not in ["glm", "komac", "env"]):
+        return "未知的 Token 读取源"
 
     else:
         return None
