@@ -5,8 +5,9 @@ import requests
 import subprocess
 from colorama import Fore
 from catfood.functions.print import 消息头
-from function.github.token import read_token
+from function.git.format import branchName
 from function.maintain.config import 读取配置
+from function.github.token import read_token
 from catfood.functions.files import open_file
 
 def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> bool | str:
@@ -203,7 +204,7 @@ def main(args: list[str]) -> int:
     # 2. 将空格替换为 _
     if (操作 != "list"):
         格式化忽略字段 = ''.join(e for e in 忽略字段 if e.isalnum() or e in ['-', '_'])
-        新分支名 = f"Ignore-{格式化忽略字段}-{int(time.time())}"
+        新分支名 = branchName(f"Ignore-{格式化忽略字段}-{int(time.time())}")
         subprocess.run(["git", "checkout", "-b", 新分支名], check=True)
         print(f"{消息头.信息}     已签出新分支 - {新分支名}")
     print(f"{消息头.成功} 同步完成")
