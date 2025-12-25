@@ -11,6 +11,7 @@ import tools.cat as cat
 import tools.sync as sync
 from colorama import Fore
 from catfood.functions.print import 消息头
+from function.git.format import branchName
 from function.maintain.config import 读取配置
 from function.files.manifest import 获取清单目录
 from translate import Translator # type: ignore
@@ -191,7 +192,7 @@ def main(args: list[str]) -> int:
     print(f"{Fore.BLUE}开始操作")
     if sync.main():
         return 1
-    新分支名 = f"Remove-{软件包标识符}-{软件包版本}-{int(time.time())}"
+    新分支名 = branchName(f"Remove-{软件包标识符}-{软件包版本}-{int(time.time())}")
     subprocess.run(["git", "checkout", "-b", 新分支名], check=True) # 创建并切换到新的分支
     print(f"{Fore.BLUE}  已签出新分支 {新分支名}")
 
