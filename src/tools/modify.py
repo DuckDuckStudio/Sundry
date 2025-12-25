@@ -8,10 +8,11 @@ import subprocess
 from colorama import Fore
 from datetime import datetime
 from catfood.functions.print import 消息头
-from function.files.manifest import 清单信息
+from function.git.format import branchName
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
 from function.files.manifest import 获取清单目录
+from function.files.manifest import FormatManifest
 from function.github.token import read_token, 这是谁的Token
 
 def main(args: list[str]):
@@ -236,7 +237,7 @@ def 修改版本(版本文件夹: str):
     版本文件夹路径 = os.path.join(清单目录, 版本文件夹)
 
     # 创建并切换到新的分支
-    新分支 = f"Modify-S-{软件包标识符}-{版本文件夹}-{int(time.time())}"
+    新分支 = branchName(f"Modify-S-{软件包标识符}-{版本文件夹}-{int(time.time())}")
     print(f"  创建并切换到新分支: {新分支}")
     写入日志(f"  Create and checkout to a new branch: {新分支}")
     subprocess.run(["git", "checkout", "master"], check=True) # 确保从 master 分支开始
@@ -256,69 +257,7 @@ def 修改版本(版本文件夹: str):
                 with open(清单文件路径, "r", encoding="utf-8") as f:
                     清单文件内容 = f.read()
 
-                # =========================== 必经修改 =========================
-                # 修改 ManifestVersion 和版本号
-                for 清单中的旧清单版本号 in 清单信息.旧版本列表:
-                    # 修改 ManifestVersion
-                    if f"ManifestVersion: {清单中的旧清单版本号}" in 清单文件内容:
-                        print(f"    替换 ManifestVersion: {清单中的旧清单版本号} -> {清单信息.最新版本}")
-                        写入日志(f"    Replace ManifestVersion: {清单中的旧清单版本号} -> {清单信息.最新版本}")
-                        清单文件内容 = 清单文件内容.replace(f"ManifestVersion: {清单中的旧清单版本号}", f"ManifestVersion: {清单信息.最新版本}")
-
-                    # 修改 schema 引用，只替换版本号部分
-                    schema_line = f"{清单中的旧清单版本号}.schema.json"
-                    if schema_line in 清单文件内容:
-                        print(f"    替换 schema 引用: {清单中的旧清单版本号}.schema.json -> {清单信息.最新版本}.schema.json")
-                        写入日志(f"    Replace schema references: {清单中的旧清单版本号}.schema.json -> {清单信息.最新版本}.schema.json")
-                        清单文件内容 = 清单文件内容.replace(f"{清单中的旧清单版本号}.schema.json", f"{清单信息.最新版本}.schema.json")
-
-                # 替换工具注释
-                '''
-                判断是否 `清单文件内容`为空 或 第一行以`#`开头
-                    如果是，在`清单文件内容`第一行前面追加三行`# Modified with Sundry.`与`# yaml-language-server: $schema=...`与一个空行。
-                否则，`清单文件内容`有内容且第一行以`#`开头
-                    再判断`清单文件内容`第一行是否以`# yaml-language-server`开头
-                        如果是，在`清单文件内容`第一行前面追加一行`# Modified with Sundry.`
-                        如果不是，将`清单文件内容`第一行替换为`# Modified with Sundry.`
-                '''
-
-                # 按行分割文件内容
-                lines = 清单文件内容.splitlines()
-
-                if (not lines) or (not lines[0].startswith("#")): # https://github.com/DuckDuckStudio/Sundry/issues/28
-                    # 如果清单文件内容为空或第一行不是以#开头
-                    # 第一行前面追加三行
-                    lines.insert(0, "")
-                    if 'installer' in file: # 安装程序清单
-                        lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.{清单信息.最新版本}.schema.json")
-                    elif 'locale' in file: # 区域清单
-                        if 'defaultLocale' in 清单文件内容: # 默认区域清单
-                            lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.{清单信息.最新版本}.schema.json")
-                        else: # 一般区域清单
-                            lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.{清单信息.最新版本}.schema.json")
-                    else: # 版本清单
-                        lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.{清单信息.最新版本}.schema.json")
-                    lines.insert(0, "# Modified with Sundry.")
-                # 否则第一行是#开头
-                else:
-                    # 判断第一行是否以# yaml-language-server开头
-                    if lines[0].startswith("# yaml-language-server"):
-                        # 如果是，追加一行
-                        lines.insert(0, "# Modified with Sundry.")
-                    else:
-                        # 否则，替换第一行
-                        lines[0] = "# Modified with Sundry."
-
-                # 将修改后的内容重新合并为一个字符串并赋值回清单文件内容
-                清单文件内容 = "\n".join(lines)
-
-                # 确保最后有且只有一行空行
-                if not 清单文件内容.endswith('\n'): # 如果最后没有换行符
-                    清单文件内容 += '\n' # 添加一个换行符
-                else: # 如果有了
-                    清单文件内容 = 清单文件内容.rstrip('\n') + '\n'
-                    # 管他几个先全移除 -> 添加一个换行符
-                    # .rstrip() 去除文本末尾的指定字符
+                清单文件内容 = FormatManifest(清单文件内容, "# Modified with Sundry.")
 
                 # 写回修改后的文件内容
                 with open(清单文件路径, "w", encoding="utf-8") as f:
