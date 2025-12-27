@@ -37,7 +37,7 @@ def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
     try:
         if not os.path.exists(导入fun文件):
             raise FileNotFoundError()
-        with open(导入fun文件, 'r', encoding='utf-8') as file:
+        with open(导入fun文件, 'r', encoding="utf-8") as file:
             导入的fun: list[str] = file.readlines()
             if not 导入的fun:
                 print(f"{消息头.警告} {Fore.BLUE}{导入fun文件}{Fore.RESET} (导入) {Fore.YELLOW}为空{Fore.RESET}")
@@ -67,12 +67,12 @@ def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
             # 询问用户是否创建一个
             try:
                 input(f"{消息头.问题} 创建个新的 fun.txt? [ENTER/CTRL+C]")
-                with open(原fun文件, 'w', encoding='utf-8'):
+                with open(原fun文件, 'w', encoding="utf-8"):
                     pass
             except KeyboardInterrupt:
                 print(f"\n{消息头.错误} 操作取消")
                 return 1
-        with open(原fun文件, 'w', encoding='utf-8') as file:
+        with open(原fun文件, 'w', encoding="utf-8") as file:
             file.writelines(导入的fun)
         print(f"{消息头.成功} 已将 {Fore.BLUE}{导入fun文件}{Fore.RESET} 导入到 {Fore.BLUE}{原fun文件}{Fore.RESET}")
         return 0
@@ -85,7 +85,7 @@ def 移除fun(fun位置: str, 条目: str) -> int:
         条目 = 条目.replace("\n", "\\n")
         if not os.path.exists(fun位置):
             raise FileNotFoundError()
-        with open(fun位置, 'r', encoding='utf-8') as file:
+        with open(fun位置, 'r', encoding="utf-8") as file:
             lines = file.readlines()
         if not (f"{条目}\n" in lines):
             print(f"{消息头.警告} 在 {Fore.BLUE}{fun位置}{Fore.RESET} 中{Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET}")
@@ -93,7 +93,7 @@ def 移除fun(fun位置: str, 条目: str) -> int:
         while f"{条目}\n" in lines:
             # 移除所有匹配的条目
             lines.remove(f"{条目}\n")
-        with open(fun位置, 'w', encoding='utf-8') as file:
+        with open(fun位置, 'w', encoding="utf-8") as file:
             file.writelines(lines)
         print(f"{消息头.成功} 已将 {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET} 从 {Fore.BLUE}{fun位置}{Fore.RESET} 中移除")
         return 0
@@ -108,7 +108,7 @@ def 添加fun(fun位置: str, 新条目: str) -> int:
     # 查重
     try:
         新条目 = 新条目.replace("\n", "\\n")
-        with open(fun位置, 'r', encoding='utf-8') as file:
+        with open(fun位置, 'r', encoding="utf-8") as file:
             lines = file.readlines()
             if f"{新条目}\n" in lines:
                 print(f"{消息头.警告} {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} {Fore.YELLOW}已存在{Fore.RESET}于 {Fore.BLUE}{fun位置}{Fore.RESET}")
@@ -118,7 +118,7 @@ def 添加fun(fun位置: str, 新条目: str) -> int:
         # 询问用户是否创建一个
         try:
             input(f"{消息头.问题} 创建个新的 fun.txt? [ENTER/CTRL+C]")
-            with open(fun位置, 'w', encoding='utf-8'):
+            with open(fun位置, 'w', encoding="utf-8"):
                 pass
         except KeyboardInterrupt:
             print(f"\n{消息头.错误} 操作取消")
@@ -128,7 +128,7 @@ def 添加fun(fun位置: str, 新条目: str) -> int:
         return 1
     # 添加新条目
     try:
-        with open(fun位置, 'a', encoding='utf-8') as file:
+        with open(fun位置, 'a', encoding="utf-8") as file:
             file.write(f"{新条目}\n")
         print(f"{消息头.成功} 已将 {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} 添加进 {Fore.BLUE}{fun位置}{Fore.RESET}")
         return 0
@@ -140,7 +140,7 @@ def 获取fun(fun位置: str, 随机: bool) -> int:
     try:
         if not os.path.exists(fun位置):
             raise FileNotFoundError()
-        with open(fun位置, 'r', encoding='utf-8') as file:
+        with open(fun位置, 'r', encoding="utf-8") as file:
             content = file.read()
             if content.strip():
                 if 随机:

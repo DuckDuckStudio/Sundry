@@ -63,7 +63,7 @@ def main(args: list[str]):
 
     # 预先检查
     格式化审查者 = ""
-    with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode='r', encoding='utf-8') as file:
+    with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode='r', encoding="utf-8") as file:
         csv_reader = csv.DictReader(file)
         # 遍历 CSV 文件中的每一行
         found = False # 标记是否找到了包标识符
@@ -88,11 +88,11 @@ def main(args: list[str]):
     # ========= 日志 配置 开始 =========
     os.chdir(程序所在目录)
     os.makedirs(os.path.join(程序所在目录, "logs", datetime.today().strftime('%Y\\%m\\%d')), exist_ok=True) # 创建今日日志文件夹
-    with open(os.path.join(程序所在目录, 日志文件路径), 'w') as 日志文件:
+    with open(os.path.join(程序所在目录, 日志文件路径), 'w', encoding="utf-8") as 日志文件:
         日志文件.write('~~ Start logging ~~\n') # 初始化日志文件
 
     # 打开文件并读取所有行 - FUN
-    with open(os.path.join(程序所在目录, "fun.txt"), 'r', encoding='utf-8') as file:
+    with open(os.path.join(程序所在目录, "fun.txt"), 'r', encoding="utf-8") as file:
         随机句子 = None
         while (not 随机句子): # 避免空行
             随机句子 = random.choice(file.readlines()).strip().replace("\\n", "\n") # 多行好玩的
@@ -127,7 +127,7 @@ def main(args: list[str]):
             except KeyboardInterrupt:
                 print(f"\n{Fore.BLUE}[INFO]{Fore.RESET} 了解，正在关闭日志...")
                 写入日志("User interrupted the process, exiting...")
-                with open(os.path.join(程序所在目录, 日志文件路径), 'a') as 日志文件: # 追加写入
+                with open(os.path.join(程序所在目录, 日志文件路径), 'a', encoding="utf-8") as 日志文件: # 追加写入
                     日志文件.write("~~ End of logging ~~\n")
                 print(f"{Fore.BLUE}[INFO]{Fore.RESET} 日志已关闭，正在退出...")
                 return 1
@@ -136,7 +136,7 @@ def main(args: list[str]):
     if not 版本文件夹s:
         print(f"{消息头.错误} 没有找到任何版本文件夹，请检查参数是否正确。")
         写入日志("No version folder found.", "ERROR")
-        with open(os.path.join(程序所在目录, 日志文件路径), 'a') as 日志文件: # 追加写入
+        with open(os.path.join(程序所在目录, 日志文件路径), 'a', encoding="utf-8") as 日志文件: # 追加写入
             日志文件.write("~~ End of logging ~~\n")
         print(f"{Fore.BLUE}[INFO]{Fore.RESET} 日志已关闭，正在退出...")
         return 1
@@ -148,7 +148,7 @@ def main(args: list[str]):
             写入日志(f"Skip version {版本文件夹}, because it's not in the list of versions to be modified.")
             continue
         if 修改版本(版本文件夹) == 1:
-            with open(os.path.join(程序所在目录, 日志文件路径), 'a') as 日志文件:
+            with open(os.path.join(程序所在目录, 日志文件路径), 'a', encoding="utf-8") as 日志文件:
                 日志文件.write("~~ End of logging ~~\n")
             return 1 # 如果修改版本时出错，退出程序
 
@@ -171,7 +171,7 @@ def main(args: list[str]):
     写入日志("Workspace clean-up completed.")
 
     # ========= 日志关闭 开始 =========
-    with open(os.path.join(程序所在目录, 日志文件路径), 'a') as 日志文件: # 追加写入
+    with open(os.path.join(程序所在目录, 日志文件路径), 'a', encoding="utf-8") as 日志文件: # 追加写入
         日志文件.write('~~ End of logging ~~\n')
     print(f"{Fore.GREEN}✓{Fore.RESET} 成功修改 {Fore.BLUE}{软件包标识符}{Fore.RESET} 版本 {Fore.BLUE}{软件包版本}{Fore.RESET} 的清单。")
     # ========= 日志关闭 结束 =========
@@ -182,7 +182,7 @@ def 写入日志(消息: str, 等级: str="INFO"):
     global 程序所在目录, 日志文件路径
     现在时间 = datetime.now()
     写入时间 = 现在时间.strftime('%Y-%m-%d %H:%M:%S.') + str(现在时间.microsecond)[:3] # 格式化日志时间 YYYY-MM-DD HH:MM:SS.ms
-    with open(os.path.join(程序所在目录, 日志文件路径), 'a') as 日志文件: # 追加写入
+    with open(os.path.join(程序所在目录, 日志文件路径), 'a', encoding="utf-8") as 日志文件: # 追加写入
         for 行 in 消息.split("\n"):
             日志文件.write(f"{写入时间} {等级} {行}\n")
 

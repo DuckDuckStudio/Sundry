@@ -11,7 +11,7 @@ from function.github.token import read_token
 from catfood.functions.files import open_file
 
 def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> bool | str:
-    with open(检测程序路径, 'r', encoding='utf-8') as file:
+    with open(检测程序路径, 'r', encoding="utf-8") as file:
         lines = file.readlines()
 
     # 找到 HashSet<string> excludedDomains = 的行
@@ -36,13 +36,13 @@ def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) 
         # 如果没有相同理由的行，则新开一行
         lines.insert(end_index, f"                \"{忽略字段}\", // {理由}\n")
 
-    with open(检测程序路径, 'w', encoding='utf-8') as file:
+    with open(检测程序路径, 'w', encoding="utf-8") as file:
         file.writelines(lines)
 
     return found
 
 def 移除忽略字段(检测程序路径: str, 忽略字段: str, 新分支名: str):
-    with open(检测程序路径, 'r', encoding='utf-8') as file:
+    with open(检测程序路径, 'r', encoding="utf-8") as file:
         lines = file.readlines()
 
     # 找到 HashSet<string> excludedDomains = 的行
@@ -71,13 +71,13 @@ def 移除忽略字段(检测程序路径: str, 忽略字段: str, 新分支名:
         print(f"{消息头.成功} 工作区清理完毕")
         return 0
 
-    with open(检测程序路径, 'w', encoding='utf-8') as file:
+    with open(检测程序路径, 'w', encoding="utf-8") as file:
         file.writelines(lines)
 
     return 方式
 
 def 列出忽略字段(检测程序路径: str) -> None:
-    with open(检测程序路径, 'r', encoding='utf-8') as file:
+    with open(检测程序路径, 'r', encoding="utf-8") as file:
         lines = file.readlines()
 
     # 找到 HashSet<string> excludedDomains = 的行

@@ -221,7 +221,7 @@ def 更新配置() -> int:
 
         schema = 获取配置schema(当前配置版本)
         if schema:
-            with open(配置信息.所在位置, "r") as f:
+            with open(配置信息.所在位置, "r", encoding="utf-8") as f:
                 jsonschema.validate(json.load(f), schema)
         else:
             print(f"{消息头.警告} 未能获取到当前配置版本的 schema，跳过验证")
