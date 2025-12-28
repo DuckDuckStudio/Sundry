@@ -20,7 +20,7 @@ class 清单信息:
 
 def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_pkgs目录: str | None = None) -> str | None:
     """
-    传入字体或软件包标识符、winget_pkgs目录（不传则自动从配置文件中获取），获取该包的清单目录。
+    传入包标识符、winget_pkgs目录（不传则自动从配置文件中获取），获取该包的清单目录。
 
     获取失败返回 None。
 
@@ -64,7 +64,7 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
             if os.path.isdir(os.path.join(清单目录, 文件夹)):
                 for 文件 in os.listdir(os.path.join(清单目录, 文件夹)):
                     if os.path.isdir(os.path.join(清单目录, 文件夹, 文件)):
-                        # 如果这个版本文件夹下面还有目录，则代表这可能是类似 Nightly 版本的软件包的标识符的一部分
+                        # 如果这个版本文件夹下面还有目录，则代表这可能是类似 Nightly 版本的包的标识符的一部分
                         break
                 else:
                     # 如果前面的 for 没有 break，则执行

@@ -19,7 +19,7 @@ def main(args: list[str]) -> int:
     # 第 1 个参数 - 需要还原的仓库
     if args[0].lower() in ["both", "all", "双仓库", "所有"]:
         需要还原的仓库 = "all"
-    elif args[0].lower() in ["pkgs", "winget-pkgs", "清单仓库", "软件包仓库"]:
+    elif args[0].lower() in ["pkgs", "winget-pkgs", "清单仓库", "包仓库"]:
         需要还原的仓库 = "pkgs"
     elif args[0].lower() in ["tools", "winget-tools", "工具仓库", "日志仓库"]:
         需要还原的仓库 = "tools"

@@ -19,7 +19,7 @@ from function.github.token import read_token, 这是谁的Token
 from function.files.manifest import 获取清单目录, 获取现有包版本
 
 # 创建拉取请求
-def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹: str, 理由: str):
+def 创建拉取请求(包标识符: str, 分支名: str, 版本文件夹: str, 理由: str):
     global owner, 手动验证结果
     while True: # 不 break 直接 return
         github_token = read_token()
@@ -35,14 +35,14 @@ def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹:
         数据: dict[str, str | bool]
         if (手动验证结果):
             数据 = {
-                "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
+                "title": f"Remove version: {包标识符} version {版本文件夹} (Auto)",
                 "head": f"{owner}:{分支名}",
                 "base": "master",
                 "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n{手动验证结果}\n\n---\n"
             }
         else:
             数据 = {
-                "title": f"Remove version: {软件包标识符} version {版本文件夹} (Auto)",
+                "title": f"Remove version: {包标识符} version {版本文件夹} (Auto)",
                 "head": f"{owner}:{分支名}",
                 "base": "master",
                 "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n\n---\n"
@@ -78,13 +78,13 @@ def main(args: list[str]) -> int:
     if not isinstance(是否签名, bool):
         return 1
 
-    # 尝试从参数中获取软件包标识符和版本
+    # 尝试从参数中获取包标识符和版本
     跳过检查 = False
     理由 = "It returns a 404 status code in GitHub Action and has been automatically verified."
     手动验证结果 = None
     if (2 <= len(args) <= 4):
-        软件包标识符 = args[0]
-        软件包版本 = args[1]
+        包标识符 = args[0]
+        包版本 = args[1]
         if (3 <= len(args) <= 4):
             if (args[2].lower() == "true"):
                 # bool 值视为是否跳过检查开关
@@ -100,20 +100,20 @@ def main(args: list[str]) -> int:
         print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
-    清单目录 = 获取清单目录(软件包标识符, winget_pkgs目录=winget_pkgs目录)
+    清单目录 = 获取清单目录(包标识符, winget_pkgs目录=winget_pkgs目录)
     if not 清单目录:
-        print(f"{Fore.RED}未能找到该标识符的清单目录: {软件包标识符}")
+        print(f"{Fore.RED}未能找到该标识符的清单目录: {包标识符}")
         return 1
 
-    if not os.path.exists(os.path.join(清单目录, 软件包版本)):
-        print(f"{Fore.RED}包版本清单目录不存在: {os.path.join(清单目录, 软件包版本)}")
+    if not os.path.exists(os.path.join(清单目录, 包版本)):
+        print(f"{Fore.RED}包版本清单目录不存在: {os.path.join(清单目录, 包版本)}")
         return 1
 
-    if any(os.path.isdir(os.path.join(os.path.join(清单目录, 软件包版本), item)) for item in os.listdir(os.path.join(清单目录, 软件包版本))):
-        # 如果软件包版本清单目录下存在其他文件夹
+    if any(os.path.isdir(os.path.join(os.path.join(清单目录, 包版本), item)) for item in os.listdir(os.path.join(清单目录, 包版本))):
+        # 如果包版本清单目录下存在其他文件夹
         print(f"{消息头.错误} 包版本清单目录下存在其他文件夹")
         print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的。")
-        print(f"{消息头.提示} 例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
+        print(f"{消息头.提示} 例如包 DuckStudio.GitHubView.Nightly 被错误的认为是包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
         return 1
 
     # 入口
@@ -123,7 +123,7 @@ def main(args: list[str]) -> int:
             print(f"{Fore.BLUE}开始预先检查")
             try:
                 print("======= 此包现有的所有版本 =======")
-                if versions := 获取现有包版本(软件包标识符, winget_pkgs目录):
+                if versions := 获取现有包版本(包标识符, winget_pkgs目录):
                     for version in versions:
                         print(version)
                 else:
@@ -132,22 +132,22 @@ def main(args: list[str]) -> int:
 
                 print("======= 此包版本在 winget 上的信息 =======")
                 try:
-                    subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
+                    subprocess.run(["winget", "show", "--id", 包标识符, "--version", 包版本, "--source", "winget", "--exact"], check=True)
                 except subprocess.CalledProcessError:
                     print(f"{消息头.警告} 在默认源 (winget) 中运行 WinGet 失败，尝试指定字体源 (winget-font) ...")
-                    subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget-font", "--exact"], check=True)
+                    subprocess.run(["winget", "show", "--id", 包标识符, "--version", 包版本, "--source", "winget-font", "--exact"], check=True)
                     # 如果还有异常会被下面捕获
             except (subprocess.CalledProcessError, OperationFailed) as e:
                 print(f"{消息头.错误} 获取包信息失败: {Fore.RED}{e}{Fore.RESET}")
                 return 1
-            cat.main([软件包标识符, 软件包版本, "installer"])
+            cat.main([包标识符, 包版本, "installer"])
             print("======= 确认 =======")
             t = input("您手动访问过每个安装程序链接了吗?").lower()
             if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]):
                 if os.path.join(winget_pkgs目录, "manifests") in 清单目录:
-                    webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/manifests/{软件包标识符[0].lower()}/{'/'.join(软件包标识符.split('.'))}/{软件包版本}/{软件包标识符}.installer.yaml")
+                    webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/manifests/{包标识符[0].lower()}/{'/'.join(包标识符.split('.'))}/{包版本}/{包标识符}.installer.yaml")
                 else:
-                    webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/fonts/{软件包标识符[0].lower()}/{'/'.join(软件包标识符.split('.'))}/{软件包版本}/{软件包标识符}.installer.yaml")
+                    webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/fonts/{包标识符[0].lower()}/{'/'.join(包标识符.split('.'))}/{包版本}/{包标识符}.installer.yaml")
             if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]) or (t in ["手动", "m", "manually"]):
                 if not 手动验证结果:
                     手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
@@ -164,7 +164,7 @@ def main(args: list[str]) -> int:
                 # 遍历 CSV 文件中的每一行
                 found = False # 标记是否找到了包标识符
                 for row in csv_reader:
-                    if row['PackageIdentifier'] == 软件包标识符:
+                    if row['PackageIdentifier'] == 包标识符:
                         found = row['Account']
                         break # 找到后退出循环
 
@@ -181,15 +181,15 @@ def main(args: list[str]) -> int:
                         格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
                         理由 = f"{理由}\n\n{格式化审查者} PTAL"
 
-            验证结果日志 = 使用WinGet验证(软件包标识符, 软件包版本)
+            验证结果日志 = 使用WinGet验证(包标识符, 包版本)
             if 验证结果日志:
                 理由 = f"{理由}\n\n```logs\n{"\n".join(验证结果日志)}\n```"
 
             print(f"{Fore.BLUE}查重...")
             print("======= 打开的 =======")
-            subprocess.run(["gh", "pr", "list", "-S", 软件包标识符, "--repo", "microsoft/winget-pkgs"], check=True) # 为什么不自己写请求？老子懒得再去处理它什么的分页什么的速率！
+            subprocess.run(["gh", "pr", "list", "-S", 包标识符, "--repo", "microsoft/winget-pkgs"], check=True) # 为什么不自己写请求？老子懒得再去处理它什么的分页什么的速率！
             print("======= 所有 =======")
-            subprocess.run(["gh", "pr", "list", "-S", f"{软件包标识符} {软件包版本}", "--repo", "microsoft/winget-pkgs", "--state", "all"], check=True) # 为什么不自己写请求？老子懒得再去处理它什么的分页什么的速率！
+            subprocess.run(["gh", "pr", "list", "-S", f"{包标识符} {包版本}", "--repo", "microsoft/winget-pkgs", "--state", "all"], check=True) # 为什么不自己写请求？老子懒得再去处理它什么的分页什么的速率！
             input("您确定没有重复的拉取请求?")
         except KeyboardInterrupt:
             print(f"\n{Fore.RED}已取消操作，没有修改任何文件")
@@ -204,30 +204,30 @@ def main(args: list[str]) -> int:
     print(f"{Fore.BLUE}开始操作")
     if sync.main():
         return 1
-    新分支名 = branchName(f"Remove-{软件包标识符}-{软件包版本}-{int(time.time())}")
+    新分支名 = branchName(f"Remove-{包标识符}-{包版本}-{int(time.time())}")
     subprocess.run(["git", "checkout", "-b", 新分支名], check=True) # 创建并切换到新的分支
     print(f"{Fore.BLUE}  已签出新分支 {新分支名}")
 
-    shutil.rmtree(os.path.join(清单目录, 软件包版本))
-    print(f"{Fore.BLUE}  已移除软件包 {软件包标识符} 版本 {软件包版本}")
+    shutil.rmtree(os.path.join(清单目录, 包版本))
+    print(f"{Fore.BLUE}  已移除包 {包标识符} 版本 {包版本}")
 
     subprocess.run(["git", "add", 清单目录], check=True) # 暂存修改
     if 是否签名:
-        subprocess.run(["git", "commit", "-S", "-m", f"Remove version: {软件包标识符} version {软件包版本} (Auto)"], check=True)
+        subprocess.run(["git", "commit", "-S", "-m", f"Remove version: {包标识符} version {包版本} (Auto)"], check=True)
     else:
-        subprocess.run(["git", "commit", "-m", f"Remove version: {软件包标识符} version {软件包版本} (Auto)"], check=True)
+        subprocess.run(["git", "commit", "-m", f"Remove version: {包标识符} version {包版本} (Auto)"], check=True)
     print(f"{Fore.BLUE}  已提交修改")
 
     subprocess.run(["git", "push"], check=True)
     print(f"{Fore.BLUE}  已推送修改")
 
     while (not 理由):
-        理由 = input("移除此软件包版本的理由: ")
+        理由 = input("移除此包版本的理由: ")
 
-    if 创建拉取请求(软件包标识符, 新分支名, 软件包版本, 理由) == 1:
+    if 创建拉取请求(包标识符, 新分支名, 包版本, 理由) == 1:
         return 1 # 拉取请求创建失败
 
-    print(f"{Fore.GREEN} 成功移除 {软件包标识符} 版本 {软件包版本}")
+    print(f"{Fore.GREEN} 成功移除 {包标识符} 版本 {包版本}")
     print(f"{Fore.BLUE}开始清理工作区")
     subprocess.run(["git", "checkout", "master"], check=True)
 
@@ -245,14 +245,14 @@ def main(args: list[str]) -> int:
     return 0
 
 
-def 使用WinGet验证(软件包标识符: str, 软件包版本: str, AutoRemove: bool=False) -> list[str] | None:
+def 使用WinGet验证(包标识符: str, 包版本: str, AutoRemove: bool=False) -> list[str] | None:
     # 使用 WinGet 尝试下载
     print(f"{Fore.BLUE}使用 winget 验证...{Fore.RESET}")
     验证结果 = subprocess.Popen(
         [
             "winget", "download", "--accept-source-agreements",
             "--accept-package-agreements", "--skip-dependencies",
-            "--source", "winget", "--id", 软件包标识符, "--version", 软件包版本,
+            "--source", "winget", "--id", 包标识符, "--version", 包版本,
             "--exact", "--download-directory", os.path.join(tempfile.gettempdir(), "Sundry", "RemoveAndAutoRemove", "DownloadInstallers")
         ],
         stdout=subprocess.PIPE, # 捕获标准输出
@@ -332,7 +332,7 @@ def 使用WinGet验证(软件包标识符: str, 软件包版本: str, AutoRemove
 
     if (验证结果.returncode == 0):
         if not AutoRemove:
-            input(f"{Fore.YELLOW}⚠ 看起来此软件包可以被 winget 正常下载，您还是想要移除此软件包版本吗:{Fore.RESET}")
+            input(f"{Fore.YELLOW}⚠ 看起来此包可以被 winget 正常下载，您还是想要移除此包版本吗:{Fore.RESET}")
         return None
     else:
         验证结果日志.append(f"WinGet returned exit code: {验证结果.returncode}")
