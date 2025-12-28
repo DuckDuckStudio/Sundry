@@ -16,7 +16,7 @@ def 读取和输出(清单文件: str):
         print(f"{消息头.成功} 清单文件位于 {Fore.BLUE}{清单文件}{Fore.RESET}\n")
 
         # 读取清单文件
-        with open(清单文件, 'r', encoding='utf-8') as file:
+        with open(清单文件, 'r', encoding="utf-8") as file:
             清单内容 = file.read()
         
         # 使用 pygments 优化输出 YAML 文件

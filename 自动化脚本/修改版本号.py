@@ -14,14 +14,14 @@ import sys
 def 替换文件内容(文件路径: str, 原文本: str, 新文本: str):
     try:
         # 读取文件内容
-        with open(文件路径, 'r', encoding='utf-8') as f:
+        with open(文件路径, 'r', encoding="utf-8") as f:
             内容 = f.read()
 
         # 替换文本
         内容 = 内容.replace(原文本, 新文本)
 
         # 写回文件
-        with open(文件路径, 'w', encoding='utf-8') as f:
+        with open(文件路径, 'w', encoding="utf-8") as f:
             f.write(内容)
     except Exception as e:
         print(f"[ERROR] 处理 {文件路径} 时出错: {e}")

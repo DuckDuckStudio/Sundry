@@ -147,7 +147,7 @@ def main(args: list[str]) -> int:
                             手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
                         手动验证结果 = f"Manual Verification:\n{手动验证结果}"
 
-            with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode='r', encoding='utf-8') as file:
+            with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode='r', encoding="utf-8") as file:
                 csv_reader = csv.DictReader(file)
                 # 遍历 CSV 文件中的每一行
                 found = False # 标记是否找到了包标识符
