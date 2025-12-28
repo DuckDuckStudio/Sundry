@@ -4,8 +4,8 @@ import jsonschema
 from typing import Any
 from colorama import Fore
 from catfood.functions.print import 消息头
-from pygments import highlight # type: ignore
 from catfood.functions.files import open_file
+from pygments import highlight # type: ignore
 from pygments.lexers import JsonLexer # type: ignore
 from pygments.formatters import TerminalFormatter
 from function.maintain.config import 读取配置, 验证配置, 读取配置项, 配置信息, 获取当前配置版本, 获取配置schema
@@ -24,6 +24,10 @@ def 获取用户输入(键路径: str) -> str | bool:
         # github.pr.*
         "github.pr.maintainer_can_modify": f"{消息头.问题} 是否允许维护者修改您的 PR 内容? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         "github.pr.mention_self_when_reviewer": f"{消息头.问题} 创建 PR 时，如果自己在 Auth.csv 中作为包修改的审查者时，是否在 PR 中请求自己审查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        # github.token
+        "github.token": f"{消息头.问题} 我该从哪里读取 GitHub Token? [{Fore.GREEN}glm(默认){Fore.RESET}, 环境变量 GITHUB_TOKEN (env), komac]: ",
+        # tools.autoremove.*
+        "tools.autoremove.open_in_browser": f"{消息头.问题} 在自动移除 (autoremove) 时，是否要在浏览器中打开清单中的安装程序链接 (InstallerUrl) 以供检查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # tools.prune.*
         "tools.prune.remote.prune_merged_branches": f"{消息头.问题} prune 时清理远程中{Fore.YELLOW}已合并{Fore.RESET}的 PR 的分支? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         "tools.prune.remote.prune_closed_branches": f"{消息头.问题} prune 时清理远程中{Fore.YELLOW}已关闭{Fore.RESET}的 PR 的分支? (默认为{Fore.YELLOW}否{Fore.RESET}): ",

@@ -1,5 +1,4 @@
 // Sundry config.json 版本 1.1 示例
-// 相关配置项的 key 必须使用小写
 
 {
     "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.1.json",
