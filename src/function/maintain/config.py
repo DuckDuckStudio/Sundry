@@ -8,8 +8,8 @@ from catfood.exceptions.operation import TryOtherMethods, OperationFailed
 
 class 配置信息:
     默认配置: dict[str, Any] = {
-        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.2.json",
-        "version": "1.2",
+        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.3.json",
+        "version": "1.3",
         "debug": False,
         "paths": {
             "winget-pkgs": "",
@@ -26,9 +26,13 @@ class 配置信息:
             "pr": {
                 "maintainer_can_modify": False,
                 "mention_self_when_reviewer": False
-            }
+            },
+            "token": "glm",
         },
         "tools": {
+            "autoremove": {
+                "open_in_browser": False
+            },
             "prune": {
                 "remote": {
                     "prune_merged_branches": False,
@@ -53,6 +57,7 @@ class 配置信息:
         "debug",
         "git.signature",
         "github.pr.maintainer_can_modify", "github.pr.mention_self_when_reviewer",
+        "tools.autoremove.open_in_browser",
         "tools.prune.remote.prune_merged_branches", "tools.prune.remote.prune_closed_branches",
         "tools.verify.show_warning_on_non-clean_windows",
         "cache.validate.schema"
@@ -65,7 +70,7 @@ class 配置信息:
         "repos.winget-tools"
     ]
 
-    最新版本: str = "1.2"
+    最新版本: str = "1.3"
 
     所在位置: str = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
 
@@ -112,6 +117,9 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
 
     elif (配置项 == "i18n.lang") and (配置值 not in ["zh-cn", "en-us"]):
         return f"不支持的语言 {Fore.BLUE}{配置值}{Fore.RESET}"
+
+    elif (配置项 == "github.token") and (配置值 not in ["glm", "komac", "env"]):
+        return "未知的 Token 读取源"
 
     else:
         return None
@@ -240,3 +248,53 @@ def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
             return 响应.json()
         except Exception:
             return None
+
+def 转换配置值(配置项: str, 配置值: str) -> str | bool:
+    """
+    尝试将输入的配置值转换为符合配置文件要求的格式，如 y → true
+    遇到无法转换的会 raise OperationFailed(原因)，我假设调用这个函数的地方会用红色显示错误消息
+    本函数会验证配置值是否有效
+    """
+
+    if 配置项 in 配置信息.布尔值项:
+        no = ("n", "no", "false", "f", "否")
+        yes = ("y", "yes", "true", "t", "是")
+        if 配置项.startswith("cache."):
+            # 默认 True 的
+            if 配置值 in no:
+                return False
+            elif (not 配置值) or (配置值 in yes):
+                return True
+            else:
+                raise OperationFailed(f"{Fore.BLUE}{配置值}{Fore.RED} 不能代表是或否，请使用 y / n")
+        else:
+            # 默认 False 的
+            if 配置值 in yes:
+                return True
+            elif (not 配置值) or (配置值 in no):
+                return False
+            else:
+                raise OperationFailed(f"{Fore.BLUE}{配置值}{Fore.RED} 不能代表是或否，请使用 y / n")
+    else:
+        if not 配置值:
+            # 使用默认配置值
+            if 配置项 == "github.token":
+                配置值 = "glm"
+            elif 配置项 == "i18n.lang":
+                配置值 = "zh-cn"
+            else:
+                raise OperationFailed("指定的配置值为空，但该配置项没有默认值")
+
+        # 格式化配置值
+        if 配置项 in ("github.token", "i18n.lang"):
+            配置值 = 配置值.lower()
+        elif 配置项.startswith("paths."):
+            配置值 = os.path.abspath(os.path.normpath(配置值.replace("~", os.path.expanduser("~"))))
+        elif 配置值.startswith("repos.") and 配置值.startswith("https://github.com/"):
+            配置值 = 配置值.replace("https://github.com/", "").rstrip(".git")
+
+        # 验证配置值
+        if e := 验证配置(配置项, 配置值):
+            raise OperationFailed(f"验证配置值失败: {e.replace(Fore.RESET, Fore.RED)}")
+        else:
+            return 配置值
