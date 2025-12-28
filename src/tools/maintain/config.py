@@ -62,8 +62,8 @@ def 获取用户输入(配置项: str) -> str | bool:
         except OperationFailed as e:
             print(f"{消息头.错误} 无法转换配置值: {Fore.RED}{e}{Fore.RESET}")
 
-def 初始化配置文件(配置文件: str) -> int:
-    if not os.path.exists(配置文件) or (input(f"{消息头.警告} 已经存在了一份配置文件，要覆盖它吗? (默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in ["n", "no", "不要"]):
+def 初始化配置文件() -> int:
+    if not os.path.exists(配置信息.所在位置) or (input(f"{消息头.警告} 已经存在了一份配置文件，要覆盖它吗? (默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in ["n", "no", "不要"]):
         默认配置: dict[str, Any] = 配置信息.默认配置
 
         # 递归函数用于获取嵌套配置输入
@@ -95,10 +95,10 @@ def 初始化配置文件(配置文件: str) -> int:
             if input(f"{消息头.问题} 是否修改缓存配置? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in ["y", "yes", "要", "是", "true"]:
                 递归获取输入(默认配置["cache"], "cache")
 
-        if not os.path.exists(os.path.dirname(配置文件)):
-            os.makedirs(os.path.dirname(配置文件), exist_ok=True)
+        if not os.path.exists(os.path.dirname(配置信息.所在位置)):
+            os.makedirs(os.path.dirname(配置信息.所在位置), exist_ok=True)
 
-        with open(配置文件, "w", encoding="utf-8") as f:
+        with open(配置信息.所在位置, "w", encoding="utf-8") as f:
             json.dump(默认配置, f, indent=4, ensure_ascii=False)
 
         print(f"{消息头.成功} 成功初始化配置文件")
@@ -107,11 +107,11 @@ def 初始化配置文件(配置文件: str) -> int:
         print(f"\n{消息头.错误} 操作取消")
         return 1
 
-def 展示配置文件(配置文件: str) -> int:
-    if os.path.exists(配置文件):
+def 展示配置文件() -> int:
+    if os.path.exists(配置信息.所在位置):
         try:
             print(f"{消息头.提示} 前往 https://github.com/DuckDuckStudio/Sundry/tree/main/docs/config 了解配置项的含义")
-            with open(配置文件, "r", encoding="utf-8") as f:
+            with open(配置信息.所在位置, "r", encoding="utf-8") as f:
                 配置数据 = json.load(f)
             print(highlight(json.dumps(配置数据, indent=4, ensure_ascii=False), JsonLexer(), TerminalFormatter())) # pyright: ignore[reportUnknownArgumentType]
             return 0
@@ -127,12 +127,12 @@ def 展示配置文件(配置文件: str) -> int:
         print(f"{消息头.提示} 运行 sundry config init 来初始化配置文件")
         return 1
 
-def 修改配置项(配置项: str, 值: str, 配置文件: str) -> int:
-    if os.path.exists(配置文件):
+def 修改配置项(配置项: str, 值: str) -> int:
+    if os.path.exists(配置信息.所在位置):
         try:
             配置值 = 转换配置值(配置项, 值)
 
-            with open(配置文件, "r", encoding="utf-8") as f:
+            with open(配置信息.所在位置, "r", encoding="utf-8") as f:
                 配置数据 = json.load(f)
             
             # 解析嵌套键路径
@@ -146,7 +146,7 @@ def 修改配置项(配置项: str, 值: str, 配置文件: str) -> int:
 
             当前字典[最后键] = 配置值
 
-            with open(配置文件, "w", encoding="utf-8") as f:
+            with open(配置信息.所在位置, "w", encoding="utf-8") as f:
                 json.dump(配置数据, f, indent=4, ensure_ascii=False)
             
             print(f"{消息头.成功} 成功更新 {Fore.BLUE}{配置项}{Fore.RESET} 为 {Fore.BLUE}{配置值}{Fore.RESET}")
@@ -231,9 +231,6 @@ def 更新配置() -> int:
         return 1
 
 def main(args: list[str]) -> int:
-    # TODO: 在函数中直接读取这个信息
-    配置文件 = 配置信息.所在位置
-
     try:
         if not args:
             print(f"{消息头.错误} 缺少参数")
@@ -241,17 +238,17 @@ def main(args: list[str]) -> int:
             return 1
 
         if args[0] == "init":
-            return 初始化配置文件(配置文件)
+            return 初始化配置文件()
         elif args[0] == "show":
-            return 展示配置文件(配置文件)
+            return 展示配置文件()
         elif args[0] in ["update", "更新", "upgrade"]:
             return 更新配置()
         elif args[0] in ["编辑", "edit", "打开", "open"]:
-            print(f"{消息头.信息} 配置文件 config.json 位于 {配置文件}")
+            print(f"{消息头.信息} 配置文件 config.json 位于 {配置信息.所在位置}")
             print(f"{消息头.信息} 尝试打开配置文件 config.json ...")
-            return open_file(配置文件)
+            return open_file(配置信息.所在位置)
         elif len(args) == 2:
-            return 修改配置项(args[0], args[1], 配置文件)
+            return 修改配置项(args[0], args[1])
         else:
             print(f"{消息头.错误} 无效的操作: {args[0]}")
             print(f"{消息头.提示} 运行 sundry --help 来获取命令帮助")
