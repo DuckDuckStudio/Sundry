@@ -2,6 +2,7 @@ import os
 import re
 import io
 import csv
+import json
 import shutil
 import zipfile
 import tempfile
@@ -12,6 +13,7 @@ import tools.maintain.cleanup as cleanup
 from catfood.functions.print import 消息头
 from urllib.parse import urlparse, parse_qs
 from function.github.token import read_token
+from function.constant import EXE_LIST_LIMIT
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
 from catfood.functions.format.github import IssueNumber
@@ -59,80 +61,182 @@ def main(args: list[str]) -> int:
 
     print(f"{Fore.BLUE}INFO{Fore.RESET} 正在获取管道运行 ({build_id}) 的日志...")
 
-    # 获取日志下载链接，并将其下载到 %Temp%/Sundry/AzurePipelines/Logs/{build_id}/ 下，没有则创建文件夹
-    logs_url = f"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_apis/build/builds/{build_id}/artifacts?artifactName=InstallationVerificationLogs&api-version=7.1&%24format=zip"
-    logs_dir = os.path.join(tempfile.gettempdir(), "Sundry", "AzurePipelines", "Logs", build_id)
-    logs_zip_path = os.path.join(logs_dir, "logs.zip")
+    logs_dir = os.path.join(tempfile.gettempdir(), "Sundry", "AzurePipelines", build_id)
 
-    # 如果原先存在同名zip文件
-    if os.path.exists(logs_zip_path):
-        if input(f"{消息头.问题} 下载位置下{Fore.YELLOW}已存在同名日志文件{Fore.RESET} {Fore.BLUE}{logs_zip_path}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() not in ["y", "yes", "是", ""]:
-            print(f"{消息头.错误} 下载位置下存在同名文件")
-            return 1
-        else:
-            try:
-                # 移除它
-                os.remove(logs_zip_path)
-            except Exception as e:
-                print(f"{消息头.错误} 移除同名日志文件时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+    for i in ["InstallationVerificationLogs", "ValidationResult"]:
+        if os.path.exists(os.path.join(logs_dir, i)):
+            if input(f"{消息头.问题} 解压位置下{Fore.YELLOW}已存在同名目录{Fore.RESET} {Fore.BLUE}{os.path.join(logs_dir, i)}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() in ["n", "no", "不", "不要", "否"]:
+                print(f"{消息头.错误} 解压位置下存在同名目录")
                 return 1
+            else:
+                try:
+                    # 移除它
+                    shutil.rmtree(os.path.join(logs_dir, i))
+                except Exception as e:
+                    print(f"{消息头.错误} 移除同名目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+                    return 1
+        os.makedirs(os.path.join(logs_dir, i), exist_ok=True)
+
+        # ========================================================================
+
+        try:
+            print(f"{消息头.信息} 正在下载 {i}.zip ...")
+            response = requests.get(f"https://dev.azure.com/shine-oss/winget-pkgs/_apis/build/builds/{build_id}/artifacts?artifactName={i}&api-version=7.1&%24format=zip")
+            response.raise_for_status()
+            with open(os.path.join(logs_dir, i, f"{i}.zip"), "wb") as f:
+                f.write(response.content)
+            print(f"{消息头.成功} {i}.zip 下载完成")
+        except requests.HTTPError as e:
+            print(f"{消息头.错误} 下载 {i}.zip 失败: {Fore.RED}{e}{Fore.RESET}")
+            shutil.rmtree(os.path.join(logs_dir, i))
+            continue
         
-    # 如果解压后的位置存在同名目录
-    if os.path.exists(logs_dir):
-        if input(f"{消息头.问题} 解压位置下{Fore.YELLOW}已存在同名日志目录{Fore.RESET} {Fore.BLUE}{logs_dir}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() not in ["y", "yes", "是", ""]:
-            print(f"{消息头.错误} 解压位置下存在同名日志目录")
-            return 1
-        else:
-            try:
-                # 移除它
-                shutil.rmtree(logs_dir)
-            except Exception as e:
-                print(f"{消息头.错误} 移除同名日志目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
-                return 1
-    os.makedirs(logs_dir, exist_ok=True)
-        
-    # 下载日志文件
-    print(f"{Fore.BLUE}INFO{Fore.RESET} 正在下载日志文件到 {logs_zip_path}...")
-    response = requests.get(logs_url)
-    if response.status_code != 200:
-        print(f"{消息头.错误} 无法下载日志文件: {logs_url} 响应 {Fore.RED}{response.status_code}{Fore.RESET}")
+        try:
+            with zipfile.ZipFile(os.path.join(logs_dir, i, f"{i}.zip"), "r") as zip_ref:
+                zip_ref.extractall(os.path.join(logs_dir, i))
+            os.remove(os.path.join(logs_dir, i, f"{i}.zip"))
+            print(f"{消息头.成功} {i}.zip 解压完成")
+        except Exception as e:
+            print(f"{消息头.错误} 解压 {i}.zip 失败: {Fore.RED}{e}{Fore.RESET}")
+            shutil.rmtree(os.path.join(logs_dir, i))
+            continue
+
+    if not os.listdir(logs_dir):
+        print(f"{消息头.错误} 未能获取到任何日志")
         return 1
-    with open(logs_zip_path, "wb") as f:
-        f.write(response.content)
-    print(f"{Fore.GREEN}✓{Fore.RESET} 日志文件下载完成。")
-    # 解压日志文件
-    print(f"{Fore.BLUE}INFO{Fore.RESET} 正在解压日志文件到 {logs_dir}...")
-    with zipfile.ZipFile(logs_zip_path, "r") as zip_ref:
-        zip_ref.extractall(logs_dir)
-    print(f"{Fore.GREEN}✓{Fore.RESET} 日志文件解压完成。")
-    # 删除zip日志文件
-    os.remove(logs_zip_path)
-    print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件压缩包。")
-
-    print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取管道运行 ({build_id}) 的日志。")
 
     print() # 换行
 
     # =============================================
 
-    # 看看解压后的日志文件夹中有没有 *.png 文件，有则输出位置
-    png_files: list[str] = []
-    for root, _, files in os.walk(logs_dir):
+    found = False
+    detailed = ((len(args) == 3) and (args[2].lower() in ["true", "yes", "y", "是"]))
+
+    if os.path.exists(os.path.join(logs_dir, "InstallationVerificationLogs")):
+        found = 分析InstallationVerificationLogs(os.path.join(logs_dir, "InstallationVerificationLogs"), detailed)
+
+    if os.path.exists(os.path.join(logs_dir, "ValidationResult")):
+        found = 分析ValidationResult(os.path.join(logs_dir, "ValidationResult"), detailed) or found
+
+    if not found:
+        print(f"{消息头.警告} 未找到可能的问题")
+        if not ((len(args) == 3) and (args[2].lower() in ["true", "yes", "y", "是"])):
+            if (len(args) == 2):
+                print(f"{消息头.提示} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{args[0]}\" \"{args[1]}\" y{Fore.RESET} 来查看一般错误/异常")
+            else:
+                print(f"{消息头.提示} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{args[0]}\" \"[是否保留日志文件]\" y{Fore.RESET} 来查看一般错误/异常")
+
+    if (len(args) >= 2):
+        if (args[1].lower() in ["true", "yes", "y", "是"]):
+            return open_file(logs_dir)
+        elif (args[1].lower() in ["false", "no", "n", "否"]):
+            # 移除它
+            shutil.rmtree(logs_dir)
+            print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
+        else:
+            print(f"{消息头.警告} 指定的参数 1 无效，{Fore.BLUE}{args[1]}{Fore.RESET} 不能表达是否要保留日志文件")
+            if (input(f"{消息头.问题} 你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
+                return open_file(logs_dir)
+            else:
+                # 移除它
+                shutil.rmtree(logs_dir)
+                print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
+    else:
+        if (input(f"{消息头.问题} 你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
+            return open_file(logs_dir)
+        else:
+            # 移除它
+            shutil.rmtree(logs_dir)
+            print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
+
+    return 0
+
+def 分析ValidationResult(dir_path: str, detailed: bool = False) -> bool:
+    """
+    在 ValidationResult 中查找错误信息，并输出找到的信息。
+
+    :param dir_path: 结果文件目录
+    :type dir_path: str
+    :return: 返回是否找到错误信息
+    :rtype: bool
+    """
+
+    found = False
+
+    result_dict: dict[str, list[str]] = {
+        # "退出代码": ["exe1", "exe2", ...]
+    }
+
+    for root, _, files in os.walk(dir_path):
         for file in files:
-            if file.endswith(".png") and ("ErrorScreenshot" in file):
-                png_files.append(os.path.join(root, file))
-    if png_files:
-        for png_file in png_files:
-            print(f"{Fore.CYAN}Screenshot{Fore.RESET} 日志目录下存在错误截图: {Fore.BLUE}{png_file}{Fore.RESET}")
+            if file == "InstallationVerification_Result.json":
+                with open(os.path.join(root, file), encoding="utf-8") as f:
+                    data: dict[str, Any] = json.load(f)
+                    if data.get("OverallResult") == "Success":
+                        return False
+                    for result in data.get("AnalysisResults", []):
+                        if result.get("AnalysisType") == "ExeRunInfo":
+                            for exe_path, diag_info in result.get("Diagnostics", {}).items():
+                                if diag_info.get("ExecutionStatusResult", "Pass") != "Pass":
+                                    if (exit_code := diag_info.get("ExitCode")) != 0:
+                                        found = True
+                                        try:
+                                            result_dict[exit_code].append(exe_path)
+                                        except KeyError:
+                                            result_dict[exit_code] = [exe_path]
+
+                                        output = ""
+                                        if diag_info.get("ErrorStream", ""):
+                                            output = f"{Fore.RED}{diag_info.get("ErrorStream", "")}{Fore.RESET}"
+                                        if diag_info.get("OutputStream", ""):
+                                            output += diag_info.get("OutputStream", "")
+                                        if output:
+                                            print(f"{Fore.CYAN}ExeRunInfo{Fore.RESET} {Fore.BLUE}{exe_path}{Fore.RESET} 输出: {output}")
+                                            print()
+
+    if result_dict:
+        for exit_code, exe_list in result_dict.items():
+            print(f"{Fore.CYAN}ExeRunInfo{Fore.RESET} 以下可执行文件以退出代码 {Fore.RED}{exit_code}{Fore.RESET} 退出:")
+            count = len(exe_list)
+            if detailed or count <= EXE_LIST_LIMIT:
+                for exe in exe_list:
+                    print(f" - {Fore.BLUE}{exe}{Fore.RESET}")
+            else:
+                for exe in exe_list[:EXE_LIST_LIMIT]:
+                    print(f" - {Fore.BLUE}{exe}{Fore.RESET}")
+                print(f"   ... 等总共 {count} 个")
+            查找错误代码解释(exit_code)
+            print()
+    return found
+
+def 分析InstallationVerificationLogs(dir_path: str, detailed: bool = False) -> bool:
+    """
+    在 InstallationVerificationLogs 中查找错误截图和错误信息，并输出找到的信息。
+
+    :param dir_path: 日志文件目录
+    :type dir_path: str
+    :param detailed: 是否显示一般错误/异常
+    :type detailed: bool
+    :return: 返回是否找到错误截图或错误信息
+    :rtype: bool
+    """
 
     # 将日志文件夹下的 .txt 替换为 .log
-    for root, _, files in os.walk(logs_dir):
+    for root, _, files in os.walk(dir_path):
         for file in files:
             if file.endswith(".txt"):
                 old_path = os.path.join(root, file)
                 new_path = os.path.join(root, file[:-4] + ".log")
                 os.rename(old_path, new_path)
                 # print(f"已将 {old_path} 重命名为 {new_path}")
+
+    found = False
+
+    for root, _, files in os.walk(dir_path):
+        for file in files:
+            if file.endswith(".png") and ("ErrorScreenshot" in file):
+                found = True
+                print(f"{Fore.CYAN}Screenshot{Fore.RESET} 日志目录下存在错误截图: {Fore.BLUE}{os.path.join(root, file)}{Fore.RESET}")
 
     # 查看日志中是否有带有以下关键词的行
     keyword_map = {
@@ -143,7 +247,7 @@ def main(args: list[str]) -> int:
         "Package failed updates, dependency or conflict validation.": ("安装依赖错误", Fore.YELLOW),
     }
 
-    if (len(args) == 3) and (args[2].lower() in ["true", "yes", "y", "是"]):
+    if detailed:
         # 追加这些关键词
         keyword_map.update({
             "InternetOpenUrl() failed.": ("遇到了网络错误", Fore.RED),
@@ -166,9 +270,7 @@ def main(args: list[str]) -> int:
         ],
     }
 
-    找到可能的问题了吗 = False
-
-    for root, _, files in os.walk(logs_dir):
+    for root, _, files in os.walk(dir_path):
         for file in files:
             if file.endswith(".log"):
                 with open(os.path.join(root, file), "r", encoding="utf-8", errors="ignore") as f:
@@ -179,7 +281,7 @@ def main(args: list[str]) -> int:
                                 (keyword.lower() in line.lower()) # 全部转为小写来不区分大小写
                                 and (not any(exclude in line for exclude in exclude_substrings))
                             ):
-                                找到可能的问题了吗 = True
+                                found = True
                                 result_str = f"{color}{result}{Fore.RESET}" if color else result
                                 highlighted_line = re.sub(
                                     re.escape(keyword),
@@ -216,39 +318,7 @@ def main(args: list[str]) -> int:
                                         查找错误代码解释(匹配.group(0))
                                 print() # 换行
                                 break
-
-    if not 找到可能的问题了吗:
-        print(f"{消息头.警告} 未找到可能的问题")
-        if not ((len(args) == 3) and (args[2].lower() in ["true", "yes", "y", "是"])):
-            if (len(args) == 2):
-                print(f"{消息头.提示} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{args[0]}\" \"{args[1]}\" y{Fore.RESET} 来查看一般错误/异常")
-            else:
-                print(f"{消息头.提示} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{args[0]}\" \"[是否保留日志文件]\" y{Fore.RESET} 来查看一般错误/异常")
-
-    if (len(args) >= 2):
-        if (args[1].lower() in ["true", "yes", "y", "是"]):
-            return open_file(logs_dir)
-        elif (args[1].lower() in ["false", "no", "n", "否"]):
-            # 移除它
-            shutil.rmtree(logs_dir)
-            print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
-        else:
-            print(f"{消息头.警告} 指定的参数 1 无效，{Fore.BLUE}{args[1]}{Fore.RESET} 不能表达是否要保留日志文件")
-            if (input(f"{消息头.问题} 你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
-                return open_file(logs_dir)
-            else:
-                # 移除它
-                shutil.rmtree(logs_dir)
-                print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
-    else:
-        if (input(f"{消息头.问题} 你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
-            return open_file(logs_dir)
-        else:
-            # 移除它
-            shutil.rmtree(logs_dir)
-            print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
-
-    return 0
+    return found
 
 def 获取最新的验证管道运行(api: str) -> str | None:
     """
@@ -323,7 +393,7 @@ def 获取azp运行id(已知URL: str) -> str | None:
 
     return buildId
 
-def 查找错误代码解释(ExitCode: str):
+def 查找错误代码解释(ExitCode: str | int):
     """尝试从 ExitCodes.csv 中找 exit_code 的解释"""
 
     # ExitCodes.csv 示例
@@ -333,6 +403,8 @@ def 查找错误代码解释(ExitCode: str):
     # "00000002","2","-4294967294","ERROR_FILE_NOT_FOUND","The system cannot find the file specified."
     # "00000003","3","-4294967293","ERROR_PATH_NOT_FOUND","The system cannot find the path specified."
     # ...
+
+    ExitCode = str(ExitCode) # 有些时候会被当做 int 传递
 
     ExitCodes = None
 
@@ -353,7 +425,8 @@ def 查找错误代码解释(ExitCode: str):
     except TryOtherMethods:
         # 既然用户本地无法读取这个文件，就从 GitHub 上获取
         # https://github.com/microsoft/winget-pkgs/blob/master/Tools/ManualValidation/ExitCodes.csv
-        csvStr = 获取GitHub文件内容("microsoft/winget-pkgs", "Tools/ManualValidation/ExitCodes.csv", read_token(silent=True))
+        github_token = read_token()
+        csvStr = 获取GitHub文件内容("microsoft/winget-pkgs", "Tools/ManualValidation/ExitCodes.csv", github_token)
         if csvStr:
             ExitCodes = io.StringIO(csvStr)
 
