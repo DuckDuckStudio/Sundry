@@ -163,7 +163,7 @@ def 修改配置项(配置项: str, 值: str) -> int:
         print(f"{消息头.提示} 运行 sundry config init 来初始化配置文件")
         return 1
     
-def 更新配置() -> int:
+def 更新配置文件() -> int:
     """
     尝试将旧的配置文件更新至最新版本的格式，旧配置缺失的键的值使用默认值。
     """
@@ -242,7 +242,7 @@ def main(args: list[str]) -> int:
         elif args[0] == "show":
             return 展示配置文件()
         elif args[0] in ["update", "更新", "upgrade"]:
-            return 更新配置()
+            return 更新配置文件()
         elif args[0] in ["编辑", "edit", "打开", "open"]:
             print(f"{消息头.信息} 配置文件 config.json 位于 {配置信息.所在位置}")
             print(f"{消息头.信息} 尝试打开配置文件 config.json ...")
