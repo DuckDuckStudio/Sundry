@@ -13,9 +13,10 @@ from colorama import Fore
 from catfood.functions.print import 消息头
 from function.git.format import branchName
 from function.maintain.config import 读取配置
-from function.files.manifest import 获取清单目录
 from translate import Translator # type: ignore
+from catfood.exceptions.operation import OperationFailed
 from function.github.token import read_token, 这是谁的Token
+from function.files.manifest import 获取清单目录, 获取现有包版本
 
 # 创建拉取请求
 def 创建拉取请求(软件包标识符: str, 分支名: str, 版本文件夹: str, 理由: str):
@@ -122,10 +123,21 @@ def main(args: list[str]) -> int:
             print(f"{Fore.BLUE}开始预先检查")
             try:
                 print("======= 此包现有的所有版本 =======")
-                subprocess.run(["winget", "show", "--versions", 软件包标识符], check=True)
+                if versions := 获取现有包版本(软件包标识符, winget_pkgs目录):
+                    for version in versions:
+                        print(version)
+                else:
+                    # 没获取到函数中会输出错误信息
+                    raise OperationFailed("未能获取现有版本列表")
+
                 print("======= 此包版本在 winget 上的信息 =======")
-                subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
-            except subprocess.CalledProcessError as e:
+                try:
+                    subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget", "--exact"], check=True)
+                except subprocess.CalledProcessError:
+                    print(f"{消息头.警告} 在默认源 (winget) 中运行 WinGet 失败，尝试指定字体源 (winget-font) ...")
+                    subprocess.run(["winget", "show", "--id", 软件包标识符, "--version", 软件包版本, "--source", "winget-font", "--exact"], check=True)
+                    # 如果还有异常会被下面捕获
+            except (subprocess.CalledProcessError, OperationFailed) as e:
                 print(f"{消息头.错误} 获取包信息失败: {Fore.RED}{e}{Fore.RESET}")
                 return 1
             cat.main([软件包标识符, 软件包版本, "installer"])
