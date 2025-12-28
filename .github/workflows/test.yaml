@@ -167,13 +167,20 @@ jobs:
         shell: bash
         run: |-
           if [[ "${{ runner.os }}" == "Windows" ]]; then
-            ARG="y y"
+            ARG="y"
           else
-            ARG="n y"
+            ARG="n"
           fi
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164\" $ARG"
-          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=150164" $ARG
+          echo "========== Validation-Installation-Error =========="
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/winget-pkgs/_build/results?buildId=244050\" $ARG y"
+          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/winget-pkgs/_build/results?buildId=244050" $ARG y
+
+          echo "=========== Validation-Executable-Error ==========="
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://github.com/microsoft/winget-pkgs/pull/323579\" $ARG n"
+          python ./Release/src/sundry.py logs-analyse "https://github.com/microsoft/winget-pkgs/pull/323579" $ARG n
+
+          echo "===================== Cleanup ====================="
           echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
           python ./Release/src/sundry.py logs-analyse cleanup
 
