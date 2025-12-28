@@ -248,3 +248,53 @@ def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
             return 响应.json()
         except Exception:
             return None
+
+def 转换配置值(配置项: str, 配置值: str) -> str | bool:
+    """
+    尝试将输入的配置值转换为符合配置文件要求的格式，如 y → true
+    遇到无法转换的会 raise OperationFailed(原因)，我假设调用这个函数的地方会用红色显示错误消息
+    本函数会验证配置值是否有效
+    """
+
+    if 配置项 in 配置信息.布尔值项:
+        no = ("n", "no", "false", "f", "否")
+        yes = ("y", "yes", "true", "t", "是")
+        if 配置项.startswith("cache."):
+            # 默认 True 的
+            if 配置值 in no:
+                return False
+            elif (not 配置值) or (配置值 in yes):
+                return True
+            else:
+                raise OperationFailed(f"{Fore.BLUE}{配置值}{Fore.RED} 不能代表是或否，请使用 y / n")
+        else:
+            # 默认 False 的
+            if 配置值 in yes:
+                return True
+            elif (not 配置值) or (配置值 in no):
+                return False
+            else:
+                raise OperationFailed(f"{Fore.BLUE}{配置值}{Fore.RED} 不能代表是或否，请使用 y / n")
+    else:
+        if not 配置值:
+            # 使用默认配置值
+            if 配置项 == "github.token":
+                配置值 = "glm"
+            elif 配置项 == "i18n.lang":
+                配置值 = "zh-cn"
+            else:
+                raise OperationFailed("指定的配置值为空，但该配置项没有默认值")
+
+        # 格式化配置值
+        if 配置项 in ("github.token", "i18n.lang"):
+            配置值 = 配置值.lower()
+        elif 配置项.startswith("paths."):
+            配置值 = os.path.abspath(os.path.normpath(配置值.replace("~", os.path.expanduser("~"))))
+        elif 配置值.startswith("repos.") and 配置值.startswith("https://github.com/"):
+            配置值 = 配置值.replace("https://github.com/", "").rstrip(".git")
+
+        # 验证配置值
+        if e := 验证配置(配置项, 配置值):
+            raise OperationFailed(f"验证配置值失败: {e.replace(Fore.RESET, Fore.RED)}")
+        else:
+            return 配置值
