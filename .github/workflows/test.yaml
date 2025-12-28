@@ -208,8 +208,8 @@ jobs:
       - name: 测试 - cat
         shell: bash
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat Microsoft.FluentFonts 1.0.0.0"
+          python ./Release/src/sundry.py cat Microsoft.FluentFonts 1.0.0.0
           echo =================================================================
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all"
           python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all

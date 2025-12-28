@@ -2,6 +2,7 @@ import os
 import subprocess
 from colorama import Fore
 from function.maintain.config import 读取配置
+from catfood.functions.print import 消息头, 多行带头输出
 from catfood.exceptions.operation import TryOtherMethods
 
 class 清单信息:
@@ -48,7 +49,7 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
     """
     尝试获取指定的包的现有版本，并返回版本列表: list[str]
 
-    没获取到则返回 None
+    没获取到则返回 None，会尝试输出错误信息
     """
 
     版本列表: list[str] = []
@@ -57,7 +58,7 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
         # 从本地仓库获取版本号
         清单目录 = 获取清单目录(包标识符, winget_pkgs目录=winget_pkgs仓库)
         if not 清单目录:
-            raise TryOtherMethods
+            raise TryOtherMethods("未能获取清单目录")
         
         for 文件夹 in os.listdir(清单目录):
             if os.path.isdir(os.path.join(清单目录, 文件夹)):
@@ -68,12 +69,41 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
                 else:
                     # 如果前面的 for 没有 break，则执行
                     版本列表.append(文件夹)
-    except TryOtherMethods:
+
+        if not 版本列表:
+            raise TryOtherMethods("未能通过本地 winget-pkgs 仓库获取版本列表")
+    except TryOtherMethods as e:
+        print(f"{消息头.警告} {e}，尝试改用 WinGet...")
+
         # 从 WinGet 输出获取版本号
-        结果 = subprocess.run(
-            ["winget", "show", "--id", 包标识符, "-s", "winget", "-e", "--versions"],
-            capture_output=True, text=True, check=True
-        )
+        try:
+            结果 = subprocess.run(
+                ["winget", "show", "--id", 包标识符, "-s", "winget", "-e", "--versions"],
+                capture_output=True, text=True, check=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(f"{消息头.警告} 在默认源 (winget) 中运行 WinGet 失败，尝试指定字体源 (winget-font) ...")
+            if 读取配置("debug", 静默=True):
+                print(f"{消息头.调试} WinGet 输出")
+                print(f"{消息头.调试} stderr:")
+                多行带头输出(e.stderr, 消息头.调试)
+                print(f"{消息头.调试} stdout:")
+                多行带头输出(e.stdout, 消息头.调试)
+
+            try:
+                结果 = subprocess.run(
+                    ["winget", "show", "--id", 包标识符, "-s", "winget-font", "-e", "--versions"],
+                    capture_output=True, text=True, check=True
+                )
+            except subprocess.CalledProcessError as e:
+                print(f"{消息头.错误} 未能获取现有包版本，WinGet 又失败了 (返回 {e.returncode})")
+                if 读取配置("debug", 静默=True):
+                    print(f"{消息头.调试} WinGet 输出")
+                    print(f"{消息头.调试} stderr:")
+                    多行带头输出(e.stderr, 消息头.调试)
+                    print(f"{消息头.调试} stdout:")
+                    多行带头输出(e.stdout, 消息头.调试)
+                return None
 
         离开始还有几行 = 3
         for 行 in [line for line in 结果.stdout.splitlines() if line.strip()]:
@@ -85,6 +115,7 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
     if 版本列表:
         return 版本列表
     else:
+        print(f"{消息头.错误} 未能获取现有包版本列表")
         return None
 
 def FormatManifest(Manifest: str, Comment: str = "# Created with Sundry-Locale") -> str:
