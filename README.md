@@ -71,13 +71,13 @@ sundry config "<条目>" "<值>"
 <details>
   <summary><code>sundry remove</code></summary>
 
-![Sundry remove 命令展示图。该命令用于从上游仓库（microsoft/winget-pkgs）中移除一个指定的软件包的指定版本，并带上理由（如果有）后自动创建拉取请求。](docs/photos/README/Demo/Commands/remove.png)  
+![Sundry remove 命令展示图。该命令用于从上游仓库（microsoft/winget-pkgs）中移除一个指定的包的指定版本，并带上理由（如果有）后自动创建拉取请求。](docs/photos/README/Demo/Commands/remove.png)  
 
 > 截图来自拉取请求: https://github.com/microsoft/winget-pkgs/pull/265074  
 
 - 别名: `移除`, `remove`
-- 作用: **移除一个指定的软件包的指定版本**，并在移除前自动检查该版本是否确实存在问题。可以指定理由或跳过自动检查。**默认理由为“安装程序URL在GitHub Action上返回了404”。**
-- 用法: `sundry remove <软件包标识符> <软件包版本> [是否跳过自动检查] [理由]`
+- 作用: **移除一个指定的包的指定版本**，并在移除前自动检查该版本是否确实存在问题。可以指定理由或跳过自动检查。**默认理由为“安装程序URL在GitHub Action上返回了404”。**
+- 用法: `sundry remove <包标识符> <包版本> [是否跳过自动检查] [理由]`
 - 示例:
   - 最少参数: `sundry remove DuckStudio.FufuTools 1.3.10`
   - 跳过自动检查: `sundry remove DuckStudio.FufuTools 1.3.10 True`
@@ -90,11 +90,11 @@ sundry config "<条目>" "<值>"
 <details>
   <summary><code>sundry autoremove</code></summary>
 
-![Sundry autoremove 命令展示图。该命令用于自动检查并移除指定软件包标识符下的失效版本。](docs/photos/README/Demo/Commands/autoremove.png)  
+![Sundry autoremove 命令展示图。该命令用于自动检查并移除指定包标识符下的失效版本。](docs/photos/README/Demo/Commands/autoremove.png)  
 
 - 别名: `自动移除`, `autoremove`
-- 作用: 自动检查并移除指定软件包标识符下的失效版本。
-- 用法: `sundry autoremove <软件包标识符> [是否跳过检查]`
+- 作用: 自动检查并移除指定包标识符下的失效版本。
+- 用法: `sundry autoremove <包标识符> [是否跳过检查]`
 - 示例:
   - 基本: `sundry autoremove DuckStudio.Sundry`
   - 跳过检查 (直接移除整个包): `sundry autoremove DuckStudio.Sundry skip`
@@ -105,11 +105,11 @@ sundry config "<条目>" "<值>"
 <details>
   <summary><code>sundry modify</code></summary>
 
-![Sundry modify 命令展示图。该命令用于帮助用户打开需要修改的那个软件包的那个版本，并在修改完毕后自动向上游仓库（microsoft/winget-pkgs）提交拉取请求。](docs/photos/README/Demo/Commands/modify.png)  
+![Sundry modify 命令展示图。该命令用于帮助用户打开需要修改的那个包的那个版本，并在修改完毕后自动向上游仓库（microsoft/winget-pkgs）提交拉取请求。](docs/photos/README/Demo/Commands/modify.png)  
 
 - 别名: `单改`, `单修改`, `modify`
-- 作用: **修改一个指定的软件包的指定版本的清单**，并在修改完后自动提交拉取请求。
-- 用法: `sundry modify <软件包标识符> <版本> [理由/解决的议题]`
+- 作用: **修改一个指定的包的指定版本的清单**，并在修改完后自动提交拉取请求。
+- 用法: `sundry modify <包标识符> <版本> [理由/解决的议题]`
 - 示例:
   - 最少参数: `sundry modify XBMCFoundation.Kodi 18.2.0.0 ` (https://github.com/microsoft/winget-pkgs/pull/267613)
   - 指定理由: `sundry modify XBMCFoundation.Kodi 18.3.0.0 "替换 HTTP 为 HTTPS"` (https://github.com/microsoft/winget-pkgs/pull/267614)
@@ -167,7 +167,7 @@ sundry config "<条目>" "<值>"
 - 别名: `verify`, `验证`
 - 作用: **用于测试本地或 PR 上的清单的安装和卸载，并获取 ARP 条目变更。**
 - 用法:
-  - 本地仓库清单: `sundry verify <软件包标识符> <软件包版本>`
+  - 本地仓库清单: `sundry verify <包标识符> <包版本>`
   - 指定清单文件夹: `sundry verify <清单文件夹路径>`
   - PR 清单: `sundry verify <PR链接>`
 - 示例:
@@ -200,11 +200,11 @@ sundry config "<条目>" "<值>"
 <details>
   <summary><code>sundry cat</code></summary>
 
-![Sundry cat 命令展示图。该命令用于获取指定软件包标识符的指定版本的清单，可以指定获取所有清单或某个类型的清单。](docs/photos/README/Demo/Commands/cat.png)  
+![Sundry cat 命令展示图。该命令用于获取指定包标识符的指定版本的清单，可以指定获取所有清单或某个类型的清单。](docs/photos/README/Demo/Commands/cat.png)  
 
 - 别名: 没有别名，只能用 `cat`。
-- 作用: **获取指定软件包标识符的指定版本的清单**，可以指定获取所有清单或某个类型的清单。
-- 用法: `sundry cat <软件包标识符> <版本> [清单类型] [区域设置(如果是locale类型)]`
+- 作用: **获取指定包标识符的指定版本的清单**，可以指定获取所有清单或某个类型的清单。
+- 用法: `sundry cat <包标识符> <版本> [清单类型] [区域设置(如果是locale类型)]`
 - 示例:
   - 获取所有清单: `sundry cat DuckStudio.Sundry 1.2.3`
     - 亦可使用 `sundry cat DuckStudio.Sundry 1.2.3 all`
@@ -361,7 +361,7 @@ sundry config "<条目>" "<值>"
 | autoremove | ✕ | 验证阶段需要 WinGet，移除版本依赖 remove 命令 |
 | modify | ✕ | 验证清单需要 WinGet，不确定如何读取 Token |
 | logs-analyse | 部分支持 | 不支持自动打开日志文件夹 |
-| verify | ✕ | 您只能在 Windows 上验证软件包 |
+| verify | ✕ | 您只能在 Windows 上验证包 |
 | ignore | ✕ | 不确定如何读取 Token |
 | cat | ✓ |  |
 | sync | ✓ |  |

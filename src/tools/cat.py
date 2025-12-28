@@ -38,10 +38,10 @@ def main(args: list[str]) -> int:
     if not isinstance(winget_pkgs目录, str):
         return 1
 
-    # 尝试从参数中获取软件包标识符和版本
+    # 尝试从参数中获取包标识符和版本
     if (2 <= len(args) <= 4):
-        软件包标识符 = args[0]
-        软件包版本 = args[1]
+        包标识符 = args[0]
+        包版本 = args[1]
         清单类型 = args[2].lower() if len(args) > 2 else "all" # 不指定则为 all
         # 格式化 清单类型
         if (清单类型 in ["locale", "区域", "区域设置", "l"]):
@@ -67,7 +67,7 @@ def main(args: list[str]) -> int:
         print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
-    清单目录 = 获取清单目录(软件包标识符, 软件包版本, winget_pkgs目录)
+    清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录)
     if not 清单目录:
         print(f"{消息头.错误} 获取清单目录失败")
         return 1
@@ -75,8 +75,8 @@ def main(args: list[str]) -> int:
     if any(os.path.isdir(os.path.join(清单目录, item)) for item in os.listdir(清单目录)):
         # 如果清单目录下存在其他文件夹
         print(f"{消息头.错误} 清单目录下存在其他文件夹")
-        print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将软件包标识符的一部分当作软件包版本{Fore.RESET} 导致的。")
-        print(f"{消息头.提示} 例如软件包 DuckStudio.GitHubView.Nightly 被错误的认为是软件包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
+        print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的。")
+        print(f"{消息头.提示} 例如包 DuckStudio.GitHubView.Nightly 被错误的认为是包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
         return 1
 
     清单文件: list[str] | str
@@ -99,10 +99,10 @@ def main(args: list[str]) -> int:
     else:
         清单文件 = ""
         if (清单类型 == "installer"):
-            清单文件 = os.path.join(清单目录, f"{软件包标识符}.installer.yaml")
+            清单文件 = os.path.join(清单目录, f"{包标识符}.installer.yaml")
         if (清单类型 == "locale"):
-            清单文件 = os.path.join(清单目录, f"{软件包标识符}.locale.{区域设置}.yaml")
+            清单文件 = os.path.join(清单目录, f"{包标识符}.locale.{区域设置}.yaml")
         if (清单类型 == "version"):
-            清单文件 = os.path.join(清单目录, f"{软件包标识符}.yaml")
+            清单文件 = os.path.join(清单目录, f"{包标识符}.yaml")
 
         return 读取和输出(os.path.normpath(清单文件))

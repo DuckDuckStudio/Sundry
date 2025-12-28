@@ -304,7 +304,7 @@ def 分析InstallationVerificationLogs(dir_path: str, detailed: bool = False) ->
                                     if 匹配:
                                         查找错误代码解释(匹配.group(1))
                                 elif keyword == "No suitable installer found":
-                                    print(f"{消息头.提示} 这可能是因为您提交的软件包的安装程序定义和依赖中的安装程序定义不匹配。")
+                                    print(f"{消息头.提示} 这可能是因为您提交的包的安装程序定义和依赖中的安装程序定义不匹配。")
                                     print(f"{消息头.提示} 举个例子，当上游依赖只支持 x64 架构，而您提交的清单中的安装程序还支持 x86 架构时，WinGet 会因为找不到 x86 的依赖安装程序而失败。")
                                     print(f"{消息头.提示} 具体需要如何处理此错误尚不确定: https://github.com/microsoft/winget-pkgs/issues/152555")
                                 elif keyword == "Package failed updates, dependency or conflict validation.":

@@ -23,8 +23,8 @@ from catfood.exceptions.request import RequestException
 
 def main(args: list[str]) -> int:
     # 初始化
-    软件包标识符: str = ""
-    软件包版本: str = ""
+    包标识符: str = ""
+    包版本: str = ""
     PR编号: str = ""
     清单目录: str | None = None
     winget_pkgs目录 = ""
@@ -32,8 +32,8 @@ def main(args: list[str]) -> int:
 
     # 解析参数
     if (len(args) == 2): # 符合参数个数要求
-        软件包标识符 = args[0]
-        软件包版本 = args[1]
+        包标识符 = args[0]
+        包版本 = args[1]
         winget_pkgs目录 = 读取配置("paths.winget-pkgs")
         if not isinstance(winget_pkgs目录, str):
             return 1
@@ -67,17 +67,17 @@ def main(args: list[str]) -> int:
                 elif ("locale" not in os.path.basename(清单文件)) and ("installer" not in os.path.basename(清单文件)):
                     # 不是 locale 或 installer 清单，那就是 version 清单
                     # version 清单使用 <包标识符>.yaml 命名
-                    软件包标识符 = os.path.basename(清单文件).replace(".yaml", "")
+                    包标识符 = os.path.basename(清单文件).replace(".yaml", "")
             if 清单文件个数 < 3:
                 print(f"{消息头.错误} {Fore.RED}清单文件数量不够。预期至少有 3 个 .yaml 格式的清单文件，但实际只有 {清单文件个数} 个。{Fore.RESET}")
                 return 1
-            elif not 软件包标识符:
-                print(f"{消息头.错误} {Fore.RED}未能从文件名上识别出软件包标识符，请确保清单文件命名合法。{Fore.RESET}")
+            elif not 包标识符:
+                print(f"{消息头.错误} {Fore.RED}未能从文件名上识别出包标识符，请确保清单文件命名合法。{Fore.RESET}")
                 return 1
             
             # 好的，接下来让我为它们构建最少目录结构
             # 这里相当于把 %TEMP%/Sundry/Verify/LocaleManifests/** 当作一个 winget-pkgs 仓库，后续就和传入 2 个参数时差不多了。
-            清单目录 = os.path.join(tempfile.gettempdir(), "Sundry", "Verify", "LocaleManifests", "manifests", 软件包标识符[0].lower(), *软件包标识符.split("."))
+            清单目录 = os.path.join(tempfile.gettempdir(), "Sundry", "Verify", "LocaleManifests", "manifests", 包标识符[0].lower(), *包标识符.split("."))
             # 复制清单过去
             os.makedirs(清单目录, exist_ok=True)
             for 清单文件 in os.listdir(清单文件目录):
@@ -93,18 +93,18 @@ def main(args: list[str]) -> int:
         if 获取PR清单(PR编号, github_token, 清单目录):
             return 1
     elif not 清单目录:
-        清单目录 = 获取清单目录(软件包标识符, 软件包版本, winget_pkgs目录)
+        清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录)
         if not 清单目录:
             print(f"{消息头.错误} 获取清单目录失败")
             return 1
 
-        # 如果该软件包在 Auth.csv 中，则警告用户
+        # 如果该包在 Auth.csv 中，则警告用户
         with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode="r", encoding="utf-8") as file:
             csv_reader = csv.DictReader(file)
             # 遍历 CSV 文件中的每一行
             for row in csv_reader:
-                if row["PackageIdentifier"] == 软件包标识符:
-                    print(f"{Fore.YELLOW}⚠ 看起来此软件包在 Auth.csv 中被要求所有者({row["Account"]})审查{Fore.RESET}")
+                if row["PackageIdentifier"] == 包标识符:
+                    print(f"{Fore.YELLOW}⚠ 看起来此包在 Auth.csv 中被要求所有者({row["Account"]})审查{Fore.RESET}")
                     break # 找到后退出循环
 
     # 如果有任何一步失败了，就 return 1
@@ -135,10 +135,10 @@ def main(args: list[str]) -> int:
         except KeyboardInterrupt:
             if PR编号:
                 print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 #{PR编号} 的清单")
-            elif not 软件包版本:
-                print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 {软件包标识符} 的本地清单")
+            elif not 包版本:
+                print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 {包标识符} 的本地清单")
             else:
-                print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 {软件包标识符} {软件包版本} 的本地清单")
+                print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 {包标识符} {包版本} 的本地清单")
             return 0
 
 def 请求GitHubAPI(apiUrl: str, github_token: str | None):
@@ -194,7 +194,7 @@ def 获取PR清单(PR编号: str, github_token: str | None, 清单目录: str) -
         请求头.pop("Authorization", None)
 
     try:
-        api = f"https://api.github.com/repos/{fork仓库}/contents/{清单文件夹路径}?ref={fork分支}" # NOTE: 这里不对 url 进行编码，因为软件包标识符不允许出现特殊字符/中文
+        api = f"https://api.github.com/repos/{fork仓库}/contents/{清单文件夹路径}?ref={fork分支}" # NOTE: 这里不对 url 进行编码，因为包标识符不允许出现特殊字符/中文
         清单目录响应: list[dict[str, Any]] | None = 请求GitHubAPI(api, github_token)
         if not isinstance(清单目录响应, list):
             raise RequestException(f"未获取到清单文件夹信息: {清单目录响应}")
@@ -327,13 +327,13 @@ def 测试安装与卸载(清单目录: str, 操作: str) -> int:
 
     # 尝试运行 WinGet 操作
     try:
-        print(f"尝试{操作}软件包...")
+        print(f"尝试{操作}包...")
         完整命令 = ["winget", 命令, "--manifest", 清单目录, "--accept-source-agreements"]
         if 命令 == "install":
             完整命令.append("--accept-package-agreements")
         subprocess.run(完整命令, check=True)
     except subprocess.CalledProcessError as e:
-        print(f"{消息头.错误} 尝试{操作}软件包失败: WinGet 返回 {e.returncode}")
+        print(f"{消息头.错误} 尝试{操作}包失败: WinGet 返回 {e.returncode}")
         return 1
 
     try:

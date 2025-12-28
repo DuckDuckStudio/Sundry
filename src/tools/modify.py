@@ -16,15 +16,15 @@ from function.files.manifest import FormatManifest
 from function.github.token import read_token, 这是谁的Token
 
 def main(args: list[str]):
-    global 软件包标识符, 软件包版本, 日志文件路径
+    global 包标识符, 包版本, 日志文件路径
     global 解决, 清单目录, 首个_PR, 格式化审查者, 程序所在目录
     global owner
 
     # 目录路径
-    # 尝试从参数中获取软件包标识符和版本
+    # 尝试从参数中获取包标识符和版本
     if (2 <= len(args) <= 3):
-        软件包标识符 = args[0]
-        软件包版本 = args[1]
+        包标识符 = args[0]
+        包版本 = args[1]
         if (len(args) == 3):
             解决 = args[2]
             # 如果 args[2] 是 Issue 格式 （#数字、纯数字、纯 https://github.com/microsoft/winget-pkgs/issues/数字）
@@ -40,7 +40,7 @@ def main(args: list[str]):
     
     # 路径
     程序所在目录 = os.path.dirname(os.path.abspath(sys.argv[0]))
-    日志文件路径 = os.path.join("logs", datetime.today().strftime('%Y\\%m\\%d'), f"{软件包标识符}-{软件包版本}.log") # 相对路径
+    日志文件路径 = os.path.join("logs", datetime.today().strftime('%Y\\%m\\%d'), f"{包标识符}-{包版本}.log") # 相对路径
 
     winget_pkgs目录 = ""
     winget_pkgs目录 = 读取配置("paths.winget-pkgs")
@@ -52,7 +52,7 @@ def main(args: list[str]):
         return 1
     owner, _ = pkgs仓库
 
-    可能是清单目录 = 获取清单目录(软件包标识符, winget_pkgs目录=winget_pkgs目录)
+    可能是清单目录 = 获取清单目录(包标识符, winget_pkgs目录=winget_pkgs目录)
     # 这里用 可能是清单目录 而不是直接用 清单目录 是因为
     # 直接用的话 None 会 global 到其他函数。
     # 不懂的话改改看就知道了。
@@ -68,7 +68,7 @@ def main(args: list[str]):
         # 遍历 CSV 文件中的每一行
         found = False # 标记是否找到了包标识符
         for row in csv_reader:
-            if row['PackageIdentifier'] == 软件包标识符:
+            if row['PackageIdentifier'] == 包标识符:
                 found = row['Account']
                 break # 找到后退出循环
 
@@ -110,7 +110,7 @@ def main(args: list[str]):
                 if os.path.isdir(os.path.join(清单目录, 文件夹)):
                     for 文件 in os.listdir(os.path.join(清单目录, 文件夹)):
                         if os.path.isdir(文件):
-                            # 如果这个版本文件夹下面还有目录，则代表这可能是类似 Nightly 版本的软件包的标识符的一部分
+                            # 如果这个版本文件夹下面还有目录，则代表这可能是类似 Nightly 版本的包的标识符的一部分
                             break
                     else:
                         # 如果前面的 for 没有 break，则执行
@@ -143,7 +143,7 @@ def main(args: list[str]):
 
     # 遍历所有版本并进行处理
     for 版本文件夹 in 版本文件夹s:
-        if 版本文件夹 != 软件包版本:
+        if 版本文件夹 != 包版本:
             print(f"跳过版本文件夹: {版本文件夹}")
             写入日志(f"Skip version {版本文件夹}, because it's not in the list of versions to be modified.")
             continue
@@ -173,7 +173,7 @@ def main(args: list[str]):
     # ========= 日志关闭 开始 =========
     with open(os.path.join(程序所在目录, 日志文件路径), 'a', encoding="utf-8") as 日志文件: # 追加写入
         日志文件.write('~~ End of logging ~~\n')
-    print(f"{Fore.GREEN}✓{Fore.RESET} 成功修改 {Fore.BLUE}{软件包标识符}{Fore.RESET} 版本 {Fore.BLUE}{软件包版本}{Fore.RESET} 的清单。")
+    print(f"{Fore.GREEN}✓{Fore.RESET} 成功修改 {Fore.BLUE}{包标识符}{Fore.RESET} 版本 {Fore.BLUE}{包版本}{Fore.RESET} 的清单。")
     # ========= 日志关闭 结束 =========
 
     return 0
@@ -205,7 +205,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> 
         }
         数据: dict[str, str | bool]
         数据 = {
-            "title": f"Modify: {软件包标识符} version {版本文件夹} (Auto)",
+            "title": f"Modify: {包标识符} version {版本文件夹} (Auto)",
             "head": f"{owner}:{分支名}",
             "base": "master",
             "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n\n{审查}\n{解决}\n\n---\n"
@@ -237,7 +237,7 @@ def 修改版本(版本文件夹: str):
     版本文件夹路径 = os.path.join(清单目录, 版本文件夹)
 
     # 创建并切换到新的分支
-    新分支 = branchName(f"Modify-S-{软件包标识符}-{版本文件夹}-{int(time.time())}")
+    新分支 = branchName(f"Modify-S-{包标识符}-{版本文件夹}-{int(time.time())}")
     print(f"  创建并切换到新分支: {新分支}")
     写入日志(f"  Create and checkout to a new branch: {新分支}")
     subprocess.run(["git", "checkout", "master"], check=True) # 确保从 master 分支开始
@@ -310,7 +310,7 @@ def 修改版本(版本文件夹: str):
     print("  暂存并提交更改到 Git")
     写入日志("  Staging and Committing Changes to Git")
     subprocess.run(["git", "add", 版本文件夹路径], check=True)
-    提交消息 = f"Modify: {软件包标识符} version {版本文件夹} (Auto)"
+    提交消息 = f"Modify: {包标识符} version {版本文件夹} (Auto)"
     subprocess.run(["git", "commit", "-m", 提交消息], check=True)
     print(f"    提交信息: {提交消息}")
     写入日志(f"    Commit message: {提交消息}")
