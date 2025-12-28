@@ -155,6 +155,10 @@ def 修改配置项(配置项: str, 值: str) -> int:
             print(f"{消息头.错误} 读取配置文件失败，配置文件不是有效的 json 字段:\n{Fore.RED}{e}{Fore.RESET}")
             print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
             return 1
+        except KeyError:
+            print(f"{消息头.错误} 更新配置文件失败: 当前配置文件中没有键 {Fore.BLUE}{配置项}{Fore.RESET}")
+            print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件，或通过 sundry config update 更新配置文件")
+            return 1
         except Exception as e:
             print(f"{消息头.错误} 更新配置失败: {Fore.RED}{e}{Fore.RESET}")
             return 1
