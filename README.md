@@ -6,9 +6,9 @@ Sundry 是一个 WinGet 相关的工具，帮您更方便地移除清单、修�
 
 ## 如何获取
 ### Windows
-1. 前往 [GitHub Release](https://github.com/DuckDuckStudio/Sundry/releases) 页面下载安装程序或 zip/7z 归档。
-2. 使用 WinGet 获取:  
-```powershell
+可以前往 [GitHub Release](https://github.com/DuckDuckStudio/Sundry/releases) 页面下载安装程序或 zip/7z 归档。  
+或者使用 WinGet 获取:  
+```bash
 winget install --id DuckStudio.Sundry --source winget --exact
 ```
 
@@ -23,12 +23,7 @@ sundry config init
 ```
 
 > 题外话: 这个配置文件就是我将其从我自己的工具变为这里的工具的方法 XD  
-
-> [!TIP]  
-> 在 **1.1.0** 之前，配置文件在程序目录下的 `config.json` 中；在 **1.1.0** 之后，配置文件在用户目录下的 `.config/DuckStudio/Sundry/config.json` 中。 - 这是为更新时不覆盖配置文件考虑的，如果配置文件不对，请再次使用 `sundry config init`。  
-> ~~由于作者实在是太懒了~~，在卸载 Sundry 之后不会移除配置文件，如果需要可以手动移除。  
-> 如需从旧版配置文件迁移至新版配置文件，请尝试运行 `sundry config update` 命令。  
-> 参见 [Sundry 配置文件文档](docs/config/) 了解有关配置文件的更多说明。  
+> 参见 [配置文件文档](docs/config/) 了解有关配置文件的更多说明。  
 
 初始化完配置文件后用以下命令确认下:  
 
@@ -39,17 +34,17 @@ sundry config show
 如果有任何地方不对，请使用这个命令修改对应键的值:  
 
 ```bash
-sundry config "<条目>" "<值>"
+sundry config "<配置项>" "<值>"
 ```
 
-更多可用命令请见下方示例。  
+> 如果你想手动编辑配置文件，请运行 `sundry config edit`。  
 
 ## 可用命令
 
 <details>
   <summary><code>sundry help</code></summary>
 
-![Sundry help 命令展示图。该命令用于输出 Sundry 帮助内容。](docs/photos/README/Demo/Commands/help.png)  
+![Sundry help 命令展示图。该命令用于输出 Sundry 帮助信息。](docs/photos/README/Demo/Commands/help.png)  
 
 - 别名: 任何非命令字符
 - 作用: 显示 Sundry 帮助
@@ -79,7 +74,7 @@ sundry config "<条目>" "<值>"
 - 作用: **移除一个指定的包的指定版本**，并在移除前自动检查该版本是否确实存在问题。可以指定理由或跳过自动检查。**默认理由为“安装程序URL在GitHub Action上返回了404”。**
 - 用法: `sundry remove <包标识符> <包版本> [是否跳过自动检查] [理由]`
 - 示例:
-  - 最少参数: `sundry remove DuckStudio.FufuTools 1.3.10`
+  - 基本: `sundry remove DuckStudio.FufuTools 1.3.10`
   - 跳过自动检查: `sundry remove DuckStudio.FufuTools 1.3.10 True`
   - 指定理由: `sundry remove DuckStudio.FufuTools 1.3.10 "该版本存在一个已知问题"`
   - 指定理由的同时跳过自动检查: `sundry remove DuckStudio.FufuTools 1.3.10 True "该版本存在一个已知问题"`
@@ -111,12 +106,9 @@ sundry config "<条目>" "<值>"
 - 作用: **修改一个指定的包的指定版本的清单**，并在修改完后自动提交拉取请求。
 - 用法: `sundry modify <包标识符> <版本> [理由/解决的议题]`
 - 示例:
-  - 最少参数: `sundry modify XBMCFoundation.Kodi 18.2.0.0 ` (https://github.com/microsoft/winget-pkgs/pull/267613)
+  - 基本: `sundry modify XBMCFoundation.Kodi 18.2.0.0 ` (https://github.com/microsoft/winget-pkgs/pull/267613)
   - 指定理由: `sundry modify XBMCFoundation.Kodi 18.3.0.0 "替换 HTTP 为 HTTPS"` (https://github.com/microsoft/winget-pkgs/pull/267614)
-  - 链接议题:
-    - 使用议题 URL: `sundry modify DuckStudio.Sundry 1.2.6 "https://github.com/microsoft/winget-pkgs/issues/267539"`
-    - 使用议题纯数字编号: `sundry modify DuckStudio.Sundry 1.2.6 "267539"`
-    - 使用议题编号: `sundry modify DuckStudio.Sundry 1.2.6 "#267539"`
+  - 链接议题: `sundry modify DuckStudio.Sundry 1.2.6 "https://github.com/microsoft/winget-pkgs/issues/267539"`
   - 指定理由的同时链接议题: 
     ```pwsh
     sundry modify DuckStudio.Sundry 1.2.6 "一些修改。
@@ -130,24 +122,20 @@ sundry config "<条目>" "<值>"
 <details>
   <summary><code>sundry logs-analyse</code></summary>
 
-![Sundry logs-analyse 命令展示图。该命令用于分析 Azure Validation Pipeline Run 失败时的日志，来自动查找具体哪里失败了。](docs/photos/README/Demo/Commands/logs-analyse.png)  
+![Sundry logs-analyse 命令展示图。该命令用于分析 Azure Validation Pipeline Run 失败时的日志，自动查找具体哪里失败了。](docs/photos/README/Demo/Commands/logs-analyse.png)  
 
 - 别名: `日志分析`, `logs-analyse`, `logs_analyse`, `Azure日志分析`
-- 作用: **分析 [Azure Validation Pipeline Run](https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=验证管道日志在哪看？) 失败时的日志，来自动查找具体哪里失败了。**
-- 用法:
-  - 分析日志: `sundry logs-analyse <Azure Pipeline Url> [是否保留日志文件] [是否显示一般错误/异常]`
-  - 清理之前下载的日志: `sundry logs-analyse cleanup`
+- 作用: **分析 [Azure Validation Pipeline Run](https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=验证管道日志在哪看？) 失败时的日志，自动查找具体哪里失败了。**
+- 用法: `sundry logs-analyse <Azure Pipeline Url> [是否保留日志文件] [是否显示一般信息]`
 - 示例:
-  - 分析日志
-    > 这里的 Azure Validation Pipeline Run 是 https://github.com/microsoft/winget-pkgs/pull/295511#issuecomment-3315258870 的。
-    - 最少参数: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216"` (需要用户输入)
-    - 不保留日志文件: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" n`
-    - 保留日志文件: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" y` (运行后将打开日志文件所在目录)
-    - 不显示一般错误/异常: 默认，不需要传递额外参数。
-    - 显示一般错误/异常: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" 占位 y`
-    - 保留日志文件且不显示一般错误/异常: 默认不显示一般错误/异常，同保留日志文件的示例。
-    - 保留日志文件且显示一般错误/异常: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" y y`
-  - 清理之前下载的日志: `sundry logs-analyse cleanup` (等效于 `sundry cleanup logs-analyse`)
+  > 这里的 Azure Validation Pipeline Run 是 https://github.com/microsoft/winget-pkgs/pull/295511#issuecomment-3315258870 的。
+  - 基本: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216"` (需要用户输入)
+  - 不保留日志文件: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" n`
+  - 保留日志文件: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" y` (运行后将打开日志文件所在目录)
+  - 不显示一般信息: 默认，不需要传递额外参数。
+  - 显示一般信息: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" 占位 y`
+  - 保留日志文件且不显示一般信息: 默认不显示一般信息，同保留日志文件的示例。
+  - 保留日志文件且显示一般信息: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" y y`
 
 > 下载日志文件时响应 404 意味着什么？
 
@@ -155,14 +143,36 @@ sundry config "<条目>" "<值>"
 2. 此次运行的日志已被删除。  
   如果这是一个较早的运行，日志可能已经被项目配置自动清理掉了。
 
+Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。  
+
+> 分析结果前面的标识是什么意思？
+
+| 标识 | 是什么 | 什么时候应该看 |
+|-----|-----|-----|
+| Screenshot | 验证管道提供的错误截图 | Validation-Unattended-Failed |
+| Analysis | 一般日志信息 | Validation-Installation-Error、Validation-Shell-Execute 等安装过程中遇到的问题 |
+| ExeRunInfo | 验证管道的工件 `ValidationResult.zip` 中的 `InstallationVerification_Result.json` 中有关可执行文件运行的信息 | Validation-Executable-Error |
+
+> 日志分析结果 (Analysis) 的颜色代表什么？
+
+| 颜色 | 啥意思 |
+|-----|-----|
+| 黄色 | 很大可能是你的 PR 遇到的问题 |
+| 红色 | 一些其他可能的问题 |
+| 默认颜色 | 一般信息，默认不显示 |
+
+> [!WARNING]  
+> `sundry logs-analyse cleanup` 已被 `sundry cleanup logs-analyse` 取代，前者计划在未来的 Sundry 中移除。  
+
 </details>
 
 <details>
   <summary><code>sundry verify</code></summary>
 
-![Sundry verify 命令展示图。该命令用于测试本地或 PR 上的清单的安装和卸载，并获取 ARP 条目变更。](docs/photos/README/Demo/Commands/verify.png)  
+![Sundry verify 命令展示图。该命令用于测试本地或 PR 上的清单的安装和卸载，并获取注册表变更。](docs/photos/README/Demo/Commands/verify.png)  
 
 > 截图是在 Hyper-V Windows 10 x64 虚拟机上的测试。  
+> 虽然他们已经换成了 Windows 11 虚拟机，不过我觉得也没啥差别，Sundry 也可以在 Windows 11 虚拟机上使用。  
 
 - 别名: `verify`, `验证`
 - 作用: **用于测试本地或 PR 上的清单的安装和卸载，并获取 ARP 条目变更。**
@@ -172,10 +182,11 @@ sundry config "<条目>" "<值>"
   - PR 清单: `sundry verify <PR链接>`
 - 示例:
   - 测试本地仓库清单: `sundry verify DuckStudio.FufuTools 1.3.10`
-  - 测试指定清单文件夹: `sundry verify D:/WinGet/Manifests/DuckStudio/FufuTools/1.3.10/`
-  - 测试 PR 清单: `sundry verify <打开的PR>`
+  - 测试指定清单文件夹: `sundry verify D:/WinGet/Manifests/d/DuckStudio/FufuTools/1.3.10/`
+  - 测试 PR 清单: `sundry verify <PR链接>`
 
-> 1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了 GitHub API 会响应 404 Not Found。  
+> [!NOTE]
+> 1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了，GitHub API 会响应 404 Not Found。  
 > 2. 它暂时**无法获取 `UpgradeCode`**。  
 
 </details>
@@ -193,6 +204,9 @@ sundry config "<条目>" "<值>"
   - 移除忽略字段: `sundry ignore remove "https://www.argyllcms.com/" "又冲得动了"`
   - 编辑忽略字段: `sundry ignore edit`
   - 列出所有忽略字段: `sundry ignore list`
+
+> [!WARNING]  
+> 该命令计划在未来的 Sundry 中移除。  
 
 </details>
 
@@ -277,13 +291,13 @@ sundry config "<条目>" "<值>"
 <details>
   <summary><code>sundry config</code></summary>
 
-![Sundry config 命令展示图。该命令用于初始化和修改 Sundry 配置。](docs/photos/README/Demo/Commands/config.png)  
+![Sundry config 命令展示图。该命令用于管理 Sundry 配置。](docs/photos/README/Demo/Commands/config.png)  
 
 - 别名: `config`, `配置`
-- 作用: 初始化和修改 Sundry 配置。
+- 作用: 管理 Sundry 配置。
 - 用法: `sundry config <参数...>`
 - 示例:
-  - 初始化配置: `sundry config init`
+  - 初始化配置文件: `sundry config init`
   - 显示当前配置: `sundry config show`
   - 编辑配置文件: `sundry config edit`
   - 修改配置项: `sundry config git.signature false`
@@ -340,14 +354,14 @@ sundry config "<条目>" "<值>"
 
 ![Sundry cleanup 命令展示图。该命令用于清理 Sundry 的各个工具运行时产生的文件。](docs/photos/README/Demo/Commands/cleanup.png)  
 
-- 别名: `清理`, `cleanup`
+- 别名: `清理`, `cleanup`, `clean`
 - 作用: **清理 Sundry 的各个工具运行时产生的文件。**
 - 用法: `sundry cleanup <工具名>`
   - 除了工具名外，您还可以使用 `all` / `aec` 这些特殊标识来清理某部分的文件。有关这些特殊标识的说明请见下方的示例。
 - 示例:
   - 清理所有: `sundry cleanup all`
   - 清理除缓存外所有: `sundry cleanup` (等效于 `sundry cleanup aec`)
-  - 清理指定工具: `sundry cleanup logs-analyse` (等效于 `sundry logs-analyse cleanup`)
+  - 清理指定工具: `sundry cleanup logs-analyse`
 
 </details>
 
