@@ -6,9 +6,9 @@ import subprocess
 from typing import Any
 from colorama import Fore
 import tools.remove as remove
-from function.constant import Response
 from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
+from function.constant.general import UNEXPECTED_TYPES
 from catfood.exceptions.request import RequestException
 from function.files.manifest import 获取现有包版本, 获取清单目录
 
@@ -197,7 +197,7 @@ def 检查响应类型(response: requests.Response) -> None:
 
     contentType = response.headers.get("Content-Type")
 
-    if contentType and any(i in contentType for i in Response.unexpectedTypes):
+    if contentType and any(i in contentType for i in UNEXPECTED_TYPES):
         raise ValueError(f"意外的类型 ({contentType})")
 
 def 检查重复拉取请求(包标识符: str, 包版本: str) -> bool:
