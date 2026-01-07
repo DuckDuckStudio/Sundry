@@ -1,6 +1,6 @@
 catfood==1.0.4 # 函数功能和异常
 colorama>=0.4.6 # 输颜色
-jsonschema==4.25.1 # 验证 YAML / JSON
+jsonschema==4.26.0 # 验证 YAML / JSON
 keyring>=25.6.0 # 读Token
 pygments>=2.19.1 # 高亮文本
 PyYAML==6.0.3 # 处理 YAML
