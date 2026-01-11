@@ -159,19 +159,20 @@ def 检查所有安装程序URL(包标识符: str, 包版本: str, 在浏览器�
                     响应 = requests.get(InstallerUrl, allow_redirects=True)
                     if 响应.status_code < 400:
                         检查响应类型(响应)
-                    elif 响应.status_code < 500: # 4xx 客户端错误
+                    elif 响应.status_code in (401, 403, 404):
                         失效数 += 1
                         结果 = f"失效 ({响应.status_code})"
                         结果 = f"{Fore.YELLOW}{结果}{Fore.RESET}"
-                    else:
+                    elif 响应.status_code < 500: # 400 <= x < 500; x != 401 or 403 or 404
+                        结果 = f"{Fore.RED}客户端错误 ({响应.status_code}){Fore.RESET}"
+                    else: # 500 <= x
                         结果 = f"服务端错误 ({响应.status_code})，不计失败"
                 except requests.exceptions.SSLError:
                     # 这大概率是某个用证书加速的加速器干的。
                     结果 = 使用GitHubAPI检查安装程序URL(InstallerUrl)
-                    if (Fore.YELLOW in 结果) or (Fore.RED in 结果):
+                    if (Fore.YELLOW in 结果):
                         失效数 += 1
                 except (requests.RequestException, ValueError) as e:
-                    失效数 += 1
                     结果 = f"{Fore.RED}错误 ({e}){Fore.RESET}"
             print(f"\r{InstallerUrl} | {结果}")
             验证结果 = f"{验证结果}\n{InstallerUrl} | {结果.replace(Fore.RED, "").replace(Fore.YELLOW, "").replace(Fore.RESET, "")}"
