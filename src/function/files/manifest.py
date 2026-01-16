@@ -6,10 +6,18 @@ from catfood.functions.print import 消息头, 多行带头输出
 from catfood.exceptions.operation import TryOtherMethods
 
 class 清单信息:
-    版本列表= ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0", "1.10.0", "1.12.0"]
-    旧版本列表 = 版本列表[:-1]
-    最新版本 = 版本列表[-1]
-    类型列表 = [
+    """有关包清单的一些信息"""
+
+    版本列表: list[str]= ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0", "1.10.0", "1.12.0"]
+    """包清单的所有版本（包括已弃用版本）"""
+
+    旧版本列表: list[str] = 版本列表[:-1]
+    """非最新的包清单版本"""
+
+    最新版本: str = 版本列表[-1]
+    """最新的包清单版本"""
+
+    类型列表: list[str] = [
         "installer", # 安装程序清单
         "defaultLocale", # 默认本地化清单
         "locale", # 本地化清单
@@ -17,14 +25,24 @@ class 清单信息:
         "singleton", # 单例清单，已弃用
         "merged" # 合并后的清单，常见于验证管道
     ]
+    """包清单的所有类型"""
 
 def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_pkgs目录: str | None = None) -> str | None:
     """
-    传入包标识符、winget_pkgs目录（不传则自动从配置文件中获取），获取该包的清单目录。
+    依据指定的包标识符（和包版本）获取该包（版本）的清单目录。
 
-    获取失败返回 None。
+    会验证获取到的清单目录是否存在，不存在则返回 `None`。
 
     此函数没有输出。
+    
+    :param 包标识符: 指定的包标识符
+    :type 包标识符: str
+    :param 包版本: 指定的包版本
+    :type 包版本: str | None
+    :param winget_pkgs目录: (可选) 如果在调用处已经有获取了 winget-pkgs 仓库的路径，则可传递此路径，避免重复读取。
+    :type winget_pkgs目录: str | None
+    :return: 获取到的清单目录，没获取到则返回 `None`
+    :rtype: str | None
     """
 
     if not winget_pkgs目录:
@@ -47,9 +65,16 @@ def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_p
         
 def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = None) -> list[str] | None:
     """
-    尝试获取指定的包的现有版本，并返回版本列表: list[str]
+    尝试获取指定的包的现有版本列表。
 
-    没获取到则返回 None，会尝试输出错误信息
+    会尝试输出错误信息
+
+    :param 包标识符: 指定的包标识符
+    :type 包标识符: str
+    :param winget_pkgs仓库: (可选) 如果在调用处已经有获取了 winget-pkgs 仓库的路径，则可传递此路径，避免重复读取。
+    :type winget_pkgs仓库: str | None
+    :return: 获取到的版本列表，没获取到返回 `None`
+    :rtype: list[str] | None
     """
 
     版本列表: list[str] = []
@@ -119,7 +144,20 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
         return None
 
 def FormatManifest(Manifest: str, Comment: str = "# Created with Sundry-Locale") -> str:
-    """格式化清单内容"""
+    """
+    格式化清单内容
+    - 更新清单版本
+    - 添加 schema
+    - 添加工具注释
+    - 去除末尾多余空行 / 添加末尾空行
+    
+    :param Manifest: 清单文件内容
+    :type Manifest: str
+    :param Comment: 工具注释内容
+    :type Comment: str
+    :return: 格式化后的清单文件内容
+    :rtype: str
+    """
 
     # 修改 ManifestVersion 和版本号
     for OldManifestVersion in 清单信息.旧版本列表:
