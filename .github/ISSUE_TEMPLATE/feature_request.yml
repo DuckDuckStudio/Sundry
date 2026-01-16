@@ -1,7 +1,9 @@
-name: "🚀 新功能请求 / 想法"
+name: 🚀 新功能请求 / 想法
 title: "[Feat]: "
 description: 提出新功能建议 (这并不意味着你必须实现它)。
-labels: ["新功能","DEV-需要注意"]
+labels: 
+- "新功能"
+- "DEV-需要注意"
 body:
   - type: markdown
     attributes:
@@ -13,7 +15,7 @@ body:
       options:
         - label: 我已经搜索过已存在的Issue，并没有存在相同的正在进行中/重复/已解决的Issue
           required: true
-        - label: 如果该功能已在作者本地实现，我并没有在README中找到相应说明
+        - label: 如果该功能已在作者本地实现，我并没有在 README 或议题中找到相应说明
           required: true
         - label: 我知道作者不计划实现**完全**更新/创建清单的功能
           required: true
@@ -26,12 +28,12 @@ body:
   - type: textarea
     attributes:
       label: 为什么需要实现此功能
-      placeholder: 告诉我们为什么需要这个功能？能带来什么好处？ (建议填写此字段，这对实施很有帮助!)
+      placeholder: 告诉我们为什么需要这个功能？
     validations:
       required: false
   - type: textarea
     attributes:
       label: 对于实施该功能的方法的建议
-      placeholder: 建议我们如何实现这一点 (建议填写此字段，这对实施很有帮助!)
+      placeholder: 建议我们如何实现这一点
     validations:
       required: false
