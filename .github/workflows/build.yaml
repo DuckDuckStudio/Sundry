@@ -6,8 +6,7 @@ on:
       version:
         description: 版本号 (不带v)
         required: true
-        default: 2025.520.1314
-        # 神金
+        default: 2.3.3
   release:
     types: [ published ]
 
@@ -16,12 +15,22 @@ permissions:
 
 jobs:
   build:
-    runs-on: windows-2022
+    runs-on: windows-latest
 
     steps:
-      - name: 处理版本号
-        shell: pwsh
-        run: |
+      - name: 检出代码
+        uses: actions/checkout@v6.0.1
+
+      - name: 配置 Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: 3.x
+
+      - name: 更新版本号
+        env:
+          PYTHONIOENCODING: utf-8
+        # 前面已经配置过 Python 了，这个脚本只用 os 和 sys 这两个标准库，不用再装依赖
+        run: |-
           if ($env:GITHUB_EVENT_NAME -eq "workflow_dispatch") {
             $version = "${{ github.event.inputs.version }}"
             # 如果版本号以 v 开头，则去掉 v
@@ -40,30 +49,14 @@ jobs:
             }
           }
           Write-Host "Version: $version"
-          # 将版本号写入环境变量
-          Write-Output "VERSION=$version" | Out-File $env:GITHUB_ENV -Append
-
-      - name: 检出代码
-        uses: actions/checkout@v6.0.1
-
-      - name: 配置 Python
-        uses: actions/setup-python@v6
-        with:
-          python-version: 3.x
-
-      - name: 更新版本号
-        env:
-          PYTHONIOENCODING: utf-8
-        # 前面已经配置过 Python 了，这个脚本只用 os 和 sys 这两个标准库，不用再装依赖
-        run: |
-          python "自动化脚本/修改版本号.py" "${{ env.VERSION }}"
+          python "自动化脚本/修改版本号.py" "$version"
 
       - name: 安装依赖
         shell: pwsh
         env:
           PYTHONIOENCODING: utf-8
         # 环境配置的依赖文件中含有打包所需依赖
-        run: |
+        run: |-
           pip install -r "requirements.txt"
           pip list
           Write-Host "=================UPX===================="
@@ -82,7 +75,7 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         shell: bash
-        run: |
+        run: |-
           cp -v LICENSE src/LICENSE
           mkdir Release
           mkdir Release/src
@@ -98,7 +91,7 @@ jobs:
         env:
           PYTHONIOENCODING: utf-8
         # 这里是直接打包过去的，不用管 sundry.ps1
-        run: |
+        run: |-
           mkdir Release/pack
           cp -v src/fun.txt Release/pack
           cp -v LICENSE Release/pack
@@ -122,7 +115,7 @@ jobs:
       - name: 整理发行版文件
         if: ${{ github.event_name != 'workflow_dispatch' }}
         shell: bash
-        run: |
+        run: |-
           rm -rv Release/pack
           rm -rv Release/src
 
@@ -130,5 +123,4 @@ jobs:
         if: ${{ github.event_name != 'workflow_dispatch' }}
         uses: softprops/action-gh-release@v2.5.0
         with:
-          files: |
-            Release/**
+          files: Release/**
