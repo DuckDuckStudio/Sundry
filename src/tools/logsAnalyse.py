@@ -5,7 +5,6 @@ import csv
 import json
 import shutil
 import zipfile
-import tempfile
 import requests
 from typing import Any
 from colorama import Fore
@@ -15,6 +14,7 @@ from urllib.parse import urlparse, parse_qs
 from function.github.token import read_token
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
+from function.constant.paths import AZP_LOGS_DIR
 from catfood.functions.format.github import IssueNumber
 from catfood.exceptions.operation import TryOtherMethods
 from function.constant.logsAnalyse import EXE_LIST_LIMIT
@@ -61,7 +61,7 @@ def main(args: list[str]) -> int:
 
     print(f"{Fore.BLUE}INFO{Fore.RESET} 正在获取管道运行 ({build_id}) 的日志...")
 
-    logs_dir = os.path.join(tempfile.gettempdir(), "Sundry", "AzurePipelines", build_id)
+    logs_dir = os.path.join(AZP_LOGS_DIR, build_id)
 
     for i in ["InstallationVerificationLogs", "ValidationResult"]:
         if os.path.exists(os.path.join(logs_dir, i)):

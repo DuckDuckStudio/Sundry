@@ -1,7 +1,8 @@
-import os
 import sys
 from colorama import init
 from catfood.functions.print import 消息头
+from function.constant.paths import SUNDRY_LOCATION
+from function.constant.general import SUNDRY_VERSION
 
 def main() -> int:
     init(autoreset=True)
@@ -12,9 +13,6 @@ def main() -> int:
     except IndexError:
         tool = "help"
         args = []
-
-    script_path = os.path.dirname(os.path.abspath(sys.argv[0]))
-    version = "develop"
 
     if (sys.platform != "win32") and (tool in (
         "移除", "remove", "自动移除", "autoremove", # 验证阶段需要 WinGet，不确定如何读取 Token
@@ -65,8 +63,6 @@ def main() -> int:
         return revert.main(args)
     elif tool in ("fun"):
         import tools.maintain.fun as fun
-        # 将 script_path 作为 args 的第一个参数
-        args.insert(0, script_path)
         return fun.main(args)
     elif tool in ("清理", "cleanup", "clean"):
         import tools.maintain.cleanup as cleanup
@@ -74,8 +70,9 @@ def main() -> int:
         return cleanup.main(arg) # 仅接受单个 str 参数
     # 其他
     elif tool in ("ver", "版本", "version", "Version", "--version", "--ver", "-v"):
-        print(f"版本: {version}")
-        print(f"安装在: {script_path}")
+        print("Sundry by 鸭鸭「カモ」")
+        print(f"版本: {SUNDRY_VERSION}")
+        print(f"安装在: {SUNDRY_LOCATION}")
         return 0
     else:
         print("Sundry 使用帮助")

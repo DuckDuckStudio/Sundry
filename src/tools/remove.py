@@ -14,6 +14,7 @@ from catfood.functions.print import 消息头
 from function.git.format import branchName
 from function.maintain.config import 读取配置
 from translate import Translator # type: ignore
+from function.constant.general import PR_TOOL_NOTE
 from catfood.exceptions.operation import OperationFailed
 from function.github.token import read_token, 这是谁的Token
 from function.files.manifest import 获取清单目录, 获取现有包版本
@@ -32,21 +33,12 @@ def 创建拉取请求(包标识符: str, 分支名: str, 版本文件夹: str, 
             "Authorization": f"token {github_token}",
             "Accept": "application/vnd.github.v3+json"
         }
-        数据: dict[str, str | bool]
-        if (手动验证结果):
-            数据 = {
-                "title": f"Remove version: {包标识符} version {版本文件夹} (Auto)",
-                "head": f"{owner}:{分支名}",
-                "base": "master",
-                "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n{手动验证结果}\n\n---\n"
-            }
-        else:
-            数据 = {
-                "title": f"Remove version: {包标识符} version {版本文件夹} (Auto)",
-                "head": f"{owner}:{分支名}",
-                "base": "master",
-                "body": f"### This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/)🚀.\n{理由}\n\n---\n"
-            }
+        数据: dict[str, str | bool] = {
+            "title": f"Remove version: {包标识符} version {版本文件夹} (Auto)",
+            "head": f"{owner}:{分支名}",
+            "base": "master",
+            "body": f"{PR_TOOL_NOTE}\n\n{理由}{f'\n{手动验证结果}' if 手动验证结果 else ''}\n\n---\n"
+        }
 
         if 读取配置("github.pr.maintainer_can_modify") == False:
             数据["maintainer_can_modify"] = False

@@ -19,6 +19,7 @@ from pygments import highlight # pyright: ignore[reportUnknownVariableType]
 from pygments.lexers import YamlLexer # pyright: ignore[reportUnknownVariableType]
 from function.files.manifest import 获取清单目录
 from pygments.formatters import TerminalFormatter
+from function.constant.paths import VERIFY_TEMP_DIR
 from catfood.exceptions.request import RequestException
 
 def main(args: list[str]) -> int:
@@ -77,7 +78,7 @@ def main(args: list[str]) -> int:
             
             # 好的，接下来让我为它们构建最少目录结构
             # 这里相当于把 %TEMP%/Sundry/Verify/LocaleManifests/** 当作一个 winget-pkgs 仓库，后续就和传入 2 个参数时差不多了。
-            清单目录 = os.path.join(tempfile.gettempdir(), "Sundry", "Verify", "LocaleManifests", "manifests", 包标识符[0].lower(), *包标识符.split("."))
+            清单目录 = os.path.join(VERIFY_TEMP_DIR, "LocaleManifests", "manifests", 包标识符[0].lower(), *包标识符.split("."))
             # 复制清单过去
             os.makedirs(清单目录, exist_ok=True)
             for 清单文件 in os.listdir(清单文件目录):
@@ -89,7 +90,7 @@ def main(args: list[str]) -> int:
     # ============================================================
 
     if PR编号:
-        清单目录 = os.path.join(tempfile.gettempdir(), "Sundry", "Verify", "PRManifest", PR编号)
+        清单目录 = os.path.join(VERIFY_TEMP_DIR, "PRManifest", PR编号)
         if 获取PR清单(PR编号, github_token, 清单目录):
             return 1
     elif not 清单目录:

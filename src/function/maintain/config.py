@@ -4,6 +4,7 @@ import requests
 from typing import Any
 from colorama import Fore
 from catfood.functions.print import 消息头
+from function.constant.paths import CONFIG_FILE_PATH
 from catfood.exceptions.operation import TryOtherMethods, OperationFailed
 
 class 配置信息:
@@ -72,7 +73,8 @@ class 配置信息:
 
     最新版本: str = "1.3"
 
-    所在位置: str = os.path.join(os.path.expanduser("~"), ".config", "DuckStudio", "Sundry", "config.json")
+    所在位置: str = CONFIG_FILE_PATH
+    """等同于 `from function.constant.paths import CONFIG_FILE_PATH`。"""
 
 def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     """
