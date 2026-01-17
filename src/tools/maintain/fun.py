@@ -3,34 +3,52 @@ import random
 from colorama import Fore
 from catfood.functions.print import 消息头
 from catfood.functions.files import open_file
+from function.constant.paths import FUN_TEXT_PATH
+from catfood.exceptions.operation import OperationFailed
 
 def main(args: list[str]) -> int:
-    fun位置 = os.path.normpath(os.path.join(args[0], "fun.txt"))
-
-    if (1 <= len(args) <= 3): # 这里就这样，不然在 else 里要加一堆参数错误
-        if (len(args) == 1) or (args[1] in ["随机", "random"]):
-            return 获取fun(fun位置, 随机=True)
-        elif (len(args) == 2) and (args[1] in ["get", "list"]):
-            return 获取fun(fun位置, 随机=False)
-        elif (len(args) == 2) and (args[1] in ["编辑", "edit", "打开", "open"]):
-            return 编辑fun(fun位置)
-        elif (len(args) == 3) and (args[1] in ["add", "添加"]):
-            return 添加fun(fun位置, args[2])
-        elif (len(args) == 3) and (args[1] in ["remove", "移除"]):
-            return 移除fun(fun位置, args[2])
-        elif (len(args) == 3) and (args[1] in ["import", "导入"]):
-            return 导入fun(fun位置, os.path.normpath(os.path.abspath(args[2])))
+    """
+    sundry fun ...
+    
+    :param args: 参数
+    :type args: list[str]
+    :return: 退出代码
+    :rtype: int
+    """
+    
+    try:
+        if (len(args) > 3):
+            raise OperationFailed
+        elif (not args) or (args[0] in ("随机", "random")):
+            return 获取fun(随机=True)
+        elif (len(args) == 1):
+            match args[0]:
+                case "get" | "list":
+                    return 获取fun(随机=False)
+                case "编辑" | "edit" | "打开" | "open":
+                    return 编辑fun()
+                case _:
+                    raise OperationFailed
+        elif (len(args) == 2):
+            match args[0]:
+                case "add" | "添加":
+                    return 添加fun(args[1])
+                case "remove" | "移除":
+                    return 移除fun(args[1])
+                case "import" | "导入":
+                    return 导入fun(FUN_TEXT_PATH, os.path.normpath(os.path.abspath(args[1])))
+                case _:
+                    raise OperationFailed
         else:
-            print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
-            return 1
-    else:
+            raise OperationFailed
+    except OperationFailed:
         print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
-def 编辑fun(fun位置: str) -> int:
-    print(f"{消息头.信息} fun.txt 位于 {fun位置}")
+def 编辑fun() -> int:
+    print(f"{消息头.信息} fun.txt 位于 {FUN_TEXT_PATH}")
     print(f"{消息头.信息} 尝试打开 fun.txt ...")
-    return open_file(fun位置)
+    return open_file(FUN_TEXT_PATH)
 
 def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
     # 导入覆盖原
@@ -80,69 +98,68 @@ def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
         print(f"{消息头.错误} 导入 {Fore.BLUE}{导入fun文件}{Fore.RESET} 到 {Fore.BLUE}{原fun文件}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
 
-def 移除fun(fun位置: str, 条目: str) -> int:
+def 移除fun(条目: str) -> int:
     try:
         条目 = 条目.replace("\n", "\\n")
-        if not os.path.exists(fun位置):
+        if not os.path.exists(FUN_TEXT_PATH):
             raise FileNotFoundError()
-        with open(fun位置, 'r', encoding="utf-8") as file:
+        with open(FUN_TEXT_PATH, 'r', encoding="utf-8") as file:
             lines = file.readlines()
         if not (f"{条目}\n" in lines):
-            print(f"{消息头.警告} 在 {Fore.BLUE}{fun位置}{Fore.RESET} 中{Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET}")
+            print(f"{消息头.警告} 在 {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET} 中{Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET}")
             return 0
         while f"{条目}\n" in lines:
             # 移除所有匹配的条目
             lines.remove(f"{条目}\n")
-        with open(fun位置, 'w', encoding="utf-8") as file:
+        with open(FUN_TEXT_PATH, 'w', encoding="utf-8") as file:
             file.writelines(lines)
-        print(f"{消息头.成功} 已将 {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET} 从 {Fore.BLUE}{fun位置}{Fore.RESET} 中移除")
+        print(f"{消息头.成功} 已将 {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET} 从 {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET} 中移除")
         return 0
     except FileNotFoundError:
-        print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET}")
         return 1
     except Exception as e:
         print(f"{消息头.错误} 移除 {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
 
-def 添加fun(fun位置: str, 新条目: str) -> int:
+def 添加fun(新条目: str) -> int:
     # 查重
     try:
         新条目 = 新条目.replace("\n", "\\n")
-        with open(fun位置, 'r', encoding="utf-8") as file:
+        with open(FUN_TEXT_PATH, 'r', encoding="utf-8") as file:
             lines = file.readlines()
             if f"{新条目}\n" in lines:
-                print(f"{消息头.警告} {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} {Fore.YELLOW}已存在{Fore.RESET}于 {Fore.BLUE}{fun位置}{Fore.RESET}")
+                print(f"{消息头.警告} {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} {Fore.YELLOW}已存在{Fore.RESET}于 {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET}")
                 return 0
     except FileNotFoundError:
-        print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET}")
         # 询问用户是否创建一个
         try:
             input(f"{消息头.问题} 创建个新的 fun.txt? [ENTER/CTRL+C]")
-            with open(fun位置, 'w', encoding="utf-8"):
+            with open(FUN_TEXT_PATH, 'w', encoding="utf-8"):
                 pass
         except KeyboardInterrupt:
             print(f"\n{消息头.错误} 操作取消")
             return 1
     except Exception as e:
-        print(f"{消息头.错误} 读取 {Fore.BLUE}{fun位置}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 读取 {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
     # 添加新条目
     try:
-        with open(fun位置, 'a', encoding="utf-8") as file:
+        with open(FUN_TEXT_PATH, 'a', encoding="utf-8") as file:
             file.write(f"{新条目}\n")
-        print(f"{消息头.成功} 已将 {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} 添加进 {Fore.BLUE}{fun位置}{Fore.RESET}")
+        print(f"{消息头.成功} 已将 {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} 添加进 {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET}")
         return 0
     except Exception as e:
-        print(f"{消息头.错误} 添加 {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} 到 {Fore.BLUE}{fun位置}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 添加 {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} 到 {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
 
-def 获取fun(fun位置: str, 随机: bool) -> int:
+def 获取fun(随机: bool) -> int:
     try:
-        if not os.path.exists(fun位置):
+        if not os.path.exists(FUN_TEXT_PATH):
             raise FileNotFoundError()
-        with open(fun位置, 'r', encoding="utf-8") as file:
-            content = file.read()
-            if content.strip():
+        with open(FUN_TEXT_PATH, 'r', encoding="utf-8") as file:
+            if content := file.read().strip():
                 if 随机:
                     # 随机单个句子
                     lines: list[str] = []
@@ -158,11 +175,11 @@ def 获取fun(fun位置: str, 随机: bool) -> int:
                     # 整个文件，不处理 \n
                     print(content)
             else:
-                print(f"{消息头.警告} {Fore.BLUE}{fun位置}{Fore.RESET} {Fore.YELLOW}为空{Fore.RESET}")
+                print(f"{消息头.警告} {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET} {Fore.YELLOW}为空{Fore.RESET}")
         return 0
     except FileNotFoundError:
-        print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{fun位置}{Fore.RESET}")
+        print(f"{消息头.错误} {Fore.YELLOW}未找到{Fore.RESET} {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET}")
         return 1
     except Exception as e:
-        print(f"{消息头.错误} 读取 {Fore.BLUE}{fun位置}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{消息头.错误} 读取 {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1

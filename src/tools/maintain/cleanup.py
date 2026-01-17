@@ -1,13 +1,12 @@
 import os
 import shutil
-import tempfile
 from colorama import Fore
 from catfood.functions.print import 消息头
+from function.constant.paths import SUNDRY_TEMP_DIR
 
 def main(哪个工具: str) -> int:
     """
-    清理指定工具运行产生的文件。  
-    参数 1: 指定哪个工具
+    清理指定工具运行产生的文件。
     """
 
     if not 哪个工具:
@@ -29,21 +28,23 @@ def main(哪个工具: str) -> int:
             break
     # 如不是已知别名，原样传递
 
-    临时目录 = os.path.join(tempfile.gettempdir(), "Sundry")
-
     if 哪个工具 == "logsAnalyse":
-        待清理文件路径 = os.path.join(临时目录, "AzurePipelines")
+        from function.constant.paths import AZP_LOGS_DIR
+        待清理文件路径 = AZP_LOGS_DIR
     elif 哪个工具 == "remove":
-        待清理文件路径 = os.path.join(临时目录, "RemoveAndAutoRemove", "DownloadInstallers")
+        from function.constant.paths import INSTELLER_DOWNLOAD_DIR
+        待清理文件路径 = INSTELLER_DOWNLOAD_DIR
     elif 哪个工具 == "verify":
-        待清理文件路径 = os.path.join(临时目录, "Verify")
+        from function.constant.paths import VERIFY_TEMP_DIR
+        待清理文件路径 = VERIFY_TEMP_DIR
     elif 哪个工具 == "cache":
-        待清理文件路径 = os.path.join(临时目录, "Cache")
+        from function.constant.paths import CACHE_DIR
+        待清理文件路径 = CACHE_DIR
     elif 哪个工具 == "all":
         哪个工具 = "所有 Sundry"
-        待清理文件路径 = 临时目录
+        待清理文件路径 = SUNDRY_TEMP_DIR
     elif 哪个工具 == "aec":
-        待清理文件路径 = 临时目录
+        待清理文件路径 = SUNDRY_TEMP_DIR
     else:
         print(f"{消息头.错误} 不知道该如何清理 {哪个工具} 产生的文件")
         return 1
@@ -52,13 +53,18 @@ def main(哪个工具: str) -> int:
 
 def 清理文件(待清理文件路径: str, 哪个工具: str) -> int:
     """
-    删除指定的文件夹并打印日志。  
-    参数 1: 指定待清理文件夹的路径  
-    参数 2: 指定日志输出中的工具名称
+    删除指定的文件夹并打印日志。
+    
+    :param 待清理文件路径: 指定待清理文件夹的路径
+    :type 待清理文件路径: str
+    :param 哪个工具: 指定日志输出中的工具名称
+    :type 哪个工具: str
+    :return: 退出代码
+    :rtype: int
     """
 
     try:
-        if 哪个工具 == "aec":
+        if 哪个工具 == "aec": # aka "All Except Cache"
             哪个工具 = "除缓存外所有 Sundry"
 
             有清理 = False
