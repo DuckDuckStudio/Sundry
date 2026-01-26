@@ -44,7 +44,7 @@ def 这是谁的Token(token: str | int | None) -> str | None:
 
     if not isinstance(token, str):
         return None
-    响应 = 请求GitHubAPI("https://api.github.com/user", token)
+    响应 = 请求GitHubAPI("https://api.github.com/user", token=token)
     响应 = cast(dict[str, Any], 响应)
     谁的 = 响应.get("login", None)
     if isinstance(谁的, str):
