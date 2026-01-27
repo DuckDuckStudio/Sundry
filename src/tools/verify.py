@@ -5,22 +5,17 @@ import json
 import yaml
 import ctypes
 import winreg
-import base64
 import shutil
-import tempfile
-import requests
 import subprocess
-from typing import Any
 from colorama import Fore
 from catfood.functions.print import 消息头
 from function.github.token import read_token
 from function.maintain.config import 读取配置
 from pygments import highlight # pyright: ignore[reportUnknownVariableType]
 from pygments.lexers import YamlLexer # pyright: ignore[reportUnknownVariableType]
-from function.files.manifest import 获取清单目录
 from pygments.formatters import TerminalFormatter
 from function.constant.paths import VERIFY_TEMP_DIR
-from catfood.exceptions.request import RequestException
+from function.files.manifest import 获取清单目录, 获取PR清单
 
 def main(args: list[str]) -> int:
     # 初始化
@@ -91,7 +86,7 @@ def main(args: list[str]) -> int:
 
     if PR编号:
         清单目录 = os.path.join(VERIFY_TEMP_DIR, "PRManifest", PR编号)
-        if 获取PR清单(PR编号, github_token, 清单目录):
+        if 获取PR清单(PR编号, 清单目录, github_token):
             return 1
     elif not 清单目录:
         清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录)
@@ -141,138 +136,6 @@ def main(args: list[str]) -> int:
             else:
                 print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 {包标识符} {包版本} 的本地清单")
             return 0
-
-def 请求GitHubAPI(apiUrl: str, github_token: str | None):
-    请求头 = {
-        "Authorization": f"token {github_token}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    if not github_token:
-        # 移除 Authorization 头
-        请求头.pop("Authorization", None)
-    try:
-        响应 = requests.get(apiUrl, headers=请求头)
-        
-        if 响应.status_code == 404:
-            raise RequestException("PR 不存在或对应分支已被删除")
-        elif 响应.status_code >= 400:
-            raise RequestException(响应)
-        else:
-            return 响应.json()
-    except RequestException as e:
-        print(f"{消息头.错误} 请求 GitHub API 失败:\n{e}")
-        return
-
-def 获取PR清单(PR编号: str, github_token: str | None, 清单目录: str) -> int:
-    print(f"尝试获取 PR #{PR编号} 中的清单...")
-    清单文件夹路径 = 获取PR清单文件夹路径(PR编号, github_token)
-    if not 清单文件夹路径:
-        return 1
-    结果 = 获取PR仓库和分支(PR编号, github_token)
-    if not 结果:
-        return 1
-    fork仓库, fork分支 = 结果
-
-    if os.path.exists(清单目录):
-        if input(f"{消息头.问题} 临时清单目录下{Fore.YELLOW}已存在同名清单目录{Fore.RESET} {Fore.BLUE}{清单目录}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() not in ["y", "yes", "是", ""]:
-            print(f"{消息头.错误} 临时清单目录下存在同名清单目录")
-            return 1
-        else:
-            try:
-                # 移除它
-                shutil.rmtree(清单目录)
-            except Exception as e:
-                print(f"{消息头.错误} 移除同名清单目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
-                return 1
-    os.makedirs(清单目录, exist_ok=True)
-
-    请求头 = {
-        "Authorization": f"token {github_token}",
-        "Accept": "application/vnd.github.v3+json"
-    }
-    if not github_token:
-        # 移除 Authorization 头
-        请求头.pop("Authorization", None)
-
-    try:
-        api = f"https://api.github.com/repos/{fork仓库}/contents/{清单文件夹路径}?ref={fork分支}" # NOTE: 这里不对 url 进行编码，因为包标识符不允许出现特殊字符/中文
-        清单目录响应: list[dict[str, Any]] | None = 请求GitHubAPI(api, github_token)
-        if not isinstance(清单目录响应, list):
-            raise RequestException(f"未获取到清单文件夹信息: {清单目录响应}")
-
-        for 清单文件 in 清单目录响应: # 这里要改
-            api = 清单文件.get("url")
-            if not isinstance(api, str):
-                raise ValueError(f"未能获取到清单文件 api (url 字段): {清单文件}")
-            
-            文件名 = 清单文件.get("name")
-            if not isinstance(文件名, str):
-                raise ValueError(f"未能获取到清单文件名: {清单文件}")
-            
-            清单文件响应: dict[str, str | int | dict[str, str]] | None = 请求GitHubAPI(api, github_token)
-            if not 清单文件响应:
-                raise RequestException(f"未获取到清单文件信息: {清单文件响应}")
-
-            清单内容 = 清单文件响应.get("content")
-            if not isinstance(清单内容, str):
-                raise ValueError(f"未能获取到清单内容: {清单文件响应}")
-
-            清单内容 = base64.b64decode(清单内容)
-
-            with open(os.path.join(清单目录, 文件名), "wb") as 清单文件:
-                清单文件.write(清单内容)
-    except Exception as e:
-        print(f"{消息头.错误} 下载清单文件失败:\n{e}")
-        return 1
-
-    print(f"成功获取 PR #{PR编号} 中的清单")
-    return 0
-
-def 获取PR仓库和分支(PR编号: str, github_token: str | None) -> None | tuple[str, str]:
-    api = f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{PR编号}"
-
-    响应 = 请求GitHubAPI(api, github_token)
-    if 响应:
-        fork仓库 = 响应["head"]["repo"]["full_name"]
-        fork分支 = 响应["head"]["ref"]
-        print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取 PR HEAD 的仓库和分支")
-        return fork仓库, fork分支
-    else:
-        return
-
-def 获取PR清单文件夹路径(PR编号: str, github_token: str | None) -> None | str:
-    api = f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{PR编号}/files"
-    非预期状态 = True # 如果文件状态全是移除或没有状态，则为非预期状态
-    清单文件夹 = None
-    清单文件路径: list[str] = []
-
-    响应 = 请求GitHubAPI(api, github_token)
-    if 响应:
-        for 文件 in 响应:
-            文件相对路径: str = 文件["filename"]
-            # 文件是 .yaml 格式且在 manifests 目录下
-            if 文件相对路径.endswith(".yaml") and 文件相对路径.startswith("manifests/"):
-                清单文件路径.append(文件相对路径)
-                if 清单文件夹 is None:
-                    清单文件夹 = os.path.dirname(文件相对路径)
-                elif 清单文件夹 != os.path.dirname(文件相对路径):
-                    print(f"{消息头.错误} 此 PR 修改了多个文件夹下的文件")
-                    return
-            else:
-                print(f"{消息头.错误} 非预期的清单类型: {Fore.BLUE}{文件相对路径}{Fore.RESET}")
-                print(f"{Fore.YELLOW}Hint{Fore.RESET} 请确定 PR 是对清单的修改，并确定修改的文件都是 .yaml 格式")
-                return
-            if 文件["status"] != "removed":
-                非预期状态 = False
-
-        if 非预期状态:
-            print(f"{消息头.错误} 这是个纯移除或没有修改的 PR")
-            return
-        
-        print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取清单文件夹相对路径")
-        return 清单文件夹
-    else:
-        return
 
 def 验证清单(清单目录: str) -> int:
     # 使用 winget validate 验证清单文件，并返回 winget 退出代码

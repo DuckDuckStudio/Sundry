@@ -1,8 +1,13 @@
 import os
+import shutil
+import base64
 import subprocess
+from typing import Any
 from colorama import Fore
 from function.maintain.config import 读取配置
+from catfood.functions.github.api import 请求GitHubAPI
 from catfood.functions.print import 消息头, 多行带头输出
+from catfood.exceptions.request import RequestException
 from catfood.exceptions.operation import TryOtherMethods
 
 class 清单信息:
@@ -219,3 +224,142 @@ def FormatManifest(Manifest: str, Comment: str = "# Created with Sundry-Locale")
         # .rstrip() 去除文本末尾的指定字符
 
     return Manifest
+
+def 获取PR清单(PR编号: str, 清单目录: str, token: str | None = None) -> int:
+    """
+    尝试获取 PR 中修改的包版本的清单。
+
+    :param PR编号: PR 的编号
+    :type PR编号: str
+    :param 清单目录: 清单文件保存的位置
+    :type 清单目录: str
+    :param token: 请求使用的 GitHub Token，`None` 为不带 Token 请求。
+    :type token: str | None
+    :return: 是否成功获取清单。成功为 `0`，失败为 `1`。
+    :rtype: int
+    """
+
+    print(f"{消息头.信息} 尝试获取 PR #{PR编号} 中的清单...")
+    if not (清单文件夹路径 := _获取PR清单文件夹路径(PR编号, token)):
+        return 1
+
+    if 结果 := _获取PR仓库和分支(PR编号, token):
+        fork仓库, fork分支 = 结果
+    else:
+        return 1
+    
+    if os.path.exists(清单目录):
+        print(f"{消息头.警告} 临时清单目录下{Fore.YELLOW}已存在同名清单目录{Fore.RESET}，Sundry 将覆盖掉它。")
+        try:
+            shutil.rmtree(清单目录)
+        except Exception as e:
+            print(f"{消息头.错误} 移除同名清单目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+            print(f"{消息头.提示} 清单目录位于: {清单目录}")
+            return 1
+    os.makedirs(清单目录, exist_ok=True)
+
+    try:
+        api = f"https://api.github.com/repos/{fork仓库}/contents/{清单文件夹路径}?ref={fork分支}" # NOTE: 这里不对 url 进行编码，因为包标识符不允许出现特殊字符/中文
+        清单目录响应: list[dict[str, Any]] | None = 请求GitHubAPI(api, token=token)
+        if not isinstance(清单目录响应, list):
+            raise RequestException(f"未获取到清单文件夹信息: {清单目录响应}")
+
+        for 清单文件 in 清单目录响应: # NOTE: 原来在 verify 中时这里写了个“这里要改”，但我完全不记得是要改什么 :(
+            api = 清单文件.get("url")
+            if not isinstance(api, str):
+                raise ValueError(f"未能获取到清单文件 api (url 字段): {清单文件}")
+            
+            文件名 = 清单文件.get("name")
+            if not isinstance(文件名, str):
+                raise ValueError(f"未能获取到清单文件名: {清单文件}")
+            
+            清单文件响应: dict[str, str | int | dict[str, str]] | None = 请求GitHubAPI(api, token=token)
+            if not 清单文件响应:
+                raise RequestException(f"未获取到清单文件信息: {清单文件响应}")
+
+            清单内容 = 清单文件响应.get("content")
+            if not isinstance(清单内容, str):
+                raise ValueError(f"未能获取到清单内容: {清单文件响应}")
+
+            清单内容 = base64.b64decode(清单内容)
+
+            with open(os.path.join(清单目录, 文件名), "wb") as 清单文件:
+                清单文件.write(清单内容)
+    except Exception as e:
+        print(f"{消息头.错误} 下载清单文件失败:\n{Fore.RED}{e}{Fore.RESET}")
+        return 1
+
+    print(f"{消息头.成功} 成功获取 PR #{PR编号} 中的清单")
+    return 0
+
+def _获取PR清单文件夹路径(PR编号: str, token: str | None = None) -> str | None:
+    """
+    尝试获取 PR 中修改的清单文件夹路径。
+
+    :param PR编号: PR 的编号
+    :type PR编号: str
+    :param token: 请求使用的 GitHub Token，`None` 为不带 Token 请求。
+    :type token: str | None
+    :return: 获取到的路径，获取失败返回 `None`。
+    :rtype: str | None
+    """
+    api = f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{PR编号}/files"
+    非预期状态 = True # 如果文件状态全是移除或没有状态，则为非预期状态
+    清单文件夹 = None
+    清单文件路径: list[str] = []
+
+    响应 = 请求GitHubAPI(api, token=token)
+    if 响应:
+        for 文件 in 响应:
+            文件相对路径: str = 文件["filename"]
+            # 文件是 .yaml 格式且在 manifests 目录下
+            if 文件相对路径.endswith(".yaml") and 文件相对路径.startswith("manifests/"):
+                清单文件路径.append(文件相对路径)
+                if 清单文件夹 is None:
+                    清单文件夹 = os.path.dirname(文件相对路径)
+                elif 清单文件夹 != os.path.dirname(文件相对路径):
+                    print(f"{消息头.错误} 此 PR 修改了多个文件夹下的文件")
+                    return None
+            else:
+                print(f"{消息头.错误} 非预期的清单类型: {Fore.BLUE}{文件相对路径}{Fore.RESET}")
+                print(f"{Fore.YELLOW}Hint{Fore.RESET} 请确定 PR 是对清单的修改，并确定修改的文件都是 .yaml 格式")
+                return None
+            if 文件["status"] != "removed":
+                非预期状态 = False
+
+        if 非预期状态:
+            print(f"{消息头.错误} 这是个纯移除或没有修改的 PR")
+            return None
+        
+        print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取清单文件夹相对路径")
+        return 清单文件夹
+    else:
+        print(f"{消息头.错误} 未能获取清单文件夹相对路径，请求 {Fore.BLUE}{api}{Fore.RESET} 失败。")
+        return None
+
+def _获取PR仓库和分支(PR编号: str, token: str | None = None) -> tuple[str, str] | None:
+    """
+    尝试获取 PR HEAD 的仓库和分支
+
+    :param PR编号: PR 的编号
+    :type PR编号: str
+    :param token: 请求使用的 GitHub Token，`None` 为不带 Token 请求。
+    :type token: str | None
+    :return: 包含仓库（owner/repo）和分支名的元组，获取失败返回 `None`。
+    :rtype: tuple[str, str] | None
+    """
+
+    api = f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{PR编号}"
+
+    响应 = 请求GitHubAPI(api, token=token)
+    if 响应:
+        try:
+            fork仓库 = 响应["head"]["repo"]["full_name"]
+            fork分支 = 响应["head"]["ref"]
+            print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取 PR HEAD 的仓库和分支")
+            return fork仓库, fork分支
+        except KeyError as e:
+            print(f"{消息头.错误} 未能获取 PR HEAD 的仓库和分支: 响应中没有键 {Fore.BLUE}{e}{Fore.RESET}")
+            return None
+    else:
+        return None
