@@ -295,6 +295,8 @@ def 分析InstallationVerificationLogs(dir_path: str, detailed: bool = False) ->
                                     匹配 = re.search(r"exit code (-?\d+)", line, re.IGNORECASE)
                                     if 匹配:
                                         查找错误代码解释(匹配.group(1))
+                                        if 匹配.group(1) == "-2147467260":
+                                            print(f"{消息头.提示} 这可能是{Fore.YELLOW}验证管道的一个已知问题{Fore.RESET}导致的: https://github.com/microsoft/winget-pkgs/issues/323120")
                                     else:
                                         print(f"{消息头.提示} 您可以尝试在 https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md 上查找对应退出代码的解释。")
                                         print(f"{消息头.提示} 也可以尝试在 https://github.com/microsoft/winget-pkgs/blob/master/Tools/ManualValidation/ExitCodes.csv 上查找对应退出代码的解释。")
