@@ -301,14 +301,13 @@ def 分析InstallationVerificationLogs(dir_path: str, detailed: bool = False) ->
                                         print(f"{消息头.提示} 您可以尝试在 https://github.com/microsoft/winget-cli/blob/master/doc/windows/package-manager/winget/returnCodes.md 上查找对应退出代码的解释。")
                                         print(f"{消息头.提示} 也可以尝试在 https://github.com/microsoft/winget-pkgs/blob/master/Tools/ManualValidation/ExitCodes.csv 上查找对应退出代码的解释。")
                                 elif keyword in ["ShellExecute installer failed", "MSIX installer failed"]:
-                                    # keyword: 123
                                     匹配 = re.search(f"{keyword}:\\s*(-?\\d+)", line, re.IGNORECASE)
                                     if 匹配:
                                         查找错误代码解释(匹配.group(1))
                                 elif keyword == "No suitable installer found":
                                     print(f"{消息头.提示} 这可能是因为您提交的包的安装程序定义和依赖中的安装程序定义不匹配。")
-                                    print(f"{消息头.提示} 举个例子，当上游依赖只支持 x64 架构，而您提交的清单中的安装程序还支持 x86 架构时，WinGet 会因为找不到 x86 的依赖安装程序而失败。")
-                                    print(f"{消息头.提示} 具体需要如何处理此错误尚不确定: https://github.com/microsoft/winget-pkgs/issues/152555")
+                                    print(f"{消息头.提示} 如果你想了解更多信息，建议阅读: https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=no-suitable-installer-found")
+                                    print(f"{消息头.提示} TL;DR 这大概率不是你的问题（除非是架构不一致）。")
                                 elif keyword == "Package failed updates, dependency or conflict validation.":
                                     print(f"{消息头.提示} 这可能是因为你在清单中指定的包依赖在 winget 源中并不存在，请检查并提交依赖清单。")
                                     查找错误代码解释("80073CF3")
