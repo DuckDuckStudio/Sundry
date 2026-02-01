@@ -122,26 +122,26 @@ sundry config "<配置项>" "<值>"
 <details>
   <summary><code>sundry logs-analyse</code></summary>
 
-![Sundry logs-analyse 命令展示图。该命令用于分析 Azure Validation Pipeline Run 失败时的日志，自动查找具体哪里失败了。](docs/photos/README/Demo/Commands/logs-analyse.png)  
+![Sundry logs-analyse 命令展示图。该命令用于分析验证管道运行失败时的日志，自动查找具体哪里失败了。](docs/photos/README/Demo/Commands/logs-analyse.png)  
 
 - 别名: `日志分析`, `logs-analyse`, `logs_analyse`, `azure日志分析`
-- 作用: **分析 [Azure Validation Pipeline Run](https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=验证管道日志在哪看？) 失败时的日志，自动查找具体哪里失败了。**
-- 用法: `sundry logs-analyse <Azure Pipeline Url> [是否保留日志文件] [是否显示一般信息]`
+- 作用: **分析 [验证管道运行](https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=验证管道日志在哪看？) 失败时的日志，自动查找具体哪里失败了。**
+- 用法: `sundry logs-analyse <GitHub PR 或 Azure 管道运行链接> [是否保留日志文件] [是否显示一般信息]`
 - 示例:
   > 这里的 Azure Validation Pipeline Run 是 https://github.com/microsoft/winget-pkgs/pull/295511#issuecomment-3315258870 的。
-  - 基本: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216"` (需要用户输入)
+  - 基本: `sundry logs-analyse "https://github.com/microsoft/winget-pkgs/pull/295511"` (需要用户输入)
   - 不保留日志文件: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" n`
-  - 保留日志文件: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" y` (运行后将打开日志文件所在目录)
+  - 保留日志文件: `sundry logs-analyse "https://github.com/microsoft/winget-pkgs/pull/295511" y` (运行后将打开日志文件所在目录)
   - 不显示一般信息: 默认，不需要传递额外参数。
   - 显示一般信息: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" 占位 y`
   - 保留日志文件且不显示一般信息: 默认不显示一般信息，同保留日志文件的示例。
-  - 保留日志文件且显示一般信息: `sundry logs-analyse "https://dev.azure.com/shine-oss/8b78618a-7973-49d8-9174-4360829d979b/_build/results?buildId=183216" y y`
+  - 保留日志文件且显示一般信息: `sundry logs-analyse "https://github.com/microsoft/winget-pkgs/pull/295511" y y`
 
 > 下载日志文件时响应 404 意味着什么？
 
 1. 验证管道没有上传日志。
 2. 此次运行的日志已被删除。  
-  如果这是一个较早的运行，日志可能已经被项目配置自动清理掉了。
+   如果这是一个较早的运行，日志可能已经被项目配置自动清理掉了。
 
 Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。  
 
@@ -160,6 +160,13 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 | 黄色 | 很大可能是你的 PR 遇到的问题 |
 | 红色 | 一些其他可能的问题 |
 | 默认颜色 | 一般信息，默认不显示 |
+
+> 传递 GitHub 拉取请求链接和 Azure 验证运行链接有什么区别？
+
+如果你只是想分析**最新一次**运行的日志，**用拉取请求链接**是个更简单的方法。  
+当然，如果你想，用 Azure 验证运行链接也行。  
+
+但如果最新的运行还在跑（或者其他原因），你想分析**之前特定某次**运行的日志，则应该**使用 Azure 验证运行链接**。
 
 > [!WARNING]  
 > `sundry logs-analyse cleanup` 已被 `sundry cleanup logs-analyse` 取代，前者计划在未来的 Sundry 中移除。  
