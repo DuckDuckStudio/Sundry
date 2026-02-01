@@ -48,7 +48,7 @@ def main() -> int:
     elif tool == "repr":
         import tools.repr
         return tools.repr.main(args)
-    elif tool in ("日志分析", "logs-analyse", "log-analyse", "logs_analyse", "Azure日志分析"):
+    elif tool in ("日志分析", "logs-analyse", "log-analyse", "logs_analyse", "azure日志分析"):
         import tools.logsAnalyse as logsAnalyse
         return logsAnalyse.main(args)
     elif tool in ("verify", "验证"):
