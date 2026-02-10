@@ -10,6 +10,7 @@ import webbrowser
 import tools.cat as cat
 import tools.sync as sync
 from colorama import Fore
+from catfood.constant import YES, NO
 from catfood.functions.print import 消息头
 from function.git.format import branchName
 from function.maintain.config import 读取配置
@@ -50,7 +51,7 @@ def 创建拉取请求(包标识符: str, 分支名: str, 版本文件夹: str, 
         else:
             print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
             try:
-                if input(f"{消息头.问题} 我应该重试吗[Y/N]: ").lower() not in ["y", "yes", "应该", "要", "重试", "retry"]:
+                if input(f"{消息头.问题} 我应该重试吗[Y/N]: ").lower() not in (*YES, "应该", "重试", "retry"):
                     return 1
                 print("正在重试...")
             except KeyboardInterrupt:
@@ -135,19 +136,19 @@ def main(args: list[str]) -> int:
             cat.main([包标识符, 包版本, "installer"])
             print("======= 确认 =======")
             t = input("您手动访问过每个安装程序链接了吗?").lower()
-            if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]):
+            if (t in (*NO, "没", "open", "o", "打开")):
                 if os.path.join(winget_pkgs目录, "manifests") in 清单目录:
                     webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/manifests/{包标识符[0].lower()}/{'/'.join(包标识符.split('.'))}/{包版本}/{包标识符}.installer.yaml")
                 else:
                     webbrowser.open(f"https://github.com/microsoft/winget-pkgs/tree/master/fonts/{包标识符[0].lower()}/{'/'.join(包标识符.split('.'))}/{包版本}/{包标识符}.installer.yaml")
-            if (t in ["没", "否", "假", "f", "n", "open", "o", "打开"]) or (t in ["手动", "m", "manually"]):
+            if (t in (*NO, "没", "open", "o", "打开")) or (t in ("手动", "m", "manually")):
                 if not 手动验证结果:
                     手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
                     if 手动验证结果:
                         # 自动将手动验证结果翻译为英文
                         手动验证结果 = Translator(from_lang='zh', to_lang='en').translate(手动验证结果) # type: ignore
                         手动验证结果 = f"{手动验证结果} (auto-translate)"
-                        if input(f"自动翻译结果: {Fore.BLUE}{手动验证结果}{Fore.RESET} 正确吗? ").lower() not in ["正确", "对", "y", "对的", "yes", ""]: # 空字符串代表直接 Enter
+                        if input(f"自动翻译结果: {Fore.BLUE}{手动验证结果}{Fore.RESET} 正确吗? ").lower() not in (*YES, "正确", "对", "对的", ""): # 空字符串代表直接 Enter
                             手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
                         手动验证结果 = f"Manual Verification:\n{手动验证结果}"
 

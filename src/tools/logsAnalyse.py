@@ -8,6 +8,7 @@ import zipfile
 import requests
 from typing import Any
 from colorama import Fore
+from catfood.constant import YES, NO
 import tools.maintain.cleanup as cleanup
 from catfood.functions.print import 消息头
 from urllib.parse import urlparse, parse_qs
@@ -65,7 +66,7 @@ def main(args: list[str]) -> int:
 
     for i in ["InstallationVerificationLogs", "ValidationResult"]:
         if os.path.exists(os.path.join(logs_dir, i)):
-            if input(f"{消息头.问题} 解压位置下{Fore.YELLOW}已存在同名目录{Fore.RESET} {Fore.BLUE}{os.path.join(logs_dir, i)}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() in ["n", "no", "不", "不要", "否"]:
+            if input(f"{消息头.问题} 解压位置下{Fore.YELLOW}已存在同名目录{Fore.RESET} {Fore.BLUE}{os.path.join(logs_dir, i)}{Fore.RESET}，我应该移除它吗? [Y/n]: ").lower() in NO:
                 print(f"{消息头.错误} 解压位置下存在同名目录")
                 return 1
             else:
@@ -110,7 +111,7 @@ def main(args: list[str]) -> int:
     # =============================================
 
     found = False
-    detailed = ((len(args) == 3) and (args[2].lower() in ["true", "yes", "y", "是"]))
+    detailed = ((len(args) == 3) and (args[2].lower() in YES))
 
     if os.path.exists(os.path.join(logs_dir, "InstallationVerificationLogs")):
         found = 分析InstallationVerificationLogs(os.path.join(logs_dir, "InstallationVerificationLogs"), detailed)
@@ -120,29 +121,29 @@ def main(args: list[str]) -> int:
 
     if not found:
         print(f"{消息头.警告} 未找到可能的问题")
-        if not ((len(args) == 3) and (args[2].lower() in ["true", "yes", "y", "是"])):
+        if not ((len(args) == 3) and (args[2].lower() in YES)):
             if (len(args) == 2):
                 print(f"{消息头.提示} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{args[0]}\" \"{args[1]}\" y{Fore.RESET} 来查看一般错误/异常")
             else:
                 print(f"{消息头.提示} 请尝试使用 {Fore.BLUE}sundry logs-analyse \"{args[0]}\" \"[是否保留日志文件]\" y{Fore.RESET} 来查看一般错误/异常")
 
     if (len(args) >= 2):
-        if (args[1].lower() in ["true", "yes", "y", "是"]):
+        if (args[1].lower() in YES):
             return open_file(logs_dir)
-        elif (args[1].lower() in ["false", "no", "n", "否"]):
+        elif (args[1].lower() in NO):
             # 移除它
             shutil.rmtree(logs_dir)
             print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
         else:
             print(f"{消息头.警告} 指定的参数 1 无效，{Fore.BLUE}{args[1]}{Fore.RESET} 不能表达是否要保留日志文件")
-            if (input(f"{消息头.问题} 你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
+            if (input(f"{消息头.问题} 你想要保留日志文件吗? [Y/n]: ").lower() in (*YES, "")):
                 return open_file(logs_dir)
             else:
                 # 移除它
                 shutil.rmtree(logs_dir)
                 print(f"{Fore.GREEN}✓{Fore.RESET} 已删除日志文件目录。")
     else:
-        if (input(f"{消息头.问题} 你想要保留日志文件吗? [Y/n]: ").lower() in ["y", "yes", "是", ""]):
+        if (input(f"{消息头.问题} 你想要保留日志文件吗? [Y/n]: ").lower() in (*YES, "")):
             return open_file(logs_dir)
         else:
             # 移除它

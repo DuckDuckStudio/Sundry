@@ -7,6 +7,7 @@ import requests
 import subprocess
 from colorama import Fore
 from datetime import datetime
+from catfood.constant import YES
 from catfood.functions.print import 消息头
 from function.git.format import branchName
 from function.maintain.config import 读取配置
@@ -223,7 +224,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> 
             print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
             写入日志(f"    Failed to create pull request: {response.status_code} - {response.text}", "ERROR")
             try:
-                if input(f"{消息头.问题} 我应该重试吗[Y/N]: ").lower() not in ["y", "yes", "应该", "要", "重试", "retry"]:
+                if input(f"{消息头.问题} 我应该重试吗[Y/N]: ").lower() not in (*YES, "应该", "重试", "retry"):
                     return 1
                 print("正在重试...")
                 写入日志("    Retrying to create a pull request...")

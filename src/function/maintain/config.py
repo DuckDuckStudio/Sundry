@@ -3,6 +3,7 @@ import json
 import requests
 from typing import Any
 from colorama import Fore
+from catfood.constant import YES, NO
 from catfood.functions.print import 消息头
 from function.constant.paths import CONFIG_FILE_PATH
 from catfood.exceptions.operation import TryOtherMethods, OperationFailed
@@ -259,21 +260,19 @@ def 转换配置值(配置项: str, 配置值: str) -> str | bool:
     """
 
     if 配置项 in 配置信息.布尔值项:
-        no = ("n", "no", "false", "f", "否")
-        yes = ("y", "yes", "true", "t", "是")
         if 配置项.startswith("cache."):
             # 默认 True 的
-            if 配置值 in no:
+            if 配置值 in NO:
                 return False
-            elif (not 配置值) or (配置值 in yes):
+            elif (not 配置值) or (配置值 in YES):
                 return True
             else:
                 raise OperationFailed(f"{Fore.BLUE}{配置值}{Fore.RED} 不能代表是或否，请使用 y / n")
         else:
             # 默认 False 的
-            if 配置值 in yes:
+            if 配置值 in YES:
                 return True
-            elif (not 配置值) or (配置值 in no):
+            elif (not 配置值) or (配置值 in NO):
                 return False
             else:
                 raise OperationFailed(f"{Fore.BLUE}{配置值}{Fore.RED} 不能代表是或否，请使用 y / n")

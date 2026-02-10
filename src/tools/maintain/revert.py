@@ -1,6 +1,7 @@
 import os
 import subprocess
 from colorama import Fore
+from catfood.constant import YES, NO
 from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 
@@ -28,18 +29,18 @@ def main(args: list[str]) -> int:
         return 1
 
     # 第 2 个参数 - 是否已提交
-    if args[1].lower() in ["是", "y", "yes", "已提交", "true"]:
+    if args[1].lower() in (*YES, "已提交"):
         是否已提交 = True
-    elif args[1].lower() in ["否", "n", "no", "未提交", "false"]:
+    elif args[1].lower() in (*NO, "未提交"):
         是否已提交 = False
     else:
         print(f"{消息头.错误} 是否已提交 (参数2) 不是有效值。")
         return 1
 
     # 第 3 个参数 - 是否丢弃
-    if args[2].lower() in ["是", "y", "yes", "丢弃", "true"]:
+    if args[2].lower() in (*YES, "丢弃"):
         是否丢弃 = True
-    elif args[2].lower() in ["否", "n", "no", "不丢弃", "false"]:
+    elif args[2].lower() in (*NO, "不丢弃"):
         是否丢弃 = False
     else:
         print(f"{消息头.错误} 是否丢弃 (参数3) 不是有效值。")

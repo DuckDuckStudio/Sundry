@@ -6,6 +6,7 @@ import subprocess
 from typing import Any
 from colorama import Fore
 import tools.remove as remove
+from catfood.constant import YES
 from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 from function.constant.general import UNEXPECTED_TYPES
@@ -29,7 +30,7 @@ def main(args: list[str]) -> int:
             print(f"{消息头.错误} 未能获取到版本列表")
             raise KeyboardInterrupt
         # NOTE: 对版本列表切片可以只检查指定版本（及）以后的版本
-        检查包版本(args[0], 版本列表, (args[1].lower() in ["y", "yes", "skip", "skip-check"]))
+        检查包版本(args[0], 版本列表, (args[1].lower() in (*YES, "skip", "skip-check")))
         print(f"{消息头.成功} 成功检查 {Fore.BLUE}{args[0]}{Fore.RESET} 的所有版本")
         return 0
     except KeyboardInterrupt:
@@ -55,7 +56,7 @@ def 检查包版本(包标识符: str, 版本列表: list[str], 跳过检查: bo
                 InstallerUrls验证结果 = 检查所有安装程序URL(包标识符, 版本, 在浏览器中打开)
                 if InstallerUrls验证结果[0] in {1, 2}:
                     print(f"{消息头.警告} 似乎有几个安装程序链接仍然有效，请检查它们。")
-                    if 是否中止(input(f"{消息头.问题} 要移除此版本吗? [y/N]: ")):
+                    if input(f"{消息头.问题} 要移除此版本吗? [y/N]: ") in YES:
                         continue
                 else:
                     验证结果.append(InstallerUrls验证结果[1])
@@ -220,14 +221,3 @@ def 移除包版本(包标识符: str, 版本: str, 原因: str) -> None:
     if remove.main([包标识符, 版本, "True", 原因]):
         print(f"{消息头.错误} 尝试移除 {Fore.BLUE}{包标识符} {版本}{Fore.RESET} 失败！")
         raise KeyboardInterrupt
-
-def 是否中止(输入: str, 默认: str = "n") -> bool:
-    """
-    依据输入确定是否中止后续操作。
-    false 表示继续。
-    true 表示中止。
-    """
-    if not 输入:
-        输入 = 默认
-
-    return 输入.lower() not in ["y", "yes", "是"]

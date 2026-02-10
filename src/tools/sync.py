@@ -1,6 +1,7 @@
 import os
 import subprocess
 from colorama import Fore
+from catfood.constant import YES
 from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 
@@ -26,7 +27,7 @@ def main() -> int:
                 break
             except subprocess.CalledProcessError as e:
                 print(f"{消息头.错误} 获取上游修改失败:\n{Fore.RED}{e}{Fore.RESET}")
-                if input(f"{消息头.问题} 是否重试？(默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in ["y", "yes", "要", "是", "true", ""]:
+                if input(f"{消息头.问题} 是否重试？(默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in (*YES, ""):
                     print(f"{消息头.消息} 已取消操作")
                     return 1
 
@@ -42,7 +43,7 @@ def main() -> int:
             print(f"{Fore.BLUE}  已变基上游修改")
         except subprocess.CalledProcessError as e:
             print(f"{消息头.错误} 变基上游修改失败:\n{Fore.RED}{e}{Fore.RESET}")
-            if input(f"{消息头.问题} 是否尝试替换 master 分支？(默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in ["y", "yes", "要", "是", "true"]:
+            if input(f"{消息头.问题} 是否尝试替换 master 分支？(默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
                 try:
                     subprocess.run(["git", "checkout", "upstream/master"], check=True) # 签出到上游 master 分支
                     print(f"{Fore.BLUE}  已签出到上游 master 分支")

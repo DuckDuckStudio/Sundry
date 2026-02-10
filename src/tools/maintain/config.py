@@ -3,6 +3,7 @@ import json
 import jsonschema
 from typing import Any
 from colorama import Fore
+from catfood.constant import YES, NO
 from function.maintain.config import (
     配置信息,
     转换配置值,
@@ -63,7 +64,7 @@ def 获取用户输入(配置项: str) -> str | bool:
             print(f"{消息头.错误} 无法转换配置值: {Fore.RED}{e}{Fore.RESET}")
 
 def 初始化配置文件() -> int:
-    if not os.path.exists(配置信息.所在位置) or (input(f"{消息头.警告} 已经存在了一份配置文件，要覆盖它吗? (默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in ["n", "no", "不要"]):
+    if not os.path.exists(配置信息.所在位置) or (input(f"{消息头.警告} 已经存在了一份配置文件，要覆盖它吗? (默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in NO):
         默认配置: dict[str, Any] = 配置信息.默认配置
 
         # 递归函数用于获取嵌套配置输入
@@ -80,7 +81,7 @@ def 初始化配置文件() -> int:
             # 必须要用户给的配置项
             递归获取输入(默认配置[键], 键)
 
-        if input(f"{消息头.可选问题} 继续设置其他配置项? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in ["y", "yes", "要", "是", "true"]:
+        if input(f"{消息头.可选问题} 继续设置其他配置项? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
             for 键 in list(默认配置.keys()):
                 if 键 in (
                     # NOTE: 这里只能跳过顶级键，如 debug, version 等
@@ -92,7 +93,7 @@ def 初始化配置文件() -> int:
                     continue
                 递归获取输入(默认配置[键], 键)
 
-            if input(f"{消息头.问题} 是否修改缓存配置? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in ["y", "yes", "要", "是", "true"]:
+            if input(f"{消息头.问题} 是否修改缓存配置? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
                 递归获取输入(默认配置["cache"], "cache")
 
         if not os.path.exists(os.path.dirname(配置信息.所在位置)):
