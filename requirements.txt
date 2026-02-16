@@ -1,4 +1,4 @@
-catfood==1.0.8 # 函数功能和异常
+catfood==1.0.9 # 函数功能和异常
 colorama>=0.4.6 # 输颜色
 jsonschema==4.26.0 # 验证 YAML / JSON
 keyring>=25.6.0 # 读Token
