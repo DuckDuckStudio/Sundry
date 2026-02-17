@@ -146,8 +146,9 @@ def main(args: list[str]):
     # 遍历所有版本并进行处理
     for 版本文件夹 in 版本文件夹s:
         if 版本文件夹 != 包版本:
-            print(f"跳过版本文件夹: {版本文件夹}")
-            写入日志(f"Skip version {版本文件夹}, because it's not in the list of versions to be modified.")
+            if 读取配置("debug"):
+                print(f"{消息头.调试} 跳过版本文件夹: {版本文件夹}")
+                写入日志(f"Skip version {版本文件夹}, because it's not in the list of versions to be modified.", "VERBOSE")
             continue
         if 修改版本(版本文件夹) == 1:
             with open(os.path.join(程序所在目录, 日志文件路径), 'a', encoding="utf-8") as 日志文件:
