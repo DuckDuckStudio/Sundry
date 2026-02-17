@@ -56,7 +56,7 @@ def 检查包版本(包标识符: str, 版本列表: list[str], 跳过检查: bo
                 InstallerUrls验证结果 = 检查所有安装程序URL(包标识符, 版本, 在浏览器中打开)
                 if InstallerUrls验证结果[0] in {1, 2}:
                     print(f"{消息头.警告} 似乎有几个安装程序链接仍然有效，请检查它们。")
-                    if input(f"{消息头.问题} 要移除此版本吗? [y/N]: ") in YES:
+                    if input(f"{消息头.问题} 要移除此版本吗? [y/N]: ").lower() not in YES:
                         continue
                 else:
                     验证结果.append(InstallerUrls验证结果[1])
