@@ -3,23 +3,22 @@ import sys
 import csv
 import time
 import random
-import requests
 import subprocess
 from colorama import Fore
+from typing import Literal
 from datetime import datetime
-from catfood.constant import YES
 from catfood.functions.print import 消息头
 from function.git.format import branchName
+from function.github.pr import submitChanges
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
 from function.files.manifest import 获取清单目录
 from function.files.manifest import FormatManifest
-from function.constant.general import PR_TOOL_NOTE
 from function.github.token import read_token, 这是谁的Token
 
-def main(args: list[str]):
+def main(args: list[str]) -> Literal[1, 0]:
     global 包标识符, 包版本, 日志文件路径
-    global 解决, 清单目录, 首个_PR, 格式化审查者, 程序所在目录
+    global 解决, 清单目录, 格式化审查者, 程序所在目录
     global owner
 
     # 目录路径
@@ -85,7 +84,6 @@ def main(args: list[str]):
                         return 1
 
                 格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
-                首个_PR = "是"
 
     # ========= 日志 配置 开始 =========
     os.chdir(程序所在目录)
@@ -188,52 +186,8 @@ def 写入日志(消息: str, 等级: str="INFO"):
         for 行 in 消息.split("\n"):
             日志文件.write(f"{写入时间} {等级} {行}\n")
 
-# 创建拉取请求
-def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> str | int:
-    # 审查:
-    # "" -> 不请求审查
-    # 带 @ 的字符串 -> 在 PR body 中 @ 审查者
-    # 不带 @ 的字符串 -> 在 PR body 中引用首个拉取请求
-    global 解决
-    while True: # 不 break 直接 return
-        github_token = read_token()
-        if not github_token:
-            print(f"{消息头.错误} 拉取请求创建失败: Token 读取失败")
-            return 1
-        api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
-        请求头 = {
-            "Authorization": f"token {github_token}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-        数据: dict[str, str | bool]
-        数据 = {
-            "title": f"Modify: {包标识符} version {版本文件夹} (Auto)",
-            "head": f"{owner}:{分支名}",
-            "base": "master",
-            "body": f"{PR_TOOL_NOTE}\n\n{审查}\n{解决}\n\n---\n"
-        }
-        if 读取配置("github.pr.maintainer_can_modify") == False:
-            数据["maintainer_can_modify"] = False
-
-        response = requests.post(api, headers=请求头, json=数据)
-        if response.status_code == 201:
-            print(f"    {Fore.GREEN}拉取请求创建成功: {response.json()["html_url"]}")
-            写入日志(f"    Pull request created successfully: {response.json()["html_url"]}")
-            return response.json()["html_url"]
-        else:
-            print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
-            写入日志(f"    Failed to create pull request: {response.status_code} - {response.text}", "ERROR")
-            try:
-                if input(f"{消息头.问题} 我应该重试吗[Y/N]: ").lower() not in (*YES, "应该", "重试", "retry"):
-                    return 1
-                print("正在重试...")
-                写入日志("    Retrying to create a pull request...")
-            except KeyboardInterrupt:
-                return 1
-
 # Git 操作部分
-def 修改版本(版本文件夹: str):
-    global 首个_PR
+def 修改版本(版本文件夹: str) -> Literal[1, 0]:
     print(f"\n正在处理版本文件夹: {版本文件夹}")
     写入日志(f"Processing version folder: {版本文件夹}")
     版本文件夹路径 = os.path.join(清单目录, 版本文件夹)
@@ -325,16 +279,14 @@ def 修改版本(版本文件夹: str):
     写入日志(f"    Successfully pushed to remote (origin): {新分支}")
 
     # 创建拉取请求
-    if 格式化审查者:
-        if 首个_PR == "是":
-            首个_PR = 创建拉取请求(新分支, 版本文件夹, f"{格式化审查者} PTAL")
-            if 首个_PR == 1:
-                return 1 # 创建拉取请求时出错
-        else:
-            if 创建拉取请求(新分支, 版本文件夹, f"Review has been requested in {首个_PR}") == 1:
-                return 1 # 创建拉取请求时出错
+    if submitChanges(
+        branch=新分支,
+        packageIdentifier=包标识符,
+        packageVersion=包版本,
+        doWhat="Modify",
+        resolves=解决,
+        information=(f"\n\n{格式化审查者} PTAL" if 格式化审查者 else "")
+    ):
+        return 0
     else:
-        if 创建拉取请求(新分支, 版本文件夹) == 1:
-            return 1 # 创建拉取请求时出错
-
-    return 0 # 成功处理版本文件夹
+        return 1
