@@ -10,8 +10,8 @@ from catfood.exceptions.operation import TryOtherMethods, OperationFailed
 
 class 配置信息:
     默认配置: dict[str, Any] = {
-        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.3.json",
-        "version": "1.3",
+        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.4.json",
+        "version": "1.4",
         "debug": False,
         "paths": {
             "winget-pkgs": "",
@@ -22,6 +22,7 @@ class 配置信息:
             "winget-tools": ""
         },
         "git": {
+            "retry_interval": 50,
             "signature": False
         },
         "github": {
@@ -72,12 +73,12 @@ class 配置信息:
         "repos.winget-tools"
     ]
 
-    最新版本: str = "1.3"
+    最新版本: str = "1.4"
 
     所在位置: str = CONFIG_FILE_PATH
     """等同于 `from function.constant.paths import CONFIG_FILE_PATH`。"""
 
-def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
+def 验证配置(配置项: str, 配置值: str | bool | int) -> str | None:
     """
     [验证配置]
     验证指定的配置项和配置值的配对是否有效，返回为什么无效。  
@@ -93,7 +94,7 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     if 配置项.startswith("paths.") and isinstance(配置值, str):
         配置值 = os.path.normpath(配置值)
         if (not os.path.exists(配置值)):
-            return f"配置文件中的目录 {Fore.BLUE}{配置值}{Fore.RESET} 不存在"
+            return f"目录 {Fore.BLUE}{配置值}{Fore.RESET} 不存在"
         return None
 
     elif 配置项.startswith("repos.") and isinstance(配置值, str):
@@ -123,11 +124,14 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
 
     elif (配置项 == "github.token") and (配置值 not in ["glm", "komac", "env"]):
         return "未知的 Token 读取源"
+    
+    elif (配置项 == "git.retry_interval") and (not isinstance(配置值, int)):
+        return f"应是整数，但实际是 {Fore.BLUE}{type(配置值)}{Fore.RESET}"
 
     else:
         return None
 
-def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
+def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str, str] | bool | int:
     """
     [验证/转换后的配置值]
     读取 Sundry 配置文件的指定配置项，并返回配置值。
@@ -135,7 +139,7 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
     """
 
     try:
-        配置值: str | bool | None = 读取配置项(配置项, 静默)
+        配置值: str | bool | int | None = 读取配置项(配置项, 静默)
 
         if 配置值 is None:
             return None
@@ -170,11 +174,11 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
             print(f"{消息头.错误} 读取配置 {配置项} 失败: {Fore.RED}{e}{Fore.RESET}")
         return None
 
-def 读取配置项(配置项: str, 静默: bool = False) -> str | bool | None:
+def 读取配置项(配置项: str, 静默: bool = False) -> str | bool | int | None:
     """
     [原始字符串]
     读取指定配置项的值，并返回配置项值。
-    预期返回非空 str 或 bool，读取失败返回 None。
+    读取失败返回 None。
     """
 
     if os.path.exists(配置信息.所在位置):
@@ -252,7 +256,7 @@ def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
         except Exception:
             return None
 
-def 转换配置值(配置项: str, 配置值: str) -> str | bool:
+def 转换配置值(配置项: str, 配置值: str) -> str | bool | int:
     """
     尝试将输入的配置值转换为符合配置文件要求的格式，如 y → true
     遇到无法转换的会 raise OperationFailed(原因)，我假设调用这个函数的地方会用红色显示错误消息
@@ -276,6 +280,11 @@ def 转换配置值(配置项: str, 配置值: str) -> str | bool:
                 return False
             else:
                 raise OperationFailed(f"{Fore.BLUE}{配置值}{Fore.RED} 不能代表是或否，请使用 y / n")
+    elif 配置项 in ("git.retry_interval"):
+        try:
+            return int(配置值)
+        except ValueError:
+            raise OperationFailed("指定的配置值不是整数")
     else:
         if not 配置值:
             # 使用默认配置值
