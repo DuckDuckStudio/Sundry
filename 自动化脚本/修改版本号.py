@@ -2,7 +2,7 @@ import os
 import sys
 
 # ===========================================================
-# 本项目使用了 芙芙工具箱
+# 本项目使用了 芙芙工具箱 项目的脚本
 # 芙芙工具箱作者：鸭鸭「カモ」
 # 作者网站：https://duckduckstudio.github.io/yazicbs.github.io/
 # 芙芙工具箱网站：https://duckduckstudio.github.io/yazicbs.github.io/Tools/Fufu_Tools/
@@ -27,7 +27,7 @@ def 替换文件内容(文件路径: str, 原文本: str, 新文本: str):
         print(f"[ERROR] 处理 {文件路径} 时出错: {e}")
         return 1
 
-def main(args: list[str]=sys.argv):
+def main(args: list[str]=sys.argv) -> int:
     if len(args) != 2:
         print("[ERROR] 使用示例: python xxx.py <新版本号>")
         return 1
@@ -40,7 +40,7 @@ def main(args: list[str]=sys.argv):
 
     # 文件路径和替换规则
     文件和替换规则: list[tuple[str, str, str]] = [
-        (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(args[0]))), "src", "sundry.py"), 'version = "develop"', f'version = "{新版本号}"'),
+        (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(args[0]))), "src", "function", "constant", "general.py"), 'SUNDRY_VERSION: Final = "develop"', f'SUNDRY_VERSION: Final = "{新版本号}"'),
         (os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(args[0]))), "installer.iss"), 'develop', 新版本号)
     ]
 
