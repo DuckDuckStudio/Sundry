@@ -2,13 +2,13 @@ import os
 import yaml
 import requests
 import webbrowser
-import subprocess
 from typing import Any
 from colorama import Fore
 import tools.remove as remove
 from catfood.constant import YES
 from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
+from function.github.pr import 检查重复拉取请求
 from function.constant.general import UNEXPECTED_TYPES
 from catfood.exceptions.request import RequestException
 from function.files.manifest import 获取现有包版本, 获取清单目录
@@ -201,18 +201,6 @@ def 检查响应类型(response: requests.Response) -> None:
 
     if contentType and any(i in contentType for i in UNEXPECTED_TYPES):
         raise ValueError(f"意外的类型 ({contentType})")
-
-def 检查重复拉取请求(包标识符: str, 包版本: str) -> bool:
-    """
-    检查上游仓库中是否有 相同 (包标识符、版本) 的且 打开的 拉取请求。
-    如有，返回 True。否则返回 False。
-    """
-
-    result = subprocess.run(
-        ["gh", "pr", "list", "-S", f"{包标识符} {包版本}", "--repo", "microsoft/winget-pkgs"],
-        capture_output=True, text=True, check=True
-    )
-    return bool(result.stdout)
 
 def 移除包版本(包标识符: str, 版本: str, 原因: str) -> None:
     if 检查重复拉取请求(包标识符, 版本):
