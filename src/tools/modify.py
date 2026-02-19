@@ -284,8 +284,7 @@ def 修改版本(版本文件夹: str) -> Literal[1, 0]:
         packageIdentifier=包标识符,
         packageVersion=包版本,
         doWhat="Modify",
-        resolves=解决,
-        information=(f"\n\n{格式化审查者} PTAL" if 格式化审查者 else "")
+        information=(f"\n\n{格式化审查者} PTAL" if 格式化审查者 else "") + (f"\n\n{解决}" if 解决 else "")
     ):
         return 0
     else:

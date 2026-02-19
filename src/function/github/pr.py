@@ -6,14 +6,12 @@ from function.maintain.config import 读取配置
 from function.constant.general import PR_TOOL_NOTE
 from catfood.functions.github.api import 请求GitHubAPI
 from catfood.exceptions.operation import OperationFailed
-from catfood.functions.format.github import ResolvesIssue
 
 def submitChanges(
     branch: str,
     packageIdentifier: str,
     packageVersion: str,
     doWhat: str,
-    resolves: str | None = None,
     information: str | None = None,
     token: str | None = None
 ) -> bool:
@@ -28,8 +26,6 @@ def submitChanges(
     :type packageVersion: str
     :param doWhat: 做什么修改，该内容作为拉取请求标题开头
     :type doWhat: str
-    :param resolves: 解决了什么议题
-    :type resolves: str | None
     :param information: 要在拉取请求正文中添加的内容
     :type information: str | None
     :param token: 创建拉取请求时使用的 GitHub Token
@@ -55,12 +51,6 @@ def submitChanges(
         "base": "master",
         "body": PR_TOOL_NOTE
     }
-
-    if resolves:
-        if resolvesStr := ResolvesIssue(resolves):
-            jsonData["body"] = f"{jsonData['body']}\n\n{resolvesStr}"
-        else:
-            print(f"{消息头.警告} 未能格式化解决议题字符串，拉取请求正文中不会链接议题")
 
     if information:
         jsonData["body"] = f"{jsonData['body']}\n\n{information}"
