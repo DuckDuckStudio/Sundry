@@ -5,6 +5,7 @@ import time
 import random
 import requests
 import subprocess
+import tools.sync
 from colorama import Fore
 from datetime import datetime
 from catfood.constant import YES
@@ -13,9 +14,10 @@ from function.git.format import branchName
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
 from function.files.manifest import 获取清单目录
+from catfood.functions.terminal import runCommand
 from function.files.manifest import FormatManifest
-from function.constant.general import PR_TOOL_NOTE
 from function.github.token import read_token, 这是谁的Token
+from function.constant.general import PR_TOOL_NOTE, RETRY_INTERVAL
 
 def main(args: list[str]):
     global 包标识符, 包版本, 日志文件路径
@@ -243,9 +245,8 @@ def 修改版本(版本文件夹: str):
     新分支 = branchName(f"Modify-S-{包标识符}-{版本文件夹}-{int(time.time())}")
     print(f"  创建并切换到新分支: {新分支}")
     写入日志(f"  Create and checkout to a new branch: {新分支}")
-    subprocess.run(["git", "checkout", "master"], check=True) # 确保从 master 分支开始
-    subprocess.run(["git", "fetch", "upstream"], check=True) # 拉取上游修改
-    subprocess.run(["git", "rebase", "upstream/master"], check=True) # 变基上游修改
+    if e := tools.sync.main():
+        return e
     subprocess.run(["git", "checkout", "-b", 新分支], check=True) # 创建并切换到新的分支
 
     # 遍历该版本文件夹中的所有文件
@@ -321,8 +322,11 @@ def 修改版本(版本文件夹: str):
     # 推送更改到远程仓库
     print("  推送更改到远程仓库")
     写入日志("  Pushing changes to remote (origin) repository")
-    subprocess.run(["git", "push", "origin", 新分支], check=True)
-    print(f"    {Fore.GREEN}推送到远程成功: {新分支}")
+    if e := runCommand(["git", "push", "origin", 新分支], retry=RETRY_INTERVAL):
+        print(f"{消息头.错误} 推送到远程失败: Git 返回退出代码 {e}")
+        return e
+    else:
+        print(f"    {Fore.GREEN}推送到远程成功: {新分支}")
     写入日志(f"    Successfully pushed to remote (origin): {新分支}")
 
     # 创建拉取请求
