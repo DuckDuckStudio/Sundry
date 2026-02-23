@@ -6,11 +6,6 @@ from catfood.functions.print import 消息头
 from function.maintain.config import 读取配置
 
 def main(args: list[str]) -> int:
-    winget_pkgs目录 = 读取配置("paths.winget-pkgs")
-    winget_tools目录 = 读取配置("paths.winget-tools")
-    if not (isinstance(winget_pkgs目录, str) and isinstance(winget_tools目录, str)):
-        return 1
-    
     # 格式化输入
     if (len(args) < 3):
         print(f"{消息头.错误} 参数不够")
@@ -19,11 +14,11 @@ def main(args: list[str]) -> int:
 
     # 第 1 个参数 - 需要还原的仓库
     if args[0].lower() in ["both", "all", "双仓库", "所有"]:
-        需要还原的仓库 = "all"
+        需要还原的仓库 = ("pkgs", "tools")
     elif args[0].lower() in ["pkgs", "winget-pkgs", "清单仓库", "包仓库"]:
-        需要还原的仓库 = "pkgs"
+        需要还原的仓库 = ["pkgs"]
     elif args[0].lower() in ["tools", "winget-tools", "工具仓库", "日志仓库"]:
-        需要还原的仓库 = "tools"
+        需要还原的仓库 = ["tools"]
     else:
         print(f"{消息头.错误} 需要还原的仓库 (参数1) 不是有效值。")
         return 1
@@ -46,31 +41,46 @@ def main(args: list[str]) -> int:
         print(f"{消息头.错误} 是否丢弃 (参数3) 不是有效值。")
         return 1
 
-    # 判断操作
-    if (需要还原的仓库 == "all"):
-        # 双仓库
-        if not 还原("pkgs", winget_pkgs目录, 是否已提交, 是否丢弃):
-            if not 还原("tools", winget_tools目录, 是否已提交, 是否丢弃):
-                return 0
-        return 1
+    for repo in 需要还原的仓库:
+        仓库路径 = 读取配置(f"paths.winget-{repo}")
+        if isinstance(仓库路径, str) and 仓库路径:
+            if not 还原(
+                repo,
+                仓库路径,
+                是否已提交,
+                是否丢弃
+            ):
+                # 还原过程中发生错误，中止
+                return 1
+        else:
+            print(f"{消息头.错误} 未能读到 {repo} 仓库的路径")
+            return 1
     else:
-        # 单仓库
-        if (需要还原的仓库 == "pkgs"):
-            if not 还原("pkgs", winget_pkgs目录, 是否已提交, 是否丢弃):
-                return 0
-        elif (需要还原的仓库 == "tools"):
-            if not 还原("tools", winget_tools目录, 是否已提交, 是否丢弃):
-                return 0
-        return 1
+        return 0
 
-def 还原(哪个仓库: str, 仓库路径: str, 是否已提交: bool, 是否丢弃: bool):
+def 还原(哪个仓库: str, 仓库路径: str, 是否已提交: bool, 是否丢弃: bool) -> bool:
+    """
+    尝试还原指定的仓库
+    
+    :param 哪个仓库: pkgs 或 tools
+    :type 哪个仓库: str
+    :param 仓库路径: 指定仓库文件夹的所在位置
+    :type 仓库路径: str
+    :param 是否已提交: 仓库中的修改是否已经提交？
+    :type 是否已提交: bool
+    :param 是否丢弃: 是否需要丢弃仓库中的修改
+    :type 是否丢弃: bool
+    :return: 是否成功还原
+    :rtype: bool
+    """
+
     try:
         os.chdir(仓库路径)
         # 获取当前所在分支
         当前分支 = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf-8").strip()
         if ((当前分支 == "master") and (哪个仓库 == "pkgs")) or ((当前分支 == "main") and (哪个仓库 == "tools")):
             print(f"{消息头.错误} [{哪个仓库}仓库] 你不能丢弃主分支")
-            return 1
+            return False
         
         if ((not 是否已提交) and 是否丢弃):
             # 提交丢弃内容
@@ -88,6 +98,6 @@ def 还原(哪个仓库: str, 仓库路径: str, 是否已提交: bool, 是否�
             print(f"{消息头.警告} [{哪个仓库}仓库] 未获取到需要丢弃的分支名称")
     except Exception as e:
         print(f"{消息头.错误} 尝试还原 {哪个仓库} 仓库时出现异常: {Fore.RED}{e}{Fore.RESET}")
-        return 1
+        return False
     print(f"{消息头.成功} 已还原 {哪个仓库} 仓库")
-    return 0
+    return True
