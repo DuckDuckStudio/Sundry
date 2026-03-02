@@ -15,10 +15,11 @@ from catfood.functions.print import 消息头
 from function.git.format import branchName
 from function.maintain.config import 读取配置
 from translate import Translator # type: ignore
-from function.constant.general import PR_TOOL_NOTE
+from catfood.functions.terminal import runCommand
 from catfood.exceptions.operation import OperationFailed
 from function.github.token import read_token, 这是谁的Token
 from function.files.manifest import 获取清单目录, 获取现有包版本
+from function.constant.general import PR_TOOL_NOTE, RETRY_INTERVAL
 
 # 创建拉取请求
 def 创建拉取请求(包标识符: str, 分支名: str, 版本文件夹: str, 理由: str):
@@ -211,8 +212,11 @@ def main(args: list[str]) -> int:
         subprocess.run(["git", "commit", "-m", f"Remove version: {包标识符} version {包版本} (Auto)"], check=True)
     print(f"{Fore.BLUE}  已提交修改")
 
-    subprocess.run(["git", "push"], check=True)
-    print(f"{Fore.BLUE}  已推送修改")
+    if e := runCommand(["git", "push"], retry=RETRY_INTERVAL):
+        print(f"{消息头.错误} 推送到远程失败: Git 返回退出代码 {e}")
+        return e
+    else:
+        print(f"{Fore.BLUE}  已推送修改")
 
     while (not 理由):
         理由 = input("移除此包版本的理由: ")
