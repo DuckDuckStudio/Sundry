@@ -57,9 +57,7 @@ def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_p
         else:
             return None
 
-    可能的包类型 = ["manifests", "fonts"]
-
-    for 包类型 in 可能的包类型:
+    for 包类型 in ("manifests", "fonts"):
         清单目录 = os.path.join(winget_pkgs目录, 包类型, 包标识符[0].lower(), *包标识符.split('.'))
         if 包版本:
             清单目录 = os.path.join(清单目录, 包版本)
