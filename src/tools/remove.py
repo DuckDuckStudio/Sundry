@@ -102,13 +102,6 @@ def main(args: list[str]) -> int:
         print(f"{Fore.RED}包版本清单目录不存在: {os.path.join(清单目录, 包版本)}")
         return 1
 
-    if any(os.path.isdir(os.path.join(os.path.join(清单目录, 包版本), item)) for item in os.listdir(os.path.join(清单目录, 包版本))):
-        # 如果包版本清单目录下存在其他文件夹
-        print(f"{消息头.错误} 包版本清单目录下存在其他文件夹")
-        print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的。")
-        print(f"{消息头.提示} 例如包 DuckStudio.GitHubView.Nightly 被错误的认为是包 DuckStudio.GitHubView 的一个版本号为 Nightly 的版本。")
-        return 1
-
     # 入口
     os.chdir(winget_pkgs目录)
     if not 跳过检查:
