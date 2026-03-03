@@ -56,6 +56,10 @@ def submitChanges(
     if information:
         jsonData["body"] = f"{jsonData['body']}\n\n{information}"
 
+    # 保证 PR body 最后是分割线
+    if isinstance(jsonData["body"], str) and (not jsonData["body"].rstrip('\n').endswith("---")):
+        jsonData["body"] = f"{jsonData["body"].rstrip('\n')}\n\n---\n\n"
+
     if 读取配置("github.pr.maintainer_can_modify") == False:
         jsonData["maintainer_can_modify"] = False
 
