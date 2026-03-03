@@ -50,6 +50,11 @@ def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_p
     :rtype: str | None
     """
 
+    if '.' not in 包标识符:
+        if 读取配置("debug"):
+            print(f"{消息头.调试} 包标识符格式不正确（应带有 \'.\'），获取到 {包标识符}")
+        return None
+
     if not winget_pkgs目录:
         配置值 = 读取配置("paths.winget-pkgs")
         if isinstance(配置值, str):
@@ -61,8 +66,19 @@ def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_p
         清单目录 = os.path.join(winget_pkgs目录, 包类型, 包标识符[0].lower(), *包标识符.split('.'))
         if 包版本:
             清单目录 = os.path.join(清单目录, 包版本)
-        if os.path.exists(清单目录):
-            return 清单目录
+
+        if not os.path.exists(清单目录):
+            if 读取配置("debug"):
+                print(f"{消息头.调试} 未能在 {包类型} 目录下找到清单目录")
+            continue
+
+        if 包版本 and any(os.path.isdir(os.path.join(清单目录, item)) for item in os.listdir(清单目录)):
+            if 读取配置("debug"):
+                print(f"{消息头.调试} 目录 {os.path.relpath(清单目录, winget_pkgs目录)} 下存在其他文件夹，不是版本文件夹")
+                print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的，也可能是因为 {包类型} 目录下也有标识符部分相同的包")
+            continue
+
+        return 清单目录
 
     return None
         
