@@ -9,7 +9,7 @@ from typing import Literal
 from datetime import datetime
 from catfood.functions.print import 消息头
 from function.git.format import branchName
-from function.github.pr import submitChanges
+from function.github.pr import submitPR
 from function.maintain.config import 读取配置
 from catfood.functions.files import open_file
 from function.files.manifest import 获取清单目录
@@ -280,7 +280,7 @@ def 修改版本(版本文件夹: str) -> Literal[1, 0]:
     写入日志(f"    Successfully pushed to remote (origin): {新分支}")
 
     # 创建拉取请求
-    if submitChanges(
+    if submitPR(
         branch=新分支,
         packageIdentifier=包标识符,
         packageVersion=包版本,

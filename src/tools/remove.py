@@ -12,7 +12,7 @@ from colorama import Fore
 from catfood.constant import YES, NO
 from catfood.functions.print import 消息头
 from function.git.format import branchName
-from function.github.pr import submitChanges
+from function.github.pr import submitPR
 from function.maintain.config import 读取配置
 from translate import Translator # type: ignore
 from catfood.exceptions.operation import OperationFailed
@@ -172,7 +172,7 @@ def main(args: list[str]) -> int:
     while (not 理由):
         理由 = input("移除此包版本的理由: ")
 
-    if not submitChanges(
+    if not submitPR(
         branch=新分支名,
         packageIdentifier=包标识符,
         packageVersion=包版本,

@@ -8,7 +8,7 @@ from function.constant.general import PR_TOOL_NOTE
 from catfood.functions.github.api import 请求GitHubAPI
 from catfood.exceptions.operation import OperationFailed
 
-def submitChanges(
+def submitPR(
     branch: str,
     packageIdentifier: str,
     packageVersion: str,
