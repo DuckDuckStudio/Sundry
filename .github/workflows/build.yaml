@@ -20,6 +20,8 @@ jobs:
     steps:
       - name: 检出代码
         uses: actions/checkout@v6.0.2
+        with:
+          persist-credentials: false
 
       - name: 配置 Python
         uses: actions/setup-python@v6
