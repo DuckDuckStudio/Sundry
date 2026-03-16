@@ -31,16 +31,17 @@ jobs:
       - name: 更新版本号
         env:
           PYTHONIOENCODING: utf-8
+          GITHUB_EVENT_INPUTS_VERSION: ${{ github.event.inputs.version }}
         # 前面已经配置过 Python 了，这个脚本只用 os 和 sys 这两个标准库，不用再装依赖
         run: |-
           if ($env:GITHUB_EVENT_NAME -eq "workflow_dispatch") {
-            $version = "${{ github.event.inputs.version }}"
+            $version = "$env:GITHUB_EVENT_INPUTS_VERSION"
             # 如果版本号以 v 开头，则去掉 v
             if ($version.StartsWith("v")) {
               $version = $version.Substring(1)
             }
           } else {
-            $version = "${{ github.ref_name }}"
+            $version = "$env:GITHUB_REF_NAME"
             # 如果版本号以 refs/tags/ 开头，则去掉 refs/tags/
             if ($version.StartsWith("refs/tags/")) {
               $version = $version.Substring(10)
