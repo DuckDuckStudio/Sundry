@@ -9,6 +9,8 @@ from function.git.format import branchName
 from function.maintain.config import 读取配置
 from function.github.token import read_token
 from catfood.functions.files import open_file
+from catfood.functions.terminal import runCommand
+from function.constant.general import RETRY_INTERVAL
 
 def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> bool | str:
     with open(检测程序路径, 'r', encoding="utf-8") as file:
@@ -193,7 +195,8 @@ def main(args: list[str]) -> int:
         print(f"{消息头.信息} 开始同步...")
         subprocess.run(["git", "checkout", "main"], check=True)
         print(f"{消息头.信息}     已签出到 main 分支")
-        subprocess.run(["git", "pull"], check=True)
+        if e := runCommand(["git", "pull"], retry=RETRY_INTERVAL):
+            return 1
         print(f"{消息头.信息}     已拉取远程修改")
     except subprocess.CalledProcessError as e:
         print(f"{消息头.错误} 同步失败:\n{Fore.RED}{e}{Fore.RESET}")
@@ -232,7 +235,8 @@ def main(args: list[str]) -> int:
         print(f"{消息头.信息} 开始提交和推送...")
         subprocess.run(["git", "add", 检测程序], check=True)
         subprocess.run(["git", "commit", "-m", f"[Auto] 自动忽略追加 - {忽略字段}"], check=True)
-        subprocess.run(["git", "push", "--set-upstream", "origin", 新分支名], check=True)
+        if e := runCommand(["git", "push", "--set-upstream", "origin", 新分支名], retry=RETRY_INTERVAL):
+            return 1
         print(f"{消息头.成功} 成功推送到远程")
         if not 创建拉取请求(新分支名, owner, 忽略字段):
             失败 = True
@@ -248,7 +252,8 @@ def main(args: list[str]) -> int:
         print(f"{消息头.信息} 开始提交和推送...")
         subprocess.run(["git", "add", 检测程序], check=True)
         subprocess.run(["git", "commit", "-m", f"[Auto] 自动忽略移除 - {格式化忽略字段}"], check=True)
-        subprocess.run(["git", "push", "--set-upstream", "origin", 新分支名], check=True)
+        if e := runCommand(["git", "push", "--set-upstream", "origin", 新分支名], retry=RETRY_INTERVAL):
+            return 1
         print(f"{消息头.成功} 成功推送到远程")
         if not 创建拉取请求(新分支名, owner, 忽略字段, 理由):
             失败 = True
@@ -261,7 +266,8 @@ def main(args: list[str]) -> int:
         print(f"{消息头.信息} 开始提交和推送...")
         subprocess.run(["git", "add", 检测程序], check=True)
         subprocess.run(["git", "commit", "-m", "chore(checker): 更新忽略字段"], check=True)
-        subprocess.run(["git", "push", "--set-upstream", "origin", 新分支名], check=True)
+        if e := runCommand(["git", "push", "--set-upstream", "origin", 新分支名], retry=RETRY_INTERVAL):
+            return 1
         print(f"{消息头.成功} 成功推送到远程")
         if not 创建拉取请求(新分支名, owner, 理由="edit"):
             失败 = True
