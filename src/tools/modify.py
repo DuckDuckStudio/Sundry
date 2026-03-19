@@ -1,23 +1,27 @@
-import os
-import sys
 import csv
-import time
+import os
 import random
-import requests
 import subprocess
-from colorama import Fore
+import sys
+import time
 from datetime import datetime
-from catfood.constant import YES
-from catfood.functions.print import 消息头
-from function.git.format import branchName
-from function.maintain.config import 读取配置
-from catfood.functions.files import open_file
-from function.files.manifest import 获取清单目录
-from function.files.manifest import FormatManifest
-from function.constant.general import PR_TOOL_NOTE
-from function.github.token import read_token, 这是谁的Token
+from typing import Literal
 
-def main(args: list[str]):
+import requests
+from catfood.constant import YES
+from catfood.functions.files import open_file
+from catfood.functions.github.api import 这是谁的Token
+from catfood.functions.print import 消息头
+from colorama import Fore
+
+from function.constant.general import PR_TOOL_NOTE
+from function.files.manifest import FormatManifest, 获取清单目录
+from function.git.format import branchName
+from function.github.token import read_token
+from function.maintain.config import 读取配置
+
+
+def main(args: list[str]) -> Literal[1] | Literal[0]:
     global 包标识符, 包版本, 日志文件路径
     global 解决, 清单目录, 首个_PR, 格式化审查者, 程序所在目录
     global owner
@@ -39,7 +43,7 @@ def main(args: list[str]):
     else:
         print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
-    
+
     # 路径
     程序所在目录 = os.path.dirname(os.path.abspath(sys.argv[0]))
     日志文件路径 = os.path.join("logs", datetime.today().strftime('%Y\\%m\\%d'), f"{包标识符}-{包版本}.log") # 相对路径
@@ -48,7 +52,7 @@ def main(args: list[str]):
     winget_pkgs目录 = 读取配置("paths.winget-pkgs")
     if not isinstance(winget_pkgs目录, str):
         return 1
-    
+
     pkgs仓库 = 读取配置("repos.winget-pkgs")
     if not isinstance(pkgs仓库, tuple):
         return 1

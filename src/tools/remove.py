@@ -1,24 +1,28 @@
-import re
-import os
 import csv
-import time
+import os
+import re
 import shutil
-import tempfile
-import requests
 import subprocess
+import tempfile
+import time
 import webbrowser
+
+import requests
+from catfood.constant import NO, YES
+from catfood.exceptions.operation import OperationFailed
+from catfood.functions.github.api import 这是谁的Token
+from catfood.functions.print import 消息头
+from colorama import Fore
+from translate import Translator  # type: ignore
+
 import tools.cat as cat
 import tools.sync as sync
-from colorama import Fore
-from catfood.constant import YES, NO
-from catfood.functions.print import 消息头
-from function.git.format import branchName
-from function.maintain.config import 读取配置
-from translate import Translator # type: ignore
 from function.constant.general import PR_TOOL_NOTE
-from catfood.exceptions.operation import OperationFailed
-from function.github.token import read_token, 这是谁的Token
 from function.files.manifest import 获取清单目录, 获取现有包版本
+from function.git.format import branchName
+from function.github.token import read_token
+from function.maintain.config import 读取配置
+
 
 # 创建拉取请求
 def 创建拉取请求(包标识符: str, 分支名: str, 版本文件夹: str, 理由: str):
