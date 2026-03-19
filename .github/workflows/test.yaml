@@ -2,17 +2,9 @@ name: Test Run
 
 on:
   pull_request:
-    paths:
-      - src/**
-      - requirements.txt
-      - .github/workflows/test.yaml
   push:
     branches:
       - main
-    paths:
-      - src/**
-      - requirements.txt
-      - .github/workflows/test.yaml
   # 手动触发
   workflow_dispatch:
 
