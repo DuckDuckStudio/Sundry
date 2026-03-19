@@ -1,21 +1,19 @@
-import os
 import json
-import jsonschema
+import os
 from typing import Any
-from colorama import Fore
-from catfood.constant import YES, NO
-from function.maintain.config import (
-    配置信息,
-    转换配置值,
-    读取配置项, 读取配置,
-    获取当前配置版本, 获取配置schema
-)
-from catfood.functions.print import 消息头
-from catfood.functions.files import open_file
-from pygments import highlight # type: ignore
-from pygments.lexers import JsonLexer # type: ignore
-from pygments.formatters import TerminalFormatter
+
+import jsonschema
+from catfood.constant import NO, YES
 from catfood.exceptions.operation import OperationFailed
+from catfood.functions.files import open_file
+from catfood.functions.print import 消息头
+from colorama import Fore
+from pygments import highlight # pyright: ignore[reportUnknownVariableType]
+from pygments.formatters.terminal import TerminalFormatter
+from pygments.lexers.data import JsonLexer # pyright: ignore[reportMissingTypeStubs]
+
+from function.maintain.config import 获取当前配置版本, 获取配置schema, 读取配置, 读取配置项, 转换配置值, 配置信息
+
 
 def 获取用户输入(配置项: str) -> str | bool:
     提示消息映射: dict[str, str] = {
