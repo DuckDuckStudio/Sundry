@@ -1,14 +1,17 @@
+import base64
 import os
 import shutil
-import base64
 import subprocess
-from typing import Any
-from colorama import Fore
-from function.maintain.config import 读取配置
-from catfood.functions.github.api import 请求GitHubAPI
-from catfood.functions.print import 消息头, 多行带头输出
-from catfood.exceptions.request import RequestException
+from typing import Any, Literal
+
 from catfood.exceptions.operation import TryOtherMethods
+from catfood.exceptions.request import RequestException
+from catfood.functions.github.api import 请求GitHubAPI
+from catfood.functions.print import 多行带头输出, 消息头
+from colorama import Fore
+
+from function.maintain.config import 读取配置
+
 
 class 清单信息:
     """有关包清单的一些信息"""
@@ -32,7 +35,12 @@ class 清单信息:
     ]
     """包清单的所有类型"""
 
-def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_pkgs目录: str | None = None) -> str | None:
+def 获取清单目录(
+    包标识符: str,
+    包版本: str | None = None,
+    包类型: Literal["manifests", "fonts"] | None = None,
+    winget_pkgs目录: str | None = None
+) -> str | None:
     """
     依据指定的包标识符（和包版本）获取该包（版本）的清单目录。
 
@@ -44,6 +52,8 @@ def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_p
     :type 包标识符: str
     :param 包版本: 指定的包版本
     :type 包版本: str | None
+    :param 包类型: (可选) 指定包的类型，`manifests` 为软件包，`fonts` 为字体包。如果不指定则会先在 `manifests` 目录下查找，没找到再在 `fonts` 目录下查找。
+    :type 包类型: Literal["manifests", "fonts"] | None
     :param winget_pkgs目录: (可选) 如果在调用处已经有获取了 winget-pkgs 仓库的路径，则可传递此路径，避免重复读取。
     :type winget_pkgs目录: str | None
     :return: 获取到的清单目录，没获取到则返回 `None`
@@ -62,21 +72,25 @@ def 获取清单目录(包标识符: str, 包版本: str | None = None, winget_p
         else:
             return None
 
-    for 包类型 in ("manifests", "fonts"):
-        清单目录 = os.path.join(winget_pkgs目录, 包类型, 包标识符[0].lower(), *包标识符.split('.'))
+    for 类型 in ("manifests", "fonts"):
+        if 包类型 and (类型 != 包类型):
+            continue
+
+        清单目录 = os.path.join(winget_pkgs目录, 类型, 包标识符[0].lower(), *包标识符.split('.'))
         if 包版本:
             清单目录 = os.path.join(清单目录, 包版本)
 
-        if not os.path.exists(清单目录):
-            if 读取配置("debug"):
-                print(f"{消息头.调试} 未能在 {包类型} 目录下找到清单目录")
-            continue
+        if not 包类型:
+            if not os.path.exists(清单目录):
+                if 读取配置("debug"):
+                    print(f"{消息头.调试} 未能在 {类型} 目录下找到清单目录")
+                continue
 
-        if 包版本 and any(os.path.isdir(os.path.join(清单目录, item)) for item in os.listdir(清单目录)):
-            if 读取配置("debug"):
-                print(f"{消息头.调试} 目录 {os.path.relpath(清单目录, winget_pkgs目录)} 下存在其他文件夹，不是版本文件夹")
-                print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的，也可能是因为 {包类型} 目录下也有标识符部分相同的包")
-            continue
+            if 包版本 and any(os.path.isdir(os.path.join(清单目录, item)) for item in os.listdir(清单目录)):
+                if 读取配置("debug"):
+                    print(f"{消息头.调试} 目录 {os.path.relpath(清单目录, winget_pkgs目录)} 下存在其他文件夹，不是版本文件夹")
+                    print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的，也可能是因为 {类型} 目录下也有标识符部分相同的包")
+                continue
 
         return 清单目录
 
@@ -103,7 +117,7 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
         清单目录 = 获取清单目录(包标识符, winget_pkgs目录=winget_pkgs仓库)
         if not 清单目录:
             raise TryOtherMethods("未能获取清单目录")
-        
+
         for 文件夹 in os.listdir(清单目录):
             if os.path.isdir(os.path.join(清单目录, 文件夹)):
                 for 文件 in os.listdir(os.path.join(清单目录, 文件夹)):
@@ -261,7 +275,7 @@ def 获取PR清单(PR编号: str, 清单目录: str, token: str | None = None) -
         fork仓库, fork分支 = 结果
     else:
         return 1
-    
+
     if os.path.exists(清单目录):
         print(f"{消息头.警告} 临时清单目录下{Fore.YELLOW}已存在同名清单目录{Fore.RESET}，Sundry 将覆盖掉它。")
         try:
@@ -282,11 +296,11 @@ def 获取PR清单(PR编号: str, 清单目录: str, token: str | None = None) -
             api = 清单文件.get("url")
             if not isinstance(api, str):
                 raise ValueError(f"未能获取到清单文件 api (url 字段): {清单文件}")
-            
+
             文件名 = 清单文件.get("name")
             if not isinstance(文件名, str):
                 raise ValueError(f"未能获取到清单文件名: {清单文件}")
-            
+
             清单文件响应: dict[str, str | int | dict[str, str]] | None = 请求GitHubAPI(api, token=token)
             if not 清单文件响应:
                 raise RequestException(f"未获取到清单文件信息: {清单文件响应}")
@@ -317,6 +331,7 @@ def _获取PR清单文件夹路径(PR编号: str, token: str | None = None) -> s
     :return: 获取到的路径，获取失败返回 `None`。
     :rtype: str | None
     """
+
     api = f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{PR编号}/files"
     非预期状态 = True # 如果文件状态全是移除或没有状态，则为非预期状态
     清单文件夹 = None

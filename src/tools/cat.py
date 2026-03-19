@@ -70,7 +70,7 @@ def main(args: list[str]) -> int:
         print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
-    清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录)
+    清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录=winget_pkgs目录)
     if not 清单目录:
         print(f"{消息头.错误} 获取清单目录失败")
         return 1
