@@ -1,0 +1,63 @@
+[project]
+name = "Sundry"
+version = "255.255.255" # 占位
+description = "Sundry 是一个 WinGet 相关的工具，帮您更方便地移除清单、修改清单、分析验证错误等。"
+authors = [
+    { name = "鸭鸭「カモ」" }
+]
+requires-python = ">=3.12"
+dependencies = [
+    "catfood~=1.0.9",
+    "colorama>=0.4.6",
+    "jsonschema==4.26.0",
+    "keyring>=25.6.0",
+    "pygments>=2.19.1",
+    "PyYAML==6.0.3",
+    "requests>=2.32.5",
+    "translate>=3.7.1"
+]
+
+[tool.isort]
+line_length = 9999999999999999999999999 # 约等于无行长度限制
+
+[tool.pylint.main]
+init-hook = 'import sys; sys.path.append("src")'
+max-line-length = 9999999999999999999999999 # 约等于无行长度限制
+notes= [
+    "FIXME",
+    "XXX"
+]
+disable = [
+    "broad-exception-caught", # W0718
+    # 文档
+    "missing-module-docstring", # C0114
+    "missing-function-docstring", # C0116
+    # 非 ASCII 字符
+    "non-ascii-name", # C2401
+    "non-ascii-module-import", # C2403
+    # lazy import
+    "import-outside-toplevel", # C0415
+    # 风格问题
+    "superfluous-parens", # C0325
+    "invalid-name", # C0103
+    "no-else-return", # R1705
+    "no-else-raise", # R1720
+]
+
+[tool.pytest.ini_options]
+pythonpath = "src"
+
+[project.optional-dependencies]
+build = [
+    "Pillow==12.1.1",
+    "pyinstaller==6.19.0"
+]
+lint = [
+    "isort~=8.0",
+    "pylint~=4.0",
+    "ruff~=0.15"
+]
+tests = [
+    "pytest~=9.0",
+    "pytest-cov~=7.0"
+]
