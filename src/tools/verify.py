@@ -1,22 +1,25 @@
-import re
-import os
 import csv
-import json
-import yaml
 import ctypes
-import winreg
+import json
+import os
+import re
 import shutil
 import subprocess
+import winreg
 from typing import Any
-from colorama import Fore
+
+import yaml
 from catfood.functions.print import 消息头
+from colorama import Fore
+from pygments import highlight # pyright: ignore[reportUnknownVariableType]
+from pygments.formatters.terminal import TerminalFormatter
+from pygments.lexers.data import YamlLexer # pyright: ignore[reportMissingTypeStubs]
+
+from function.constant.paths import VERIFY_TEMP_DIR
+from function.files.manifest import 获取PR清单, 获取清单目录
 from function.github.token import read_token
 from function.maintain.config import 读取配置
-from pygments import highlight # pyright: ignore[reportUnknownVariableType]
-from pygments.lexers import YamlLexer # pyright: ignore[reportUnknownVariableType]
-from pygments.formatters import TerminalFormatter
-from function.constant.paths import VERIFY_TEMP_DIR
-from function.files.manifest import 获取清单目录, 获取PR清单
+
 
 def main(args: list[str]) -> int:
     # 初始化
