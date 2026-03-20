@@ -1,11 +1,14 @@
 import os
-from colorama import Fore
+
 from catfood.functions.print import 消息头
-from pygments import highlight # type: ignore
-from pygments.lexers import YamlLexer # type: ignore
-from function.maintain.config import 读取配置
+from colorama import Fore
+from pygments import highlight # pyright: ignore[reportUnknownVariableType]
+from pygments.formatters.terminal import TerminalFormatter
+from pygments.lexers.data import YamlLexer # pyright: ignore[reportMissingTypeStubs]
+
 from function.files.manifest import 获取清单目录
-from pygments.formatters import TerminalFormatter
+from function.maintain.config import 读取配置
+
 
 def 读取和输出(清单文件: str):
     if not os.path.exists(清单文件):
@@ -67,7 +70,7 @@ def main(args: list[str]) -> int:
         print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
-    清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录)
+    清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录=winget_pkgs目录)
     if not 清单目录:
         print(f"{消息头.错误} 获取清单目录失败")
         return 1

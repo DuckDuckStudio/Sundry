@@ -93,7 +93,7 @@ def main(args: list[str]) -> int:
         if 获取PR清单(PR编号, 清单目录, github_token):
             return 1
     elif not 清单目录:
-        清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录)
+        清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录=winget_pkgs目录)
         if not 清单目录:
             print(f"{消息头.错误} 获取清单目录失败")
             return 1

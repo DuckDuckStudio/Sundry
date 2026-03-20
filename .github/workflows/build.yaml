@@ -19,26 +19,29 @@ jobs:
 
     steps:
       - name: 检出代码
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: 配置 Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: 3.x
 
       - name: 更新版本号
         env:
           PYTHONIOENCODING: utf-8
+          GITHUB_EVENT_INPUTS_VERSION: ${{ github.event.inputs.version }}
         # 前面已经配置过 Python 了，这个脚本只用 os 和 sys 这两个标准库，不用再装依赖
         run: |-
           if ($env:GITHUB_EVENT_NAME -eq "workflow_dispatch") {
-            $version = "${{ github.event.inputs.version }}"
+            $version = "$env:GITHUB_EVENT_INPUTS_VERSION"
             # 如果版本号以 v 开头，则去掉 v
             if ($version.StartsWith("v")) {
               $version = $version.Substring(1)
             }
           } else {
-            $version = "${{ github.ref_name }}"
+            $version = "$env:GITHUB_REF_NAME"
             # 如果版本号以 refs/tags/ 开头，则去掉 refs/tags/
             if ($version.StartsWith("refs/tags/")) {
               $version = $version.Substring(10)
@@ -107,7 +110,7 @@ jobs:
 
       - name: 上传构建文件
         if: ${{ github.event_name == 'workflow_dispatch' }}
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
         with:
           name: Release
           path: Release/**
@@ -121,6 +124,6 @@ jobs:
 
       - name: 发布至发行版
         if: ${{ github.event_name != 'workflow_dispatch' }}
-        uses: softprops/action-gh-release@v2.5.0
+        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe # v2.6.1
         with:
           files: Release/**

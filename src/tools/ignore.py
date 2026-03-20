@@ -34,7 +34,7 @@ def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) 
 
     if not found:
         # 如果没有相同理由的行，则新开一行
-        lines.insert(end_index, f"                \"{忽略字段}\", // {理由}\n")
+        lines.insert(end_index, f"            \"{忽略字段}\", // {理由}\n")
 
     with open(检测程序路径, 'w', encoding="utf-8") as file:
         file.writelines(lines)

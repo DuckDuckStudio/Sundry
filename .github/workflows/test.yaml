@@ -2,17 +2,9 @@ name: Test Run
 
 on:
   pull_request:
-    paths:
-      - src/**
-      - requirements.txt
-      - .github/workflows/test.yaml
   push:
     branches:
       - main
-    paths:
-      - src/**
-      - requirements.txt
-      - .github/workflows/test.yaml
   # 手动触发
   workflow_dispatch:
 
@@ -32,10 +24,12 @@ jobs:
 
     steps:
       - name: 签出代码
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
 
       - name: 配置 Python
-        uses: actions/setup-python@v6.1.0
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
         with:
           python-version: 3.13.x
 
@@ -64,18 +58,20 @@ jobs:
           cp -v requirements.txt Release/src
 
       - name: 签出 winget-pkgs
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: DuckDuckStudio/winget-pkgs
           path: winget-pkgs
           fetch-depth: 0
+          persist-credentials: false
 
       - name: 签出 winget-tools
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           repository: DuckDuckStudio/winget-tools
           path: winget-tools
           fetch-depth: 0
+          persist-credentials: false
 
       - name: 配置 Sundry
         shell: bash
