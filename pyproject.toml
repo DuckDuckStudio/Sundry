@@ -11,7 +11,7 @@ dependencies = [
     "colorama>=0.4.6",
     "jsonschema==4.26.0",
     "keyring>=25.7.0",
-    "pygments>=2.19.1",
+    "pygments>=2.20.0",
     "PyYAML==6.0.3",
     "requests>=2.33.1",
     "translate>=3.8.0"
