@@ -10,7 +10,7 @@ dependencies = [
     "catfood~=1.0.9",
     "colorama>=0.4.6",
     "jsonschema==4.26.0",
-    "keyring>=25.6.0",
+    "keyring>=25.7.0",
     "pygments>=2.19.1",
     "PyYAML==6.0.3",
     "requests>=2.33.1",
