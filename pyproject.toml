@@ -50,7 +50,7 @@ pythonpath = "src"
 [project.optional-dependencies]
 build = [
     "Pillow==12.2.0",
-    "pyinstaller==6.19.0"
+    "pyinstaller==6.20.0"
 ]
 lint = [
     "isort~=8.0",
