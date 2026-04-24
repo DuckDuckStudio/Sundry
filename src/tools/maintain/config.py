@@ -15,7 +15,7 @@ from pygments.lexers.data import JsonLexer # pyright: ignore[reportMissingTypeSt
 from function.maintain.config import 获取当前配置版本, 获取配置schema, 读取配置, 读取配置项, 转换配置值, 配置信息
 
 
-def 获取用户输入(配置项: str) -> str | bool:
+def 获取用户输入(配置项: str) -> str | bool | int:
     提示消息映射: dict[str, str] = {
         # paths.*
         "paths.winget-pkgs": f"{消息头.问题} 您的本地 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库在哪里: ",
@@ -24,6 +24,7 @@ def 获取用户输入(配置项: str) -> str | bool:
         "repos.winget-pkgs": f"{消息头.问题} 您的远程 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库是什么 (owner/winget-pkgs): ",
         "repos.winget-tools": f"{消息头.问题} 您的远程 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库是什么 (owner/winget-tools): ",
         # git.*
+        "git.retry_interval": f"{消息头.问题} 重试命令的间隔是? [间隔应为{Fore.GREEN}整数{Fore.RESET}，{Fore.RED}负数{Fore.RESET}为不重试，{Fore.YELLOW}零{Fore.RESET}为立即重试] (默认为{Fore.BLUE} 50 {Fore.RESET}秒): ",
         "git.signature": f"{消息头.问题} 是否要为 Git 提交签名? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # github.pr.*
         "github.pr.maintainer_can_modify": f"{消息头.问题} 是否允许维护者修改您的 PR 内容? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
@@ -181,7 +182,7 @@ def 更新配置文件() -> int:
 
         schema = 获取配置schema(当前配置版本)
         if schema:
-            with open(配置信息.所在位置, "r") as f:
+            with open(配置信息.所在位置, "r", encoding="utf-8") as f:
                 jsonschema.validate(json.load(f), schema)
         else:
             print(f"{消息头.警告} 未能获取到当前配置版本的 schema，跳过验证")
