@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import winreg
+from typing import Any
 
 import yaml
 from catfood.functions.print import 消息头
@@ -213,20 +214,24 @@ def 测试安装与卸载(清单目录: str, 操作: str) -> int:
     
     return 0
 
-def 读取AAF字段():
-    # 机器范围 AAF: 计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\<ProductCode>
-    # 用户范围 AAF: 计算机\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<ProductCode>
-    # 此函数皆在实现获取机器/用户范围的 AAF，并返回获取到的结果
-    # 对应清单中的 AppsAndFeaturesEntries
+def 读取AAF字段() -> list[dict[str, str | int]]:
+    """
+    此函数从注册表的 `HKEY_LOCAL_MACHINE` (机器范围) 和 `HKEY_CURRENT_USER` (用户范围) 下的以下两处读取安装信息（对应清单中的 `AppsAndFeaturesEntries` 字段）。
+    - `\\SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\<ProductCode>`
+    - `\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall\\<ProductCode>`
+
+    :return: 读取到的字段列表
+    :rtype: list[dict[str, str | int]]
+    """
 
     # 定义关心的字段列表
-    关心的字段 = [
+    关心的字段: list[str] = [
         "DisplayName", "DisplayVersion", "Publisher", "UninstallString", "HelpLink",
         "InstallLocation", "SystemComponent", "WindowsInstaller", "NoRemove", "NoModify",
         "InstallSource", "EstimatedSize", "URLInfoAbout", "Comments"
     ]
 
-    def _读取注册表值(键: winreg.HKEYType, 值名: str):
+    def _读取注册表值(键: winreg.HKEYType, 值名: str) -> Any | str | None:
         try:
             值, 注册类型 = winreg.QueryValueEx(键, 值名)
             if 注册类型 == winreg.REG_EXPAND_SZ:
@@ -242,7 +247,7 @@ def 读取AAF字段():
         except FileNotFoundError:
             return None
 
-    def _读取注册表条目(hive: int, subkey: str, access: int=0):
+    def _读取注册表条目(hive: int, subkey: str, access: int=0) -> list[dict[str, str | int]]:
         entries: list[dict[str, str | int]] = []
         try:
             with winreg.ConnectRegistry(None, hive) as reg:
@@ -273,25 +278,13 @@ def 读取AAF字段():
 
     所有条目: list[dict[str, str | int]] = []
     
-    # 读取机器范围 (64位和32位) - WOW
-    所有条目.extend(_读取注册表条目(
-        winreg.HKEY_LOCAL_MACHINE,
-        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
-        winreg.KEY_WOW64_64KEY
-    ))
-    
-    所有条目.extend(_读取注册表条目(
-        winreg.HKEY_LOCAL_MACHINE,
-        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
-        winreg.KEY_WOW64_32KEY
-    ))
-    
-    # 读取用户范围
-    所有条目.extend(_读取注册表条目(
-        winreg.HKEY_CURRENT_USER,
-        "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall"
-    ))
-    
+    for scope in (winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER):
+        for regPath in (
+            "SOFTWARE\\WOW6432Node\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
+            "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall"
+        ):
+            所有条目.extend(_读取注册表条目(scope, regPath, winreg.KEY_WOW64_64KEY if scope == winreg.HKEY_LOCAL_MACHINE else 0))
+
     return 所有条目
 
 def 转换AAF条目为YAML(AAF条目: dict[str, str | int]):
