@@ -4,7 +4,7 @@ jsonschema==4.26.0 # 验证 YAML / JSON
 keyring>=25.6.0 # 读Token
 pygments>=2.19.1 # 高亮文本
 PyYAML==6.0.3 # 处理 YAML
-requests>=2.34.1 # 发请求
+requests>=2.34.2 # 发请求
 translate>=3.7.1 # 翻结果
 
 Pillow==12.2.0 # png 转 ico
