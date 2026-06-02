@@ -18,11 +18,11 @@ dependencies = [
 ]
 
 [tool.isort]
-line_length = 9999999999999999999999999 # 约等于无行长度限制
+line_length = 200
 
 [tool.pylint.main]
 init-hook = 'import sys; sys.path.append("src")'
-max-line-length = 9999999999999999999999999 # 约等于无行长度限制
+max-line-length = 200
 notes= [
     "FIXME",
     "XXX"
