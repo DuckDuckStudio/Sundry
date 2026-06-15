@@ -57,7 +57,3 @@ lint = [
     "pylint~=4.0",
     "ruff~=0.15"
 ]
-tests = [
-    "pytest~=9.0",
-    "pytest-cov~=7.1"
-]
