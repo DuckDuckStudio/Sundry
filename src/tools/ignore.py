@@ -1,21 +1,23 @@
 import os
 import re
-import time
-import requests
 import subprocess
-from colorama import Fore
-from catfood.functions.print import 消息头
-from function.git.format import branchName
-from function.maintain.config import 读取配置
-from function.github.token import read_token
+import time
+
+import requests
 from catfood.functions.files import open_file
+from catfood.functions.print import 消息头
+from colorama import Fore
+
+from function.git.format import branchName
+from function.github.token import read_token
+from function.maintain.config import 读取配置
+
 
 def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> bool | str:
     with open(检测程序路径, 'r', encoding="utf-8") as file:
         lines = file.readlines()
 
-    # 找到 HashSet<string> excludedDomains = 的行
-    start_index = next(i for i, line in enumerate(lines) if 'HashSet<string> excludedDomains =' in line)
+    start_index = next(i for i, line in enumerate(lines) if 'HashSet<string> ExcludedDomains =' in line)
     end_index = next(i for i, line in enumerate(lines[start_index:]) if '];' in line) + start_index
 
     # 确保没有重复
@@ -45,8 +47,7 @@ def 移除忽略字段(检测程序路径: str, 忽略字段: str, 新分支名:
     with open(检测程序路径, 'r', encoding="utf-8") as file:
         lines = file.readlines()
 
-    # 找到 HashSet<string> excludedDomains = 的行
-    start_index = next(i for i, line in enumerate(lines) if 'HashSet<string> excludedDomains =' in line)
+    start_index = next(i for i, line in enumerate(lines) if 'HashSet<string> ExcludedDomains =' in line)
     end_index = next(i for i, line in enumerate(lines[start_index:]) if '];' in line) + start_index
 
     # 查找是否存在忽略字段
@@ -80,8 +81,7 @@ def 列出忽略字段(检测程序路径: str) -> None:
     with open(检测程序路径, 'r', encoding="utf-8") as file:
         lines = file.readlines()
 
-    # 找到 HashSet<string> excludedDomains = 的行
-    start_index = next(i for i, line in enumerate(lines) if 'HashSet<string> excludedDomains =' in line)
+    start_index = next(i for i, line in enumerate(lines) if 'HashSet<string> ExcludedDomains =' in line)
     end_index = next(i for i, line in enumerate(lines[start_index:]) if '];' in line) + start_index + 1 # 包含结束行
 
     # 列出所有忽略字段
