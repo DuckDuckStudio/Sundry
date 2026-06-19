@@ -2,9 +2,9 @@ import os
 
 from catfood.functions.print import 消息头
 from colorama import Fore
-from pygments import highlight # pyright: ignore[reportUnknownVariableType]
+from pygments import highlight  # pyright: ignore[reportUnknownVariableType]
 from pygments.formatters.terminal import TerminalFormatter
-from pygments.lexers.data import YamlLexer # pyright: ignore[reportMissingTypeStubs]
+from pygments.lexers.data import YamlLexer  # pyright: ignore[reportMissingTypeStubs]
 
 from function.files.manifest import 获取清单目录
 from function.maintain.config import 读取配置

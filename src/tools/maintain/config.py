@@ -8,9 +8,9 @@ from catfood.exceptions.operation import OperationFailed
 from catfood.functions.files import open_file
 from catfood.functions.print import 消息头
 from colorama import Fore
-from pygments import highlight # pyright: ignore[reportUnknownVariableType]
+from pygments import highlight  # pyright: ignore[reportUnknownVariableType]
 from pygments.formatters.terminal import TerminalFormatter
-from pygments.lexers.data import JsonLexer # pyright: ignore[reportMissingTypeStubs]
+from pygments.lexers.data import JsonLexer  # pyright: ignore[reportMissingTypeStubs]
 
 from function.maintain.config import 获取当前配置版本, 获取配置schema, 读取配置, 读取配置项, 转换配置值, 配置信息
 

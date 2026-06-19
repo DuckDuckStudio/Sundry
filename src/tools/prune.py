@@ -1,9 +1,12 @@
 import os
 import subprocess
-from colorama import Fore
-from catfood.functions.print import 消息头
-from function.maintain.config import 读取配置
+
 from catfood.exceptions.operation import OperationFailed
+from catfood.functions.print import 消息头
+from colorama import Fore
+
+from function.maintain.config import 读取配置
+
 
 def main() -> int:
     try:

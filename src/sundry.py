@@ -1,8 +1,11 @@
 import sys
-from colorama import init
+
 from catfood.functions.print import 消息头
-from function.constant.paths import SUNDRY_LOCATION
+from colorama import init
+
 from function.constant.general import SUNDRY_VERSION
+from function.constant.paths import SUNDRY_LOCATION
+
 
 def main() -> int:
     init(autoreset=True)

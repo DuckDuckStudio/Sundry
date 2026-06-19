@@ -1,5 +1,6 @@
 import subprocess
 
+
 def 检查重复拉取请求(包标识符: str, 包版本: str) -> bool:
     """
     检查上游仓库中是否有相同修改^1且打开的^2拉取请求

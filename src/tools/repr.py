@@ -1,6 +1,8 @@
 import os
-from colorama import Fore
+
 from catfood.functions.print import 消息头
+from colorama import Fore
+
 
 def main(args: list[str]) -> int:
 

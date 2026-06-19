@@ -10,9 +10,9 @@ import winreg
 import yaml
 from catfood.functions.print import 消息头
 from colorama import Fore
-from pygments import highlight # pyright: ignore[reportUnknownVariableType]
+from pygments import highlight  # pyright: ignore[reportUnknownVariableType]
 from pygments.formatters.terminal import TerminalFormatter
-from pygments.lexers.data import YamlLexer # pyright: ignore[reportMissingTypeStubs]
+from pygments.lexers.data import YamlLexer  # pyright: ignore[reportMissingTypeStubs]
 
 from function.constant.paths import VERIFY_TEMP_DIR
 from function.files.manifest import 获取PR清单, 获取清单目录

@@ -1,10 +1,13 @@
 import os
 import random
-from colorama import Fore
-from catfood.functions.print import 消息头
-from catfood.functions.files import open_file
-from function.constant.paths import FUN_TEXT_PATH
+
 from catfood.exceptions.operation import OperationFailed
+from catfood.functions.files import open_file
+from catfood.functions.print import 消息头
+from colorama import Fore
+
+from function.constant.paths import FUN_TEXT_PATH
+
 
 def main(args: list[str]) -> int:
     """

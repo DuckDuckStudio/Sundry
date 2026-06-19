@@ -2,8 +2,8 @@
 Sundry 所需的一些路径的常量。
 """
 
-import sys
 import os.path
+import sys
 import tempfile
 from typing import Final
 
