@@ -1,25 +1,28 @@
+import csv
+import io
+import json
 import os
 import re
-import io
-import csv
-import json
 import shutil
 import zipfile
-import requests
 from typing import Any
-from colorama import Fore
-from catfood.constant import YES, NO
-import tools.maintain.cleanup as cleanup
+from urllib.parse import parse_qs, urlparse
+
+import requests
+from catfood.constant import NO, YES
+from catfood.exceptions.operation import TryOtherMethods
+from catfood.functions.files import open_file
+from catfood.functions.format.github import IssueNumber
+from catfood.functions.github.api import 获取GitHub文件内容
 from catfood.functions.print import 消息头
-from urllib.parse import urlparse, parse_qs
+from colorama import Fore
+
+import tools.maintain.cleanup as cleanup
+from function.constant.logsAnalyse import EXE_LIST_LIMIT
+from function.constant.paths import AZP_LOGS_DIR
 from function.github.token import read_token
 from function.maintain.config import 读取配置
-from catfood.functions.files import open_file
-from function.constant.paths import AZP_LOGS_DIR
-from catfood.functions.format.github import IssueNumber
-from catfood.exceptions.operation import TryOtherMethods
-from function.constant.logsAnalyse import EXE_LIST_LIMIT
-from catfood.functions.github.api import 获取GitHub文件内容
+
 
 def main(args: list[str]) -> int:
     """`sundry logs-analyse <Url> [是否保留日志文件] [是否显示一般错误/异常]`"""

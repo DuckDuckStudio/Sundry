@@ -1,12 +1,15 @@
-import os
 import json
-import requests
+import os
 from typing import Any
-from colorama import Fore
-from catfood.constant import YES, NO
+
+import requests
+from catfood.constant import NO, YES
+from catfood.exceptions.operation import OperationFailed, TryOtherMethods
 from catfood.functions.print import 消息头
+from colorama import Fore
+
 from function.constant.paths import CONFIG_FILE_PATH
-from catfood.exceptions.operation import TryOtherMethods, OperationFailed
+
 
 class 配置信息:
     默认配置: dict[str, Any] = {
@@ -233,8 +236,9 @@ def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
 
     try:
         # NOTE 这里的导入不要放顶级，会出现循环导入
-        from function.github.token import read_token
         from catfood.functions.github.api import 获取GitHub文件内容
+
+        from function.github.token import read_token
 
         print(f"{消息头.信息} 尝试从 GitHub API 获取配置文件 schema ...")
         schema文件 = 获取GitHub文件内容("DuckDuckStudio/yazicbs.github.io", f"Tools/Sundry/config/schema/{版本}.json", read_token(silent=True))

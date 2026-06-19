@@ -1,9 +1,12 @@
 import os
 import subprocess
-from colorama import Fore
-from catfood.constant import YES, NO
+
+from catfood.constant import NO, YES
 from catfood.functions.print import 消息头
+from colorama import Fore
+
 from function.maintain.config import 读取配置
+
 
 def main(args: list[str]) -> int:
     # 格式化输入
