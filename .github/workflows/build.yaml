@@ -1,4 +1,4 @@
-name: Pack Releases
+name: 构建和发布
 
 on:
   workflow_dispatch:
@@ -14,7 +14,7 @@ permissions: {}
 
 jobs:
   build:
-    name: 构建安装程序和压缩包
+    name: 打包压缩包和安装程序
     runs-on: windows-latest
 
     steps:
