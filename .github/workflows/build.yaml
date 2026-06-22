@@ -10,11 +10,11 @@ on:
   release:
     types: [published]
 
-permissions:
-  contents: write
+permissions: {}
 
 jobs:
   build:
+    name: 构建安装程序和压缩包
     runs-on: windows-latest
 
     steps:
@@ -110,21 +110,34 @@ jobs:
           iscc installer.iss
 
       - name: 上传构建文件
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Release
           path: Release/**
 
-      - name: 整理发行版文件
-        if: ${{ github.event_name != 'workflow_dispatch' }}
+  publish:
+    name: 发布发行版
+    needs: build
+    runs-on: windows-latest
+    if: ${{ github.event_name == 'release' }}
+
+    permissions:
+      contents: write # 发布发行版
+
+    steps:
+      - name: 下载构建文件
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: Release
+          path: Release
+
+      - name: 移除中间产物
         shell: pwsh
         run: |-
           Remove-Item -Recurse "Release/pack" -Verbose
           Remove-Item -Recurse "Release/src" -Verbose
 
       - name: 发布至发行版
-        if: ${{ github.event_name != 'workflow_dispatch' }}
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           files: Release/**
