@@ -138,6 +138,6 @@ jobs:
           Remove-Item -Recurse "Release/src" -Verbose
 
       - name: 发布至发行版
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
-        with:
-          files: Release/**
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$env:GITHUB_REF_NAME" "Release/*"
