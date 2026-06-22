@@ -22,7 +22,7 @@ Name: "chinesesimplified"; MessagesFile: "compiler:Languages\ChineseSimplified.i
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 
 [Files]
-Source: "Release\pack\*"; DestDir: "{app}"; Flags: recursesubdirs
+Source: "Release\pack\*"; DestDir: "{app}";
 
 [Run]
 Filename: "{sys}\cmd.exe"; Parameters: "/C setx PATH ""{app};%PATH%"" /M"; Flags: runhidden
