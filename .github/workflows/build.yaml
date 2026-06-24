@@ -12,6 +12,9 @@ on:
 
 permissions: {}
 
+env:
+  PYTHONIOENCODING: utf-8
+
 jobs:
   build:
     name: 打包压缩包和安装程序
@@ -31,7 +34,6 @@ jobs:
       - name: 更新版本号
         shell: pwsh
         env:
-          PYTHONIOENCODING: utf-8
           GITHUB_EVENT_INPUTS_VERSION: ${{ github.event.inputs.version }}
         # 前面已经配置过 Python 了，这个脚本只用 os 和 sys 这两个标准库，不用再装依赖
         run: |-
@@ -57,8 +59,6 @@ jobs:
 
       - name: 安装依赖
         shell: pwsh
-        env:
-          PYTHONIOENCODING: utf-8
         # 环境配置的依赖文件中含有打包所需依赖
         run: |-
           pip install -r "requirements.txt"
@@ -76,8 +76,6 @@ jobs:
 
       - name: 整理源码
         # 整理文件 > 压缩文件 > 清理工作目录
-        env:
-          PYTHONIOENCODING: utf-8
         shell: pwsh
         run: |-
           Copy-Item -Path "LICENSE" -Destination "src/LICENSE" -Verbose
@@ -92,8 +90,6 @@ jobs:
 
       - name: 制作安装程序和打包后的压缩包
         shell: pwsh
-        env:
-          PYTHONIOENCODING: utf-8
         # 这里是直接打包过去的，不用管 sundry.ps1
         run: |-
           New-Item -ItemType Directory -Path "Release/pack" -Verbose
