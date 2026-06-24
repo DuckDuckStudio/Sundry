@@ -74,34 +74,49 @@ jobs:
           Remove-Item "upx-latest.zip" -Verbose
           tree /a /f
 
-      - name: 整理源码
-        # 整理文件 > 压缩文件 > 清理工作目录
+      - name: 整理文件到 Release 文件夹
         shell: pwsh
         run: |-
-          Copy-Item -Path "LICENSE" -Destination "src/LICENSE" -Verbose
+          # 创建文件夹
           New-Item -ItemType Directory -Path "Release" -Verbose
           New-Item -ItemType Directory -Path "Release/src" -Verbose
-          Copy-Item -Recurse -Path "src/*" -Destination "Release/src"
+          New-Item -ItemType Directory -Path "Release/pack" -Verbose
+
+          # 复制许可文件
           Copy-Item -Path "LICENSE" -Destination "Release/src" -Verbose
+          Copy-Item -Path "LICENSE" -Destination "Release/pack" -Verbose
+
+          # 复制源码需要的需求文件和项目配置
           Copy-Item -Path "requirements.txt" -Destination "Release/src" -Verbose
-          # 压缩源码到 Release，7z 和 zip
+          Copy-Item -Path "pyproject.toml" -Destination "Release/src" -Verbose
+
+          # 复制源码
+          Copy-Item -Recurse -Path "src/*" -Destination "Release/src"
+
+          # 复制 fun.txt
+          Copy-Item -Path "src/fun.txt" -Destination "Release/pack" -Verbose
+
+      - name: 创建源码归档
+        shell: pwsh
+        run: |-
           7z a -t7z Release/Sundry-src.7z ./Release/src/*
           7z a -tzip Release/Sundry-src.zip ./Release/src/*
 
-      - name: 制作安装程序和打包后的压缩包
+      - name: 构建 Sundry
         shell: pwsh
-        # 这里是直接打包过去的，不用管 sundry.ps1
         run: |-
-          New-Item -ItemType Directory -Path "Release/pack" -Verbose
-          Copy-Item -Path "src/fun.txt" -Destination "Release/pack" -Verbose
-          Copy-Item -Path "LICENSE" -Destination "Release/pack" -Verbose
-          Write-Host "========================================"
           python "自动化脚本/png-2-ico.py"
           pyinstaller --onefile --distpath="Release/pack" --name="sundry.exe" "src/sundry.py" --upx-dir="upx" -i "icon/Sundry.ico"
-          Write-Host "========================================"
+
+      - name: 创建构建结果归档
+        shell: pwsh
+        run: |-
           7z a -t7z Release/Sundry.7z ./Release/pack/*
           7z a -tzip Release/Sundry.zip ./Release/pack/*
-          Write-Host "========================================"
+
+      - name: 打包安装程序
+        shell: pwsh
+        run: |-
           if ((Get-Date) -le (Get-Date "2026-06-29")) {
             Write-Host "通过 GitHub API 下载中文翻译..."
             $apiUrl = "https://api.github.com/repos/jrsoftware/issrc/contents/Files/Languages/ChineseSimplified.isl?ref=main"
@@ -112,6 +127,7 @@ jobs:
             Write-Error "Inno Setup 7.0.2 应该今天会发布，请使用包含官方翻译的新版本"
             exit -1
           }
+
           iscc installer.iss
 
       - name: 上传构建文件
