@@ -106,7 +106,16 @@ jobs:
           7z a -t7z Release/Sundry.7z ./Release/pack/*
           7z a -tzip Release/Sundry.zip ./Release/pack/*
           Write-Host "========================================"
-          curl -o "C:\Program Files (x86)\Inno Setup 6\Languages\ChineseSimplified.isl" "https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/ChineseSimplified.isl"
+          if ((Get-Date) -le (Get-Date "2026-06-29")) {
+            Write-Host "通过 GitHub API 下载中文翻译..."
+            $apiUrl = "https://api.github.com/repos/jrsoftware/issrc/contents/Files/Languages/ChineseSimplified.isl?ref=main"
+            $downloadPath = "C:\Program Files (x86)\Inno Setup 6\Languages\ChineseSimplified.isl"
+            Invoke-WebRequest -Uri $apiUrl -Headers @{ "Accept" = "application/vnd.github.raw+json" } -OutFile $downloadPath
+            Get-FileHash -Path $downloadPath -Algorithm SHA256
+          } else {
+            Write-Error "Inno Setup 7.0.2 应该今天会发布，请使用包含官方翻译的新版本"
+            exit -1
+          }
           iscc installer.iss
 
       - name: 上传构建文件
