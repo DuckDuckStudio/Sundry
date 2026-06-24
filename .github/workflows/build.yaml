@@ -57,13 +57,15 @@ jobs:
           Write-Host "Version: $version"
           python "自动化脚本/修改版本号.py" "$version"
 
-      - name: 安装依赖
+      - name: 安装 Python 包依赖
         shell: pwsh
-        # 环境配置的依赖文件中含有打包所需依赖
         run: |-
           pip install -r "requirements.txt"
           pip list
-          Write-Host "=================UPX===================="
+
+      - name: 获取 UPX
+        shell: pwsh
+        run: |-
           $upx_url = (Invoke-WebRequest -Uri https://api.github.com/repos/upx/upx/releases/latest).Content | ConvertFrom-Json | Select-Object -ExpandProperty assets | Where-Object { $_.name -like "*win64.zip" } | Select-Object -ExpandProperty browser_download_url
           Write-Host "[INFO] Latest UPX download URL: $upx_url"
           Invoke-WebRequest -Uri $upx_url -OutFile "upx-latest.zip"
