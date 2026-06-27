@@ -1,4 +1,4 @@
-name: Pack Releases
+name: 构建和发布
 
 on:
   workflow_dispatch:
@@ -8,13 +8,16 @@ on:
         required: true
         default: 2.3.3
   release:
-    types: [ published ]
+    types: [published]
 
-permissions:
-  contents: write
+permissions: {}
+
+env:
+  PYTHONIOENCODING: utf-8
 
 jobs:
   build:
+    name: 打包压缩包和安装程序
     runs-on: windows-latest
 
     steps:
@@ -29,8 +32,8 @@ jobs:
           python-version: 3.x
 
       - name: 更新版本号
+        shell: pwsh
         env:
-          PYTHONIOENCODING: utf-8
           GITHUB_EVENT_INPUTS_VERSION: ${{ github.event.inputs.version }}
         # 前面已经配置过 Python 了，这个脚本只用 os 和 sys 这两个标准库，不用再装依赖
         run: |-
@@ -54,15 +57,15 @@ jobs:
           Write-Host "Version: $version"
           python "自动化脚本/修改版本号.py" "$version"
 
-      - name: 安装依赖
+      - name: 安装 Python 包依赖
         shell: pwsh
-        env:
-          PYTHONIOENCODING: utf-8
-        # 环境配置的依赖文件中含有打包所需依赖
         run: |-
           pip install -r "requirements.txt"
           pip list
-          Write-Host "=================UPX===================="
+
+      - name: 获取 UPX
+        shell: pwsh
+        run: |-
           $upx_url = (Invoke-WebRequest -Uri https://api.github.com/repos/upx/upx/releases/latest).Content | ConvertFrom-Json | Select-Object -ExpandProperty assets | Where-Object { $_.name -like "*win64.zip" } | Select-Object -ExpandProperty browser_download_url
           Write-Host "[INFO] Latest UPX download URL: $upx_url"
           Invoke-WebRequest -Uri $upx_url -OutFile "upx-latest.zip"
@@ -73,57 +76,91 @@ jobs:
           Remove-Item "upx-latest.zip" -Verbose
           tree /a /f
 
-      - name: 整理源码
-        # 整理文件 > 压缩文件 > 清理工作目录
-        env:
-          PYTHONIOENCODING: utf-8
-        shell: bash
+      - name: 整理文件到 Release 文件夹
+        shell: pwsh
         run: |-
-          cp -v LICENSE src/LICENSE
-          mkdir Release
-          mkdir Release/src
-          cp -rv src/ Release
-          cp -v LICENSE Release/src
-          cp -v requirements.txt Release/src
-          # 压缩源码到 Release，7z 和 zip
-          7z a -t7z Release/Sundry-src.7z Release/src
-          7z a -tzip Release/Sundry-src.zip Release/src
+          # 创建文件夹
+          New-Item -ItemType Directory -Path "Release" -Verbose
+          New-Item -ItemType Directory -Path "Release/src" -Verbose
+          New-Item -ItemType Directory -Path "Release/pack" -Verbose
 
-      - name: 制作安装程序和打包后的压缩包
-        shell: bash
-        env:
-          PYTHONIOENCODING: utf-8
-        # 这里是直接打包过去的，不用管 sundry.ps1
+          # 复制许可文件
+          Copy-Item -Path "LICENSE" -Destination "Release/src" -Verbose
+          Copy-Item -Path "LICENSE" -Destination "Release/pack" -Verbose
+
+          # 复制源码需要的需求文件和项目配置
+          Copy-Item -Path "requirements.txt" -Destination "Release/src" -Verbose
+          Copy-Item -Path "pyproject.toml" -Destination "Release/src" -Verbose
+
+          # 复制源码
+          Copy-Item -Recurse -Path "src/*" -Destination "Release/src"
+
+          # 复制 fun.txt
+          Copy-Item -Path "src/fun.txt" -Destination "Release/pack" -Verbose
+
+      - name: 创建源码归档
+        shell: pwsh
         run: |-
-          mkdir Release/pack
-          cp -v src/fun.txt Release/pack
-          cp -v LICENSE Release/pack
-          echo ========================================
+          7z a -t7z Release/Sundry-src.7z ./Release/src/*
+          7z a -tzip Release/Sundry-src.zip ./Release/src/*
+
+      - name: 构建 Sundry
+        shell: pwsh
+        run: |-
           python "自动化脚本/png-2-ico.py"
           pyinstaller --onefile --distpath="Release/pack" --name="sundry.exe" "src/sundry.py" --upx-dir="upx" -i "icon/Sundry.ico"
-          echo ========================================
-          7z a -t7z Release/Sundry.7z Release/pack
-          7z a -tzip Release/Sundry.zip Release/pack
-          echo ========================================
-          curl -o "C:\Program Files (x86)\Inno Setup 6\Languages\ChineseSimplified.isl" "https://raw.githubusercontent.com/jrsoftware/issrc/main/Files/Languages/Unofficial/ChineseSimplified.isl"
+
+      - name: 创建构建结果归档
+        shell: pwsh
+        run: |-
+          7z a -t7z Release/Sundry.7z ./Release/pack/*
+          7z a -tzip Release/Sundry.zip ./Release/pack/*
+
+      - name: 打包安装程序
+        shell: pwsh
+        run: |-
+          if ((Get-Date) -le (Get-Date "2026-06-29")) {
+            Write-Host "通过 GitHub API 下载中文翻译..."
+            $apiUrl = "https://api.github.com/repos/jrsoftware/issrc/contents/Files/Languages/ChineseSimplified.isl?ref=main"
+            $downloadPath = "C:\Program Files (x86)\Inno Setup 6\Languages\ChineseSimplified.isl"
+            Invoke-WebRequest -Uri $apiUrl -Headers @{ "Accept" = "application/vnd.github.raw+json" } -OutFile $downloadPath
+            Get-FileHash -Path $downloadPath -Algorithm SHA256
+          } else {
+            Write-Error "Inno Setup 7.0.2 应该今天会发布，请使用包含官方翻译的新版本"
+            exit -1
+          }
+
           iscc installer.iss
 
       - name: 上传构建文件
-        if: ${{ github.event_name == 'workflow_dispatch' }}
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: Release
           path: Release/**
 
-      - name: 整理发行版文件
-        if: ${{ github.event_name != 'workflow_dispatch' }}
-        shell: bash
+  publish:
+    name: 发布发行版
+    needs: build
+    runs-on: windows-latest
+    if: ${{ github.event_name == 'release' }}
+
+    permissions:
+      contents: write # 发布发行版
+
+    steps:
+      - name: 下载构建文件
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: Release
+          path: Release
+
+      - name: 移除中间产物
+        shell: pwsh
         run: |-
-          rm -rv Release/pack
-          rm -rv Release/src
+          Remove-Item -Recurse "Release/pack" -Verbose
+          Remove-Item -Recurse "Release/src" -Verbose
 
       - name: 发布至发行版
-        if: ${{ github.event_name != 'workflow_dispatch' }}
-        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
-        with:
-          files: Release/**
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "$env:GITHUB_REF_NAME" "Release/*"
