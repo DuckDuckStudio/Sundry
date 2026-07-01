@@ -158,4 +158,4 @@ jobs:
       - name: 发布至发行版
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release upload "$env:GITHUB_REF_NAME" "Release/*"
+        run: gh release upload "$env:GITHUB_REF_NAME" "Release/*" -R "DuckDuckStudio/Sundry"
