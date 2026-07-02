@@ -12,12 +12,13 @@ from catfood.constant import NO, YES
 from catfood.exceptions.operation import OperationFailed
 from catfood.functions.github.api import 这是谁的Token
 from catfood.functions.print import 消息头
+from catfood.functions.terminal import runCommand
 from colorama import Fore
 from translate import Translator  # type: ignore
 
 import tools.cat as cat
 import tools.sync as sync
-from function.constant.general import PR_TOOL_NOTE
+from function.constant.general import PR_TOOL_NOTE, RETRY_INTERVAL
 from function.files.manifest import 获取清单目录, 获取现有包版本
 from function.git.format import branchName
 from function.github.token import read_token
@@ -208,8 +209,11 @@ def main(args: list[str]) -> int:
         subprocess.run(["git", "commit", "-m", f"Remove version: {包标识符} version {包版本} (Auto)"], check=True)
     print(f"{Fore.BLUE}  已提交修改")
 
-    subprocess.run(["git", "push"], check=True)
-    print(f"{Fore.BLUE}  已推送修改")
+    if e := runCommand(["git", "push"], retry=RETRY_INTERVAL):
+        print(f"{消息头.错误} 推送到远程失败: Git 返回退出代码 {e}")
+        return e
+    else:
+        print(f"{Fore.BLUE}  已推送修改")
 
     while (not 理由):
         理由 = input("移除此包版本的理由: ")
