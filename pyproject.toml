@@ -49,7 +49,7 @@ pythonpath = "src"
 
 [project.optional-dependencies]
 build = [
-    "Pillow==12.2.0",
+    "Pillow==12.3.0",
     "pyinstaller==6.21.0"
 ]
 lint = [
