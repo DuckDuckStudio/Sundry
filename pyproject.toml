@@ -14,7 +14,7 @@ dependencies = [
     "pygments>=2.20.0",
     "PyYAML==6.0.3",
     "requests>=2.34.2",
-    "translate>=3.8.0"
+    "translate>=3.8.1"
 ]
 
 [tool.isort]
