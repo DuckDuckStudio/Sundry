@@ -256,7 +256,7 @@ def 修改版本(版本文件夹: str):
     for root, _, files in os.walk(版本文件夹路径):
         for file in files:
             清单文件路径 = os.path.join(root, file)
-            
+
             # 只处理 YAML 文件
             if file.endswith(".yaml"):
                 print(f"  正在处理文件: {清单文件路径}")

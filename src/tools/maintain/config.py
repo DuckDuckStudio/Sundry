@@ -133,7 +133,7 @@ def 修改配置项(配置项: str, 值: str) -> int:
 
             with open(配置信息.所在位置, "r", encoding="utf-8") as f:
                 配置数据 = json.load(f)
-            
+
             # 解析嵌套键路径
             键路径列表 = 配置项.split(".")
             当前字典 = 配置数据
@@ -147,7 +147,7 @@ def 修改配置项(配置项: str, 值: str) -> int:
 
             with open(配置信息.所在位置, "w", encoding="utf-8") as f:
                 json.dump(配置数据, f, indent=4, ensure_ascii=False)
-            
+
             print(f"{消息头.成功} 成功更新 {Fore.BLUE}{配置项}{Fore.RESET} 为 {Fore.BLUE}{配置值}{Fore.RESET}")
             return 0
         except json.decoder.JSONDecodeError as e:
@@ -165,7 +165,7 @@ def 修改配置项(配置项: str, 值: str) -> int:
         print(f"{消息头.错误} 配置文件不存在")
         print(f"{消息头.提示} 运行 sundry config init 来初始化配置文件")
         return 1
-    
+
 def 更新配置文件() -> int:
     """
     尝试将旧的配置文件更新至最新版本的格式，旧配置缺失的键的值使用默认值。

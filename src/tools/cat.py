@@ -21,10 +21,10 @@ def 读取和输出(清单文件: str):
         # 读取清单文件
         with open(清单文件, 'r', encoding="utf-8") as file:
             清单内容 = file.read()
-        
+
         # 使用 pygments 优化输出 YAML 文件
         高亮清单: str = highlight(清单内容, YamlLexer(), TerminalFormatter()) # pyright: ignore[reportUnknownArgumentType]
-        
+
         # 输出优化后的 YAML 内容
         print(高亮清单)
 
@@ -90,7 +90,7 @@ def main(args: list[str]) -> int:
         for 清单 in 清单文件:
             if 读取和输出(os.path.normpath(清单)): # 如果读取失败则返回 1
                 return 1
-            
+
         return 0
     else:
         清单文件 = ""
