@@ -76,6 +76,24 @@ jobs:
           Remove-Item "upx-latest.zip" -Verbose
           tree /a /f
 
+      - name: 安装 Inno Setup 7
+        shell: pwsh
+        run: |-
+          Write-OutPut "[INFO] 卸载 Inno Setup 6"
+          choco uninstall innosetup
+          # 这里如果用 WinGet 卸载的话后面 iscc 会变成 C:\ProgramData\Chocolatey\bin\ISCC.exe
+          # 然后报错：
+          # Cannot find file at 'c:\program files (x86)\inno setup 6\iscc.exe' (c:\program files (x86)\inno setup 6\iscc.exe). This usually indicates a missing or moved file.
+
+          Write-OutPut "[INFO] 安装 Inno Setup 7"
+          winget install --id JRSoftware.InnoSetup.7 --scope machine -s winget -e
+          # Chocolatey 上好像没有 InnoSetup 7
+          # https://community.chocolatey.org/packages?q=innosetup
+
+          Write-OutPut "[INFO] 更新 PATH"
+          "C:\Program Files\Inno Setup 7\" | Out-File -FilePath "$env:GITHUB_PATH" -Append
+          Write-OutPut "$env:Path"
+
       - name: 整理文件到 Release 文件夹
         shell: pwsh
         run: |-
@@ -118,14 +136,7 @@ jobs:
 
       - name: 打包安装程序
         shell: pwsh
-        run: |-
-          Write-Host "通过 GitHub API 下载中文翻译..."
-          $apiUrl = "https://api.github.com/repos/jrsoftware/issrc/contents/Files/Languages/ChineseSimplified.isl?ref=main"
-          $downloadPath = "C:\Program Files (x86)\Inno Setup 6\Languages\ChineseSimplified.isl"
-          Invoke-WebRequest -Uri $apiUrl -Headers @{ "Accept" = "application/vnd.github.raw+json" } -OutFile $downloadPath
-          Get-FileHash -Path $downloadPath -Algorithm SHA256
-
-          iscc installer.iss
+        run: iscc installer.iss
 
       - name: 上传构建文件
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
