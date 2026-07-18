@@ -16,6 +16,16 @@ from function.maintain.config import 获取当前配置版本, 获取配置schem
 
 
 def 获取用户输入(配置项: str) -> str | bool:
+    """
+    获取用户输入的配置值，并返回转换后的配置值。
+
+    Args:
+        配置项: 配置项的键路径
+
+    Returns:
+        转换后的配置值
+    """
+
     提示消息映射: dict[str, str] = {
         # paths.*
         "paths.winget-pkgs": f"{消息头.问题} 您的本地 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库在哪里: ",
@@ -62,6 +72,13 @@ def 获取用户输入(配置项: str) -> str | bool:
             print(f"{消息头.错误} 无法转换配置值: {Fore.RED}{e}{Fore.RESET}")
 
 def 初始化配置文件() -> int:
+    """
+    `sundry config init` 的实现函数，用于初始化配置文件。
+
+    Returns:
+        退出代码
+    """
+
     if not os.path.exists(配置信息.所在位置) or (input(f"{消息头.警告} 已经存在了一份配置文件，要覆盖它吗? (默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in NO):
         默认配置: dict[str, Any] = 配置信息.默认配置
 
@@ -107,6 +124,13 @@ def 初始化配置文件() -> int:
         return 1
 
 def 展示配置文件() -> int:
+    """
+    `sundry config show` 的实现函数，用于展示当前的配置文件内容。
+
+    Returns:
+        退出代码
+    """
+
     if os.path.exists(配置信息.所在位置):
         try:
             print(f"{消息头.提示} 前往 https://github.com/DuckDuckStudio/Sundry/tree/main/docs/config 了解配置项的含义")
@@ -127,6 +151,17 @@ def 展示配置文件() -> int:
         return 1
 
 def 修改配置项(配置项: str, 值: str) -> int:
+    """
+    `sundry config <配置项> <值>` 的实现函数，用于修改配置文件中的某个配置项的值。
+
+    Args:
+        配置项: 配置项的键路径
+        值: 配置项的新值
+
+    Returns:
+        退出代码
+    """
+
     if os.path.exists(配置信息.所在位置):
         try:
             配置值 = 转换配置值(配置项, 值)
@@ -169,6 +204,9 @@ def 修改配置项(配置项: str, 值: str) -> int:
 def 更新配置文件() -> int:
     """
     尝试将旧的配置文件更新至最新版本的格式，旧配置缺失的键的值使用默认值。
+
+    Returns:
+        退出代码
     """
 
     if not os.path.exists(配置信息.所在位置):
@@ -234,6 +272,16 @@ def 更新配置文件() -> int:
         return 1
 
 def main(args: list[str]) -> int:
+    """
+    `sundry config` 命令的入口函数，根据传入的参数执行相应的操作。
+
+    Args:
+        args: 参数列表
+
+    Returns:
+        退出代码  
+    """
+
     try:
         if not args:
             print(f"{消息头.错误} 缺少参数")
