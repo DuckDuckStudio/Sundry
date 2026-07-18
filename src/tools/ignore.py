@@ -64,7 +64,7 @@ def 移除忽略字段(检测程序路径: str, 忽略字段: str, 新分支名:
             # 该行包含需要移除的忽略字段，但该行还有其他忽略字段 - 仅移除该忽略字段
             lines[i] = lines[i].replace(f"\"{忽略字段}\", ", "")
             方式 = "移除字段"
-            
+
     if (not 方式):
         print(f"{消息头.错误} {Fore.RED}未找到对应忽略字段{Fore.RESET}")
         subprocess.run(["git", "checkout", "main"], check=True) # 签回
@@ -158,7 +158,7 @@ def main(args: list[str]) -> int:
     winget_tools目录 = 读取配置("paths.winget-tools")
     if not isinstance(winget_tools目录, str):
         return 1
-    
+
     tools仓库 = 读取配置("repos.winget-tools")
     if not isinstance(tools仓库, tuple):
         return 1
@@ -242,7 +242,7 @@ def main(args: list[str]) -> int:
 
         if not 方式:
             return 1
-        
+
         print(f"{消息头.成功} 已将忽略字段 {Fore.BLUE}{忽略字段}{Fore.RESET} 从检测程序的忽略列表中移除 ({Fore.YELLOW}{方式}{Fore.RESET})")
 
         print(f"{消息头.信息} 开始提交和推送...")

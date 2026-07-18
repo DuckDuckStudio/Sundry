@@ -73,7 +73,7 @@ def main(args: list[str]) -> int:
             elif not 包标识符:
                 print(f"{消息头.错误} {Fore.RED}未能从文件名上识别出包标识符，请确保清单文件命名合法。{Fore.RESET}")
                 return 1
-            
+
             # 好的，接下来让我为它们构建最少目录结构
             # 这里相当于把 %TEMP%/Sundry/Verify/LocaleManifests/** 当作一个 winget-pkgs 仓库，后续就和传入 2 个参数时差不多了。
             清单目录 = os.path.join(VERIFY_TEMP_DIR, "LocaleManifests", "manifests", 包标识符[0].lower(), *包标识符.split("."))
@@ -84,7 +84,7 @@ def main(args: list[str]) -> int:
     else: # 不符合
         print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
-    
+
     # ============================================================
 
     if PR编号:
@@ -210,7 +210,7 @@ def 测试安装与卸载(清单目录: str, 操作: str) -> int:
     except subprocess.CalledProcessError as e:
         print(f"{消息头.错误} 还原 LocalManifestFiles 设置失败: {e}")
         return 1
-    
+
     return 0
 
 def 读取AAF字段():
@@ -272,26 +272,26 @@ def 读取AAF字段():
         return entries
 
     所有条目: list[dict[str, str | int]] = []
-    
+
     # 读取机器范围 (64位和32位) - WOW
     所有条目.extend(_读取注册表条目(
         winreg.HKEY_LOCAL_MACHINE,
         "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
         winreg.KEY_WOW64_64KEY
     ))
-    
+
     所有条目.extend(_读取注册表条目(
         winreg.HKEY_LOCAL_MACHINE,
         "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
         winreg.KEY_WOW64_32KEY
     ))
-    
+
     # 读取用户范围
     所有条目.extend(_读取注册表条目(
         winreg.HKEY_CURRENT_USER,
         "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall"
     ))
-    
+
     return 所有条目
 
 def 转换AAF条目为YAML(AAF条目: dict[str, str | int]):
@@ -301,28 +301,28 @@ def 转换AAF条目为YAML(AAF条目: dict[str, str | int]):
         YAML条目["Scope"] = str(AAF条目["Scope"])
     if "HelpLink" in AAF条目:
         YAML条目["PublisherSupportUrl"] = str(AAF条目["HelpLink"])
-    
+
     # AppsAndFeaturesEntries
     程序与功能条目: dict[str, str] = {}
     for 字段 in ["DisplayName", "DisplayVersion", "Publisher", "ProductCode"]:
         if 字段 in AAF条目:
             程序与功能条目[字段] = str(AAF条目[字段])
-    
+
     if 程序与功能条目:
         YAML条目["AppsAndFeaturesEntries"] = [程序与功能条目]
     else:
         YAML条目["AppsAndFeaturesEntries"] = []
-    
+
     # 其他字段
     用过的字段 = ["Scope", "HelpLink", "DisplayName", "DisplayVersion", "Publisher", "ProductCode"]
     其他条目: dict[str, str] = {}
     for 键, 值 in AAF条目.items():
         if 键 not in 用过的字段:
             其他条目[键] = str(值)
-    
+
     if 其他条目:
         YAML条目["OtherEntries"] = [其他条目]
     else:
         YAML条目["OtherEntries"] = []
-    
+
     return YAML条目

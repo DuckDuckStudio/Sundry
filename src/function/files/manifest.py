@@ -95,7 +95,7 @@ def 获取清单目录(
         return 清单目录
 
     return None
-        
+
 def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = None) -> list[str] | None:
     """
     尝试获取指定的包的现有版本列表。
@@ -359,7 +359,7 @@ def _获取PR清单文件夹路径(PR编号: str, token: str | None = None) -> s
         if 非预期状态:
             print(f"{消息头.错误} 这是个纯移除或没有修改的 PR")
             return None
-        
+
         print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取清单文件夹相对路径")
         return 清单文件夹
     else:

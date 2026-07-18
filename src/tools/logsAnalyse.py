@@ -39,7 +39,7 @@ def main(args: list[str]) -> int:
         build_id = 获取azp运行id(args[0])
         if not build_id:
             return 1
-    
+
     # 获取该运行的信息（权限公开）
     api_url = f"https://dev.azure.com/shine-oss/winget-pkgs/_apis/build/builds/{build_id}?api-version=7.1"
     response = requests.get(api_url)
@@ -47,7 +47,7 @@ def main(args: list[str]) -> int:
     if response.status_code != 200:
         print(f"{消息头.错误} 无法获取运行信息: {api_url} 响应 {Fore.RED}{response.status_code}{Fore.RESET}")
         return 1
-    
+
     build_info = response.json()
     # 获取管道名称
     pipeline_name = build_info.get("definition", {}).get("name")
@@ -58,7 +58,7 @@ def main(args: list[str]) -> int:
     elif pipeline_name != "WinGetSvc-Validation":
         print(f"{消息头.错误} 这似乎不是验证管道的运行: {pipeline_name}")
         return 1
-    
+
     print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证提供的链接。")
 
     # ===========================================================================================
@@ -94,7 +94,7 @@ def main(args: list[str]) -> int:
             print(f"{消息头.错误} 下载 {i}.zip 失败: {Fore.RED}{e}{Fore.RESET}")
             shutil.rmtree(os.path.join(logs_dir, i))
             continue
-        
+
         try:
             with zipfile.ZipFile(os.path.join(logs_dir, i, f"{i}.zip"), "r") as zip_ref:
                 zip_ref.extractall(os.path.join(logs_dir, i))
@@ -345,21 +345,21 @@ def 获取最新的验证管道运行(api: str) -> str | None:
     except requests.HTTPError as e:
         print(f"{消息头.错误} 请求 GitHub API 时出现异常: {Fore.RED}{type(e)} {e}{Fore.RESET}")
         return None
-    
+
 def 获取最新的验证管道评论(data: list[dict[str, Any]]) -> str | None:
     """
     传入 PR Comments API 响应数据，返回最新的验证管道运行评论 body。
     """
 
     验证评论: list[dict[str, Any]] = []
-    
+
     for comment in data:
         user: dict[str, Any] = comment.get("user", {})
         login: str = user.get("login", "wingetbot")
         body: str = comment.get("body", "")
         if (login == "wingetbot" and "WinGetSvc-Validation" in body):
             验证评论.append(comment)
-    
+
     if 验证评论:
         # 按创建时间排序，最新的在前
         验证评论.sort(key=lambda x: x.get("created_at", ""), reverse=True)

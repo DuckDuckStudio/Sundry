@@ -18,7 +18,7 @@ def main(args: list[str]) -> int:
     :return: 退出代码
     :rtype: int
     """
-    
+
     try:
         if (len(args) > 3):
             raise OperationFailed

@@ -137,7 +137,7 @@ def 检查所有安装程序URL(包标识符: str, 包版本: str, 在浏览器�
         if not InstallerUrls:
             print(f"{消息头.错误} {Fore.BLUE}{包标识符} {包版本}{Fore.RESET} 的安装程序清单中未找到 InstallerUrl")
             return 3, ""
-        
+
         # 检查所有 InstallerUrl 字段指向的 Url 是否有效
         失效数 = 0
         结果 = f"{Fore.GREEN}通过{Fore.RESET}"
@@ -192,7 +192,7 @@ def 检查所有安装程序URL(包标识符: str, 包版本: str, 在浏览器�
             raise e
         print(f"{消息头.错误} 检查安装程序清单中的 InstallerUrl(s) 失败:\n{Fore.RED}{e}{Fore.RESET}")
         return 3, ""
-    
+
 def 检查响应类型(response: requests.Response) -> None:
     """
     检查响应的类型是否是常见的意外类型

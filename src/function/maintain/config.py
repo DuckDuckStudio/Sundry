@@ -142,7 +142,7 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
 
         if 配置值 is None:
             return None
-        
+
         # 验证前就要转换
         if 配置项.startswith("paths."):
             if isinstance(配置值, str):
@@ -205,7 +205,7 @@ def 读取配置项(配置项: str, 静默: bool = False) -> str | bool | None:
             print(f"{消息头.错误} 配置文件不存在")
             print(f"{消息头.消息} 运行 sundry config init 来初始化配置文件")
         return None
-    
+
 def 获取当前配置版本() -> float:
     """
     尝试从配置文件中的 version 字段获取当前配置文件的版本，失败返回 `None`。
@@ -224,9 +224,9 @@ def 获取当前配置版本() -> float:
 
     if not (1.1 <= 配置版本):
         raise ValueError(f"获取到的当前配置文件版本无效 ({配置版本})")
-    
+
     return 配置版本
-    
+
 def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
     """
     尝试从 GitHub 仓库和网站上获取指定版本的配置文件的 json schema，获取失败返回 `None`。
