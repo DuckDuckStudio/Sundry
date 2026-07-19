@@ -6,6 +6,7 @@ import re
 import shutil
 import subprocess
 import winreg
+from typing import Any
 
 import yaml
 from catfood.functions.print import 消息头
@@ -213,20 +214,20 @@ def 测试安装与卸载(清单目录: str, 操作: str) -> int:
 
     return 0
 
-def 读取AAF字段():
+def 读取AAF字段() -> list[dict[str, str | int]]:
     # 机器范围 AAF: 计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\<ProductCode>
     # 用户范围 AAF: 计算机\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<ProductCode>
     # 此函数皆在实现获取机器/用户范围的 AAF，并返回获取到的结果
     # 对应清单中的 AppsAndFeaturesEntries
 
     # 定义关心的字段列表
-    关心的字段 = [
+    关心的字段: list[str] = [
         "DisplayName", "DisplayVersion", "Publisher", "UninstallString", "HelpLink",
         "InstallLocation", "SystemComponent", "WindowsInstaller", "NoRemove", "NoModify",
         "InstallSource", "EstimatedSize", "URLInfoAbout", "Comments"
     ]
 
-    def _读取注册表值(键: winreg.HKEYType, 值名: str):
+    def _读取注册表值(键: winreg.HKEYType, 值名: str) -> Any | str | None:
         try:
             值, 注册类型 = winreg.QueryValueEx(键, 值名)
             if 注册类型 == winreg.REG_EXPAND_SZ:
@@ -242,7 +243,7 @@ def 读取AAF字段():
         except FileNotFoundError:
             return None
 
-    def _读取注册表条目(hive: int, subkey: str, access: int=0):
+    def _读取注册表条目(hive: int, subkey: str, access: int=0) -> list[dict[str, str | int]]:
         entries: list[dict[str, str | int]] = []
         try:
             with winreg.ConnectRegistry(None, hive) as reg:
