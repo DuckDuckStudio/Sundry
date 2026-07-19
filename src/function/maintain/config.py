@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Any
+from typing import Any, Literal
 
 import requests
 from catfood.constant import NO, YES
@@ -10,6 +10,21 @@ from colorama import Fore
 
 from function.constant.paths import CONFIG_FILE_PATH
 
+type 所有配置项 = Literal[
+    "$schema",
+    "version",
+    "debug",
+    "paths.winget-pkgs", "paths.winget-tools",
+    "repos.winget-pkgs", "repos.winget-tools",
+    "git.signature",
+    "github.pr.maintainer_can_modify", "github.pr.mention_self_when_reviewer",
+    "github.token",
+    "tools.autoremove.open_in_browser",
+    "tools.prune.remote.prune_merged_branches", "tools.prune.remote.prune_closed_branches",
+    "tools.verify.show_warning_on_non-clean_windows",
+    "cache.validate.schema",
+    "i18n.lang"
+]
 
 class 配置信息:
     默认配置: dict[str, Any] = {
@@ -80,7 +95,7 @@ class 配置信息:
     所在位置: str = CONFIG_FILE_PATH
     """等同于 `from function.constant.paths import CONFIG_FILE_PATH`。"""
 
-def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
+def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool) -> str | None:
     """
     [验证配置]
     验证指定的配置项和配置值的配对是否有效，返回为什么无效。  
@@ -130,7 +145,7 @@ def 验证配置(配置项: str, 配置值: str | bool) -> str | None:
     else:
         return None
 
-def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
+def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
     """
     [验证/转换后的配置值]
     读取 Sundry 配置文件的指定配置项，并返回配置值。
@@ -173,7 +188,7 @@ def 读取配置(配置项: str, 静默: bool = False) -> None | str | tuple[str
             print(f"{消息头.错误} 读取配置 {配置项} 失败: {Fore.RED}{e}{Fore.RESET}")
         return None
 
-def 读取配置项(配置项: str, 静默: bool = False) -> str | bool | None:
+def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> str | bool | None:
     """
     [原始字符串]
     读取指定配置项的值，并返回配置项值。
@@ -256,7 +271,7 @@ def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
         except Exception:
             return None
 
-def 转换配置值(配置项: str, 配置值: str) -> str | bool:
+def 转换配置值(配置项: 所有配置项 | str, 配置值: str) -> str | bool:
     """
     尝试将输入的配置值转换为符合配置文件要求的格式，如 y → true
     遇到无法转换的会 raise OperationFailed(原因)，我假设调用这个函数的地方会用红色显示错误消息
