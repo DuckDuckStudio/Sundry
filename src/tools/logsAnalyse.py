@@ -245,7 +245,6 @@ def 分析InstallationVerificationLogs(dir_path: str, detailed: bool = False) ->
     # 查看日志中是否有带有以下关键词的行
     keyword_map = {
         "[FAIL] Installer failed security check": ("安装程序未通过安全检查", Fore.YELLOW),
-        "No suitable installer found": ("未找到合适的安装程序", Fore.YELLOW),
         "ShellExecute installer failed": ("Shell 执行安装程序失败", Fore.YELLOW),
         "Installation failed with exit code": ("以非正常退出代码退出", Fore.RED),
         "Package failed updates, dependency or conflict validation.": ("安装依赖错误", Fore.YELLOW),
@@ -308,10 +307,6 @@ def 分析InstallationVerificationLogs(dir_path: str, detailed: bool = False) ->
                                     匹配 = re.search(f"{keyword}:\\s*(-?\\d+)", line, re.IGNORECASE)
                                     if 匹配:
                                         查找错误代码解释(匹配.group(1))
-                                elif keyword == "No suitable installer found":
-                                    print(f"{消息头.提示} 这可能是因为您提交的包的安装程序定义和依赖中的安装程序定义不匹配。")
-                                    print(f"{消息头.提示} 如果你想了解更多信息，建议阅读: https://duckduckstudio.github.io/Articles/#/信息速查/终端/WinGet/参考信息?id=no-suitable-installer-found")
-                                    print(f"{消息头.提示} TL;DR 这大概率不是你的问题（除非是架构不一致）。")
                                 elif keyword == "Package failed updates, dependency or conflict validation.":
                                     print(f"{消息头.提示} 这可能是因为你在清单中指定的包依赖在 winget 源中并不存在，请检查并提交依赖清单。")
                                     查找错误代码解释("80073CF3")
