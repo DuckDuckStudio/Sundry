@@ -55,6 +55,6 @@ build = [
 lint = [
     "isort~=8.0",
     "pylint~=4.0",
-    "ruff~=0.15",
+    "ruff~=0.16",
     "ty~=0.0.54",
 ]
