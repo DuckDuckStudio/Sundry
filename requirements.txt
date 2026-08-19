@@ -8,4 +8,4 @@ requests>=2.34.2 # 发请求
 translate>=3.8.1 # 翻结果
 
 Pillow==12.3.0 # png 转 ico
-pyinstaller==6.22.0 # 打包 exe
+pyinstaller==6.22.1 # 打包 exe
