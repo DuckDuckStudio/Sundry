@@ -65,7 +65,9 @@ jobs:
 
       - name: 安装 UPX
         shell: pwsh
-        run: winget install --id UPX.UPX -l "./upx" -s winget -e
+        run: |-
+          winget install --id UPX.UPX -l "./upx" -s winget -e
+          tree /a /f
 
       - name: 整理文件到 Release 文件夹
         shell: pwsh
