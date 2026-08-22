@@ -5,6 +5,7 @@ Sundry 所需的一些路径的常量。
 import os.path
 import sys
 import tempfile
+from pathlib import Path
 from typing import Final
 
 SUNDRY_LOCATION: Final[str] = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0])))
@@ -42,11 +43,18 @@ Sundry 的 fun.txt 所在位置。
 
 # ===============================================================================
 
-AZP_LOGS_DIR: Final[str] = os.path.join(SUNDRY_TEMP_DIR, "AzurePipelines")
+VALIDATION_LOGS_DIR: Final[Path] = Path(SUNDRY_TEMP_DIR) / "ValidationLogs"
 """
-logs-analyse 命令存放从 Azure Pipline 上下载的日志的位置。
+logs-analyse 命令存放验证日志的目录。
 
-%TEMP%/Sundry/AzurePipelines/**
+%TEMP%/Sundry/ValidationLogs/
+"""
+
+VALIDATION_LOGS_ZIP_DIR: Final[Path] = VALIDATION_LOGS_DIR / "Zips"
+"""
+logs-analyse 命令存放下载的验证日志 Zip 压缩包的目录。
+
+%TEMP%/Sundry/ValidationLogs/Zips/
 """
 
 # ===============================================================================

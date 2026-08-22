@@ -28,3 +28,9 @@ PR_TOOL_NOTE: Final = f"> This PR is automatically created by [Sundry](https://g
 - 一般版本
 > This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) version x.x.x 🚀.
 """
+
+# TODO 通过配置文件设置请求超时时间
+REQUEST_TIMEOUT: Final = 30
+"""
+请求超时时间（秒）
+"""

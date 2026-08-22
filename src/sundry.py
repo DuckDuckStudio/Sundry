@@ -1,5 +1,6 @@
 import sys
 
+import ajaw
 from catfood.functions.print import 消息头
 from colorama import init
 
@@ -9,6 +10,10 @@ from function.constant.paths import SUNDRY_LOCATION
 
 def main() -> int:
     init(autoreset=True)
+    try:
+        ajaw.load_translations()
+    except FileNotFoundError:
+        pass
 
     try:
         tool = sys.argv[1].lower()
@@ -51,8 +56,8 @@ def main() -> int:
     elif tool == "repr":
         import tools.repr
         return tools.repr.main(args)
-    elif tool in ("日志分析", "logs-analyse", "log-analyse", "logs_analyse", "azure日志分析"):
-        import tools.logsAnalyse as logsAnalyse
+    elif tool in ("日志分析", "logs-analyse", "log-analyse", "logs_analyse", "logs", "log"):
+        from tools import logsAnalyse
         return logsAnalyse.main(args)
     elif tool in ("verify", "验证"):
         import tools.verify as verify
@@ -83,9 +88,7 @@ def main() -> int:
         print("        指定版本: sundry remove <包标识符> <包版本> [跳过检查(只接受true)/理由(默认为GitHub Action中返回404)]")
         print("        自动检查: sundry autoremove <包标识符> [是否跳过检查]")
         print("    单版本辅助修改: sundry modify <包标识符> <版本> [理由/解决的议题] (单改)")
-        print("    Azure Pipeline 日志分析:")
-        print("        日志分析: sundry logs-analyse <GitHub PR 或 Azure 管道运行链接> [是否保留日志文件] [是否显示一般错误/异常]")
-        print("        清理下载的日志文件: sundry logs-analyse cleanup (等效于 sundry cleanup logs-analyse)")
+        print("    分析验证日志: sundry logs-analyse <PR链接/PR编号/检查链接> [-h] [--detailed] [--keep-logs | --no-keep-logs]")
         print("    清单验证:")
         print("        测试本地清单: sundry verify <包标识符> <包版本>")
         print("        测试 PR 修改: sundry verify <PR链接>")

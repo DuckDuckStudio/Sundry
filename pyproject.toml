@@ -7,14 +7,15 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "catfood==2.2.0",
+    "ajaw~=1.0.0",
+    "catfood==2.2.1",
     "colorama>=0.4.6",
     "jsonschema==4.26.0",
     "keyring>=25.7.0",
     "pygments>=2.21.0",
     "PyYAML==6.0.3",
     "requests>=2.34.2",
-    "translate>=3.8.1"
+    "translate>=3.8.1",
 ]
 
 [tool.isort]
