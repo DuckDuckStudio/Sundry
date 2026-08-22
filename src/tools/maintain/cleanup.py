@@ -32,8 +32,8 @@ def main(哪个工具: str) -> int:
     # 如不是已知别名，原样传递
 
     if 哪个工具 == "logsAnalyse":
-        from function.constant.paths import AZP_LOGS_DIR
-        待清理文件路径 = AZP_LOGS_DIR
+        from function.constant.paths import VALIDATION_LOGS_DIR
+        待清理文件路径 = str(VALIDATION_LOGS_DIR)
     elif 哪个工具 == "remove":
         from function.constant.paths import INSTELLER_DOWNLOAD_DIR
         待清理文件路径 = INSTELLER_DOWNLOAD_DIR
