@@ -162,23 +162,11 @@ jobs:
       - name: 测试 - logs-analyse
         shell: bash
         run: |-
-          if [[ "${{ runner.os }}" == "Windows" ]]; then
-            ARG="y"
-          else
-            ARG="n"
-          fi
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse 422513"
+          python ./Release/src/sundry.py logs-analyse 422513
 
-          echo "========== Validation-Installation-Error =========="
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://dev.azure.com/shine-oss/winget-pkgs/_build/results?buildId=244050\" $ARG y"
-          python ./Release/src/sundry.py logs-analyse "https://dev.azure.com/shine-oss/winget-pkgs/_build/results?buildId=244050" $ARG y
-
-          echo "=========== Validation-Executable-Error ==========="
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse \"https://github.com/microsoft/winget-pkgs/pull/323579\" $ARG n"
-          python ./Release/src/sundry.py logs-analyse "https://github.com/microsoft/winget-pkgs/pull/323579" $ARG n
-
-          echo "===================== Cleanup ====================="
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse cleanup"
-          python ./Release/src/sundry.py logs-analyse cleanup
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse 422513 y"
+          python ./Release/src/sundry.py logs-analyse 422513 y
 
       - name: 测试 - verify
         shell: bash
@@ -396,7 +384,6 @@ jobs:
 
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup logs-analyse"
           python ./Release/src/sundry.py cleanup logs-analyse
-          # logs-analyse cleanup 前面测试过了，一样的
           ls -a -R /tmp/Sundry
 
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup autoremove"
@@ -441,7 +428,6 @@ jobs:
 
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup logs-analyse"
           python ./Release/src/sundry.py cleanup logs-analyse
-          # logs-analyse cleanup 前面测试过了，一样的
           tree -a -f /tmp/Sundry/
 
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup autoremove"
