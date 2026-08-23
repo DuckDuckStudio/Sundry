@@ -1,6 +1,8 @@
+import keyring
 from catfood.exceptions.operation import OperationFailed
 from catfood.functions.print import 消息头
 from colorama import Fore
+from keyring.errors import KeyringError
 
 from function.maintain.config import 读取配置
 
@@ -9,7 +11,7 @@ def read_token(silent: bool = False) -> str | None:
     """尝试从配置文件中指定的源读取 Token，读取失败返回 None"""
 
     try:
-        source: None | str | tuple[str, str] | bool = 读取配置("github.token")
+        source = 读取配置("github.token")
         if not isinstance(source, str):
             raise OperationFailed("未能从配置文件中获取读取源")
 
@@ -20,7 +22,6 @@ def read_token(silent: bool = False) -> str | None:
             else:
                 raise OperationFailed("没有读取到 Token，请确保您设置了 GITHUB_TOKEN 环境变量")
         else:
-            import keyring
             if source == "glm":
                 service_name, username = ("github-access-token.glm", "github-access-token")
             elif source == "komac":
@@ -32,7 +33,7 @@ def read_token(silent: bool = False) -> str | None:
                 return token
             else:
                 raise OperationFailed(f"没有读取到 Token，请确保您设置了 {source} 的 Token ({service_name}, {username})")
-    except OperationFailed as e:
+    except (OperationFailed, KeyringError) as e:
         if not silent:
             print(f"{消息头.错误} 读取 Token 失败: {Fore.RED}{e}{Fore.RESET}")
         return None
