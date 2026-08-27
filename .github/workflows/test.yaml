@@ -44,7 +44,7 @@ jobs:
 
       - name: 安装依赖
         run: |-
-          pip install -r requirements.txt
+          pip install ".[build]" --only-deps
           pip list
 
       - name: 整理源码
@@ -55,7 +55,7 @@ jobs:
           mkdir Release/src
           cp -rv src/ Release
           cp -v LICENSE Release/src
-          cp -v requirements.txt Release/src
+          cp -v pyproject.toml Release/src
 
       - name: 签出 winget-pkgs
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1

@@ -409,7 +409,7 @@ python "自动化脚本/修改版本号.py" "2025.520.1314"
 python -m venv .venv
 & ".venv\Scripts\Activate.ps1"
 python.exe -m pip install --upgrade pip
-pip install -r "requirements.txt"
+pip install ".[build]" --only-deps
 ```
 4. 转换图标格式 (可选)
 ```pwsh
@@ -436,7 +436,7 @@ cd Sundry
 echo "创建虚拟环境并安装依赖..."
 python3 -m venv .venv
 source .venv/bin/activate
-pip install -r "requirements.txt"
+pip install ".[build]" --only-deps
 echo "构建二进制文件..."
 python3 "自动化脚本/修改版本号.py" "2025.520.1314"
 pyinstaller --onefile --distpath="Release" --name="sundry" "src/sundry.py"
