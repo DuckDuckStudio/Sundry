@@ -28,11 +28,16 @@ class Explanation:
 
     def get_colored_message(self) -> str:
         """
-        获取带颜色的解释内容
+        获取带颜色的解释内容。
 
         Returns:
-            str: 带颜色的解释内容
+            str:
+                带颜色的解释内容；
+                如果该解释没有指定颜色，则原样返回解释内容。
         """
+
+        if self.color is None:
+            return self.message
 
         return f"{self.color}{self.message}{Fore.RESET}"
 
