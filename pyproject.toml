@@ -7,7 +7,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "ajaw~=1.0.0",
+    "ajaw~=1.0.1",
     "catfood==2.2.1",
     "colorama>=0.4.6",
     "jsonschema==4.26.0",
