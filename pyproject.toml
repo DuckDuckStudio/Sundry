@@ -5,7 +5,7 @@ description = "Sundry 是一个 WinGet 相关的工具，帮您更方便地移�
 authors = [{ name = "鸭鸭「カモ」" }]
 requires-python = ">=3.12"
 dependencies = [
-    "ajaw~=1.0.0",
+    "ajaw~=1.0.1",
     "catfood==2.2.1",
     "colorama>=0.4.6",
     "jsonschema==4.26.0",

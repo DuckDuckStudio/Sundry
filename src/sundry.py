@@ -10,10 +10,7 @@ from function.constant.paths import SUNDRY_LOCATION
 
 def main() -> int:
     init(autoreset=True)
-    try:
-        ajaw.load_translations()
-    except FileNotFoundError:
-        pass
+    ajaw.load_translations()
 
     try:
         tool = sys.argv[1].lower()
