@@ -162,8 +162,8 @@ jobs:
       - name: 测试 - logs-analyse
         shell: bash
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse 422513 --no-keep-logs"
-          python ./Release/src/sundry.py logs-analyse 422513 --no-keep-logs || exit_code=$?
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse 425671 --no-keep-logs"
+          python ./Release/src/sundry.py logs-analyse 425671 --no-keep-logs || exit_code=$?
           if [ "${exit_code:-0}" -nq 1 ]; then
             echo "[ERROR] logs-analyse 预期返回退出代码 1，实际为 ${exit_code:-0}"
             exit 1
@@ -172,8 +172,8 @@ jobs:
           echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup logs-analyse"
           python ./Release/src/sundry.py cleanup logs-analyse
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse 422513 --dateiled --no-keep-logs"
-          python ./Release/src/sundry.py logs-analyse 422513 y --dateiled --no-keep-logs || exit_code=$?
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse 425671 --dateiled --no-keep-logs"
+          python ./Release/src/sundry.py logs-analyse 425671 y --dateiled --no-keep-logs || exit_code=$?
           if [ "${exit_code:-0}" -nq 1 ]; then
             echo "[ERROR] logs-analyse 预期返回退出代码 1，实际为 ${exit_code:-0}"
             exit 1
