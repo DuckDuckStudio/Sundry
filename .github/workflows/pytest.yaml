@@ -1,0 +1,57 @@
+name: Pytest
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+permissions: {}
+
+jobs:
+  run-pytest:
+    name: 运行 Pytest 测试
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - macos-latest
+          - ubuntu-latest
+          - windows-latest
+        python-version:
+          - 3.10.x
+          - 3.11.x
+          - 3.12.x
+          - 3.13.x
+          - 3.14.x
+    env:
+      PYTHONIOENCODING: utf-8
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: 配置 Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: 安装 uv
+        uses: astral-sh/setup-uv@20cfd1bf945f4377ade1205e4dbc17946fc9a30d # v10.0.1
+        with:
+          enable-cache: false
+
+      - name: 安装依赖
+        shell: bash
+        run: uv sync --group "test" --no-install-project
+
+      - name: 更新版本号
+        shell: bash
+        run: uv run "自动化脚本/修改版本号.py" "123.456.789"
+
+      - name: 运行测试
+        shell: bash
+        run: uv run pytest -vv
