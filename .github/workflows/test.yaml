@@ -44,7 +44,12 @@ jobs:
 
       - name: 安装依赖
         run: |-
-          pip install ".[build]" --only-deps
+          pip install "." --group "build"
+
+          # --only-deps 的变通实现
+          # 参阅 https://pip.pypa.io/en/stable/user_guide/#a-note-on-only-deps-and-requirement-requirements-from-script-and-group
+          pip uninstall sundry -y
+
           pip list
 
       - name: 整理源码
