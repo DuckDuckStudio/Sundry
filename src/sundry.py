@@ -74,7 +74,7 @@ def main() -> int:
         arg = args[0] if args else ""
         return cleanup.main(arg) # 仅接受单个 str 参数
     # 其他
-    elif tool in ("ver", "版本", "version", "Version", "--version", "--ver", "-v"):
+    elif tool in ("ver", "版本", "version", "--version", "--ver", "-v"):
         print("Sundry by 鸭鸭「カモ」")
         print(f"版本: {SUNDRY_VERSION}")
         print(f"安装在: {SUNDRY_LOCATION}")
