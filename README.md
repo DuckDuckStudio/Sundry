@@ -394,16 +394,26 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 > 仓库下有一个适用于 Windows 的[构建流](https://github.com/DuckDuckStudio/Sundry/blob/main/.github/workflows/build.yaml)，你可以 fork 后直接运行，它会将结果上传为工件。  
 
 1. 克隆后 `cd` 到项目所在目录
-2. 更新代码中的版本号
-```pwsh
-python "自动化脚本/修改版本号.py" "2025.520.1314"
-```
-3. 安装依赖
+2. 安装依赖
 ```pwsh
 python -m venv .venv
 & ".venv\Scripts\Activate.ps1"
 python.exe -m pip install --upgrade pip
-pip install ".[build]" --only-deps
+pip install "." --group "build"
+
+# --only-deps 的变通实现
+# 参阅 https://pip.pypa.io/en/stable/user_guide/#a-note-on-only-deps-and-requirement-requirements-from-script-and-group
+pip uninstall sundry -y
+```
+> [!TIP]
+> 如果你更喜欢用 [uv](https://docs.astral.sh/uv/)，可以运行:
+> ```pwsh
+> uv sync --group "build" --no-install-project && rm uv.lock -v
+> & ".venv\Scripts\activate.ps1"
+> ```
+3. 更新代码中的版本号
+```pwsh
+python "自动化脚本/修改版本号.py" "2025.520.1314"
 ```
 4. 转换图标格式 (可选)
 ```pwsh
@@ -430,7 +440,12 @@ cd Sundry
 echo "创建虚拟环境并安装依赖..."
 python3 -m venv .venv
 source .venv/bin/activate
-pip install ".[build]" --only-deps
+pip install "." --group "build"
+
+# --only-deps 的变通实现
+# 参阅 https://pip.pypa.io/en/stable/user_guide/#a-note-on-only-deps-and-requirement-requirements-from-script-and-group
+pip uninstall sundry -y
+
 echo "构建二进制文件..."
 python3 "自动化脚本/修改版本号.py" "2025.520.1314"
 pyinstaller --onefile --distpath="Release" --name="sundry" "src/sundry.py"
