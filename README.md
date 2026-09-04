@@ -57,7 +57,7 @@ sundry config "<配置项>" "<值>"
 
 ![Sundry ver 命令展示图。该命令用于输出 Sundry 的版本和安装位置。](docs/photos/README/Demo/Commands/ver.png)  
 
-- 别名: `ver`, `版本`, `version`, `Version`, `--version`, `--ver`, `-v`
+- 别名: `ver`, `版本`, `version`, `--version`, `--ver`, `-v`
 - 作用: 显示 Sundry 版本和安装位置
 
 </details>
