@@ -82,22 +82,7 @@ jobs:
           tree /a /f
 
       - name: 安装 Inno Setup 7
-        shell: pwsh
-        run: |-
-          Write-OutPut "[INFO] 卸载 Inno Setup 6"
-          choco uninstall innosetup
-          # 这里如果用 WinGet 卸载的话后面 iscc 会变成 C:\ProgramData\Chocolatey\bin\ISCC.exe
-          # 然后报错：
-          # Cannot find file at 'c:\program files (x86)\inno setup 6\iscc.exe' (c:\program files (x86)\inno setup 6\iscc.exe). This usually indicates a missing or moved file.
-
-          Write-OutPut "[INFO] 安装 Inno Setup 7"
-          winget install --id JRSoftware.InnoSetup.7 --scope machine -s winget -e
-          # Chocolatey 上好像没有 InnoSetup 7
-          # https://community.chocolatey.org/packages?q=innosetup
-
-          Write-OutPut "[INFO] 更新 PATH"
-          "C:\Program Files\Inno Setup 7\" | Out-File -FilePath "$env:GITHUB_PATH" -Append
-          Write-OutPut "$env:Path"
+        uses: DuckDuckStudio/setup-innosetup7@394ba3a7d055015ef3e1ae811677f8fbf7f46b0f # 1.0.0
 
       - name: 整理文件到 Release 文件夹
         shell: pwsh
