@@ -279,7 +279,7 @@ def main(args: list[str]) -> int:
         args: 参数列表
 
     Returns:
-        退出代码  
+        退出代码
     """
 
     try:

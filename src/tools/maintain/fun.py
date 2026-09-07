@@ -12,7 +12,7 @@ from function.constant.paths import FUN_TEXT_PATH
 def main(args: list[str]) -> int:
     """
     sundry fun ...
-    
+
     :param args: 参数
     :type args: list[str]
     :return: 退出代码

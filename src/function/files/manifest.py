@@ -47,7 +47,7 @@ def 获取清单目录(
     会验证获取到的清单目录是否存在，不存在则返回 `None`。
 
     此函数没有输出。
-    
+
     :param 包标识符: 指定的包标识符
     :type 包标识符: str
     :param 包版本: 指定的包版本
@@ -183,7 +183,7 @@ def FormatManifest(Manifest: str, Comment: str = "# Created with Sundry-Locale")
     - 添加 schema
     - 添加工具注释
     - 去除末尾多余空行 / 添加末尾空行
-    
+
     :param Manifest: 清单文件内容
     :type Manifest: str
     :param Comment: 工具注释内容
