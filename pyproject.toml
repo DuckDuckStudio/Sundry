@@ -55,6 +55,6 @@ lint = [
     "ty~=0.0.78",
 ]
 test = [
-    "pytest~=9.0",
+    "pytest~=9.1",
     "pytest-cov~=7.1"
 ]
