@@ -64,7 +64,7 @@ def main(args: list[str]) -> int:
 def 还原(哪个仓库: str, 仓库路径: str, 是否已提交: bool, 是否丢弃: bool) -> bool:
     """
     尝试还原指定的仓库
-    
+
     :param 哪个仓库: pkgs 或 tools
     :type 哪个仓库: str
     :param 仓库路径: 指定仓库文件夹的所在位置
