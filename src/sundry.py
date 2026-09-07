@@ -28,7 +28,7 @@ def _can_it_run_on_non_windows_systems(tool: str, args: list[str]) -> bool:
     ]:
         return False
 
-    if tool in ("忽略", "检查忽略", "ignore"):
+    if tool in ("忽略", "检查忽略", "ignore"):  # 不确定如何读取 Token
         return bool(args and (args[0] in ("list", "--list", "列", "列出", "现有", "now")))
 
     return True
