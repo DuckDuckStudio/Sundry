@@ -8,6 +8,32 @@ from function.constant.general import SUNDRY_VERSION
 from function.constant.paths import SUNDRY_LOCATION
 
 
+def _can_it_run_on_non_windows_systems(tool: str, args: list[str]) -> bool:
+    """
+    判断该工具的操作是否可以在非 Windows 系统上运行。
+
+    Args:
+        tool: 要运行的工具
+        args: 工具的参数
+
+    Returns:
+        True: 可以运行
+        False: 不能运行
+    """
+
+    if tool in [
+        "移除", "remove", "自动移除", "autoremove", # 验证阶段需要 WinGet，不确定如何读取 Token
+        "单改", "单修改", "modify", "hash-update",  # 验证清单需要 WinGet，不确定如何读取 Token
+        "verify", "test", "验证", "测试",           # 仅 Windows
+    ]:
+        return False
+
+    if tool in ("忽略", "检查忽略", "ignore"):  # 不确定如何读取 Token
+        return bool(args and (args[0] in ("list", "--list", "列", "列出", "现有", "now")))
+
+    return True
+
+
 def main() -> int:
     init(autoreset=True)
     ajaw.load_translations()
@@ -19,12 +45,7 @@ def main() -> int:
         tool = "help"
         args = []
 
-    if (sys.platform != "win32") and (tool in (
-        "移除", "remove", "自动移除", "autoremove", # 验证阶段需要 WinGet，不确定如何读取 Token
-        "单改", "单修改", "modify", "hash-update", # 验证清单需要 WinGet，不确定如何读取 Token
-        "忽略", "检查忽略", "ignore", # 不确定如何读取 Token
-        "verify", "test", "验证", "测试", # 仅 Windows
-    )):
+    if (sys.platform != "win32") and (not _can_it_run_on_non_windows_systems(tool, args)):
         print(f"{消息头.错误} 该操作仅可在 Windows 上运行")
         return 1
 
