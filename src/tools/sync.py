@@ -2,7 +2,7 @@ import os
 import subprocess
 
 from catfood.constant import YES
-from catfood.functions.print import 消息头
+from catfood.functions.print import MSHead
 from colorama import Fore
 
 from function.maintain.config import 读取配置
@@ -20,7 +20,7 @@ def main() -> int:
             subprocess.run(["git", "checkout", "master"], check=True) # 确保从 master 分支开始
             print(f"{Fore.BLUE}  已签出到 master 分支")
         except subprocess.CalledProcessError as e:
-            print(f"{消息头.错误} 签出到 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} 签出到 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
             return 1
 
         while True:
@@ -29,24 +29,24 @@ def main() -> int:
                 print(f"{Fore.BLUE}  已获取上游修改")
                 break
             except subprocess.CalledProcessError as e:
-                print(f"{消息头.错误} 获取上游修改失败:\n{Fore.RED}{e}{Fore.RESET}")
-                if input(f"{消息头.问题} 是否重试？(默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in (*YES, ""):
-                    print(f"{消息头.消息} 已取消操作")
+                print(f"{MSHead.Error} 获取上游修改失败:\n{Fore.RED}{e}{Fore.RESET}")
+                if input(f"{MSHead.Question} 是否重试？(默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in (*YES, ""):
+                    print(f"{MSHead.Message} 已取消操作")
                     return 1
 
         try:
             subprocess.run(["git", "fetch", "origin"], check=True) # 拉取远程修改
             print(f"{Fore.BLUE}  已获取远程修改")
         except subprocess.CalledProcessError as e:
-            print(f"{消息头.警告} 拉取远程修改失败:\n{Fore.YELLOW}{e}{Fore.RESET}")
+            print(f"{MSHead.Warning} 拉取远程修改失败:\n{Fore.YELLOW}{e}{Fore.RESET}")
             # 不影响...不影响
 
         try:
             subprocess.run(["git", "rebase", "upstream/master"], check=True) # 变基合并上游修改
             print(f"{Fore.BLUE}  已变基上游修改")
         except subprocess.CalledProcessError as e:
-            print(f"{消息头.错误} 变基上游修改失败:\n{Fore.RED}{e}{Fore.RESET}")
-            if input(f"{消息头.问题} 是否尝试替换 master 分支？(默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
+            print(f"{MSHead.Error} 变基上游修改失败:\n{Fore.RED}{e}{Fore.RESET}")
+            if input(f"{MSHead.Question} 是否尝试替换 master 分支？(默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
                 try:
                     subprocess.run(["git", "checkout", "upstream/master"], check=True) # 签出到上游 master 分支
                     print(f"{Fore.BLUE}  已签出到上游 master 分支")
@@ -55,10 +55,10 @@ def main() -> int:
                     subprocess.run(["git", "switch", "-c", "master"], check=True) # 创建并签出到 master 分支
                     print(f"{Fore.BLUE}  已创建并签出到 master 分支")
                 except subprocess.CalledProcessError as e:
-                    print(f"{消息头.错误} 替换 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
+                    print(f"{MSHead.Error} 替换 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
                     return 1
             else:
-                print(f"{消息头.消息} 已取消操作")
+                print(f"{MSHead.Message} 已取消操作")
                 return 1
 
         try:
@@ -66,14 +66,14 @@ def main() -> int:
             subprocess.run(["git", "push", "origin", "master"], check=True)
             print(f"{Fore.BLUE}  已推送 master 分支")
         except subprocess.CalledProcessError as e:
-            print(f"{消息头.错误} 推送 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} 推送 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
             return 1
 
         print(f"{Fore.GREEN}✓{Fore.RESET} 同步完成")
     except KeyboardInterrupt:
-        print(f"{消息头.错误} 用户已取消操作")
+        print(f"{MSHead.Error} 用户已取消操作")
         return 1
     except Exception as e:
-        print(f"{消息头.错误} 同步失败:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{MSHead.Error} 同步失败:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
     return 0

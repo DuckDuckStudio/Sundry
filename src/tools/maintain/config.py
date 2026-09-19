@@ -6,13 +6,20 @@ import jsonschema
 from catfood.constant import NO, YES
 from catfood.exceptions.operation import OperationFailed
 from catfood.functions.files import open_file
-from catfood.functions.print import 消息头
+from catfood.functions.print import MSHead
 from colorama import Fore
 from pygments import highlight  # pyright: ignore[reportUnknownVariableType]
 from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexers.data import JsonLexer  # pyright: ignore[reportMissingTypeStubs]
 
-from function.maintain.config import 获取当前配置版本, 获取配置schema, 读取配置, 读取配置项, 转换配置值, 配置信息
+from function.maintain.config import (
+    获取当前配置版本,
+    获取配置schema,
+    读取配置,
+    读取配置项,
+    转换配置值,
+    配置信息,
+)
 
 
 def 获取用户输入(配置项: str) -> str | bool:
@@ -28,40 +35,40 @@ def 获取用户输入(配置项: str) -> str | bool:
 
     提示消息映射: dict[str, str] = {
         # paths.*
-        "paths.winget-pkgs": f"{消息头.问题} 您的本地 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库在哪里: ",
-        "paths.winget-tools": f"{消息头.问题} 您的本地 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库在哪里: ",
+        "paths.winget-pkgs": f"{MSHead.Question} 您的本地 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库在哪里: ",
+        "paths.winget-tools": f"{MSHead.Question} 您的本地 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库在哪里: ",
         # repos.*
-        "repos.winget-pkgs": f"{消息头.问题} 您的远程 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库是什么 (owner/winget-pkgs): ",
-        "repos.winget-tools": f"{消息头.问题} 您的远程 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库是什么 (owner/winget-tools): ",
+        "repos.winget-pkgs": f"{MSHead.Question} 您的远程 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库是什么 (owner/winget-pkgs): ",
+        "repos.winget-tools": f"{MSHead.Question} 您的远程 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库是什么 (owner/winget-tools): ",
         # git.*
-        "git.signature": f"{消息头.问题} 是否要为 Git 提交签名? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        "git.signature": f"{MSHead.Question} 是否要为 Git 提交签名? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # github.pr.*
-        "github.pr.maintainer_can_modify": f"{消息头.问题} 是否允许维护者修改您的 PR 内容? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
-        "github.pr.mention_self_when_reviewer": f"{消息头.问题} 创建 PR 时，如果自己在 Auth.csv 中作为包修改的审查者时，是否在 PR 中请求自己审查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        "github.pr.maintainer_can_modify": f"{MSHead.Question} 是否允许维护者修改您的 PR 内容? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        "github.pr.mention_self_when_reviewer": f"{MSHead.Question} 创建 PR 时，如果自己在 Auth.csv 中作为包修改的审查者时，是否在 PR 中请求自己审查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # github.token
-        "github.token": f"{消息头.问题} 我该从哪里读取 GitHub Token? [{Fore.GREEN}glm(默认){Fore.RESET}, 环境变量 GITHUB_TOKEN (env), komac]: ",
+        "github.token": f"{MSHead.Question} 我该从哪里读取 GitHub Token? [{Fore.GREEN}glm(默认){Fore.RESET}, 环境变量 GITHUB_TOKEN (env), komac]: ",
         # tools.autoremove.*
-        "tools.autoremove.open_in_browser": f"{消息头.问题} 在自动移除 (autoremove) 时，是否要在浏览器中打开清单中的安装程序链接 (InstallerUrl) 以供检查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        "tools.autoremove.open_in_browser": f"{MSHead.Question} 在自动移除 (autoremove) 时，是否要在浏览器中打开清单中的安装程序链接 (InstallerUrl) 以供检查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # tools.prune.*
-        "tools.prune.remote.prune_merged_branches": f"{消息头.问题} prune 时清理远程中{Fore.YELLOW}已合并{Fore.RESET}的 PR 的分支? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
-        "tools.prune.remote.prune_closed_branches": f"{消息头.问题} prune 时清理远程中{Fore.YELLOW}已关闭{Fore.RESET}的 PR 的分支? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        "tools.prune.remote.prune_merged_branches": f"{MSHead.Question} prune 时清理远程中{Fore.YELLOW}已合并{Fore.RESET}的 PR 的分支? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        "tools.prune.remote.prune_closed_branches": f"{MSHead.Question} prune 时清理远程中{Fore.YELLOW}已关闭{Fore.RESET}的 PR 的分支? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # tools.verify.*
-        "tools.verify.show_warning_on_non-clean_windows": f"{消息头.问题} 在非干净的 Windows 上验证时显示警告? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
+        "tools.verify.show_warning_on_non-clean_windows": f"{MSHead.Question} 在非干净的 Windows 上验证时显示警告? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # i18n.*
-        "i18n.lang": f"{消息头.问题} 你希望 Sundry 使用哪种语言运行? [{Fore.GREEN}zh-CN(默认){Fore.RESET}, en-US]: ",
+        "i18n.lang": f"{MSHead.Question} 你希望 Sundry 使用哪种语言运行? [{Fore.GREEN}zh-CN(默认){Fore.RESET}, en-US]: ",
         # cache.*
-        "cache.validate.schema": f"{消息头.问题} 在 sundry validate 时是否缓存下载的清单架构 (schema)? (默认为{Fore.GREEN}是{Fore.RESET}): "
+        "cache.validate.schema": f"{MSHead.Question} 在 sundry validate 时是否缓存下载的清单架构 (schema)? (默认为{Fore.GREEN}是{Fore.RESET}): "
     }
 
     if 配置项 in 提示消息映射:
         提示消息 = 提示消息映射[配置项]
     else:
-        提示消息 = f"{消息头.问题} 请输入 {配置项} 的值: "
+        提示消息 = f"{MSHead.Question} 请输入 {配置项} 的值: "
 
     # 给自己的兜底
     if not 提示消息.endswith(" "):
         if 读取配置("debug", 静默=True):
-            print(f"{消息头.内部警告} 配置项 {Fore.BLUE}{配置项}{Fore.RESET} 的提示消息未以空格结尾")
+            print(f"{MSHead.InternalWarning} 配置项 {Fore.BLUE}{配置项}{Fore.RESET} 的提示消息未以空格结尾")
         提示消息 += " "
 
     while True:
@@ -69,7 +76,7 @@ def 获取用户输入(配置项: str) -> str | bool:
         try:
             return 转换配置值(配置项, 配置值)
         except OperationFailed as e:
-            print(f"{消息头.错误} 无法转换配置值: {Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} 无法转换配置值: {Fore.RED}{e}{Fore.RESET}")
 
 def 初始化配置文件() -> int:
     """
@@ -79,7 +86,7 @@ def 初始化配置文件() -> int:
         退出代码
     """
 
-    if not os.path.exists(配置信息.所在位置) or (input(f"{消息头.警告} 已经存在了一份配置文件，要覆盖它吗? (默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in NO):
+    if not os.path.exists(配置信息.所在位置) or (input(f"{MSHead.Warning} 已经存在了一份配置文件，要覆盖它吗? (默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in NO):
         默认配置: dict[str, Any] = 配置信息.默认配置
 
         # 递归函数用于获取嵌套配置输入
@@ -96,7 +103,7 @@ def 初始化配置文件() -> int:
             # 必须要用户给的配置项
             递归获取输入(默认配置[键], 键)
 
-        if input(f"{消息头.可选问题} 继续设置其他配置项? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
+        if input(f"{MSHead.OptionalQuestion} 继续设置其他配置项? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
             for 键 in list(默认配置.keys()):
                 if 键 in (
                     # NOTE: 这里只能跳过顶级键，如 debug, version 等
@@ -108,7 +115,7 @@ def 初始化配置文件() -> int:
                     continue
                 递归获取输入(默认配置[键], 键)
 
-            if input(f"{消息头.问题} 是否修改缓存配置? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
+            if input(f"{MSHead.Question} 是否修改缓存配置? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
                 递归获取输入(默认配置["cache"], "cache")
 
         if not os.path.exists(os.path.dirname(配置信息.所在位置)):
@@ -117,10 +124,10 @@ def 初始化配置文件() -> int:
         with open(配置信息.所在位置, "w", encoding="utf-8") as f:
             json.dump(默认配置, f, indent=4, ensure_ascii=False)
 
-        print(f"{消息头.成功} 成功初始化配置文件")
+        print(f"{MSHead.Success} 成功初始化配置文件")
         return 0
     else:
-        print(f"\n{消息头.错误} 操作取消")
+        print(f"\n{MSHead.Error} 操作取消")
         return 1
 
 def 展示配置文件() -> int:
@@ -133,21 +140,21 @@ def 展示配置文件() -> int:
 
     if os.path.exists(配置信息.所在位置):
         try:
-            print(f"{消息头.提示} 前往 https://github.com/DuckDuckStudio/Sundry/tree/main/docs/config 了解配置项的含义")
+            print(f"{MSHead.Hint} 前往 https://github.com/DuckDuckStudio/Sundry/tree/main/docs/config 了解配置项的含义")
             with open(配置信息.所在位置, "r", encoding="utf-8") as f:
                 配置数据 = json.load(f)
             print(highlight(json.dumps(配置数据, indent=4, ensure_ascii=False), JsonLexer(), TerminalFormatter())) # pyright: ignore[reportUnknownArgumentType]
             return 0
         except json.decoder.JSONDecodeError as e:
-            print(f"{消息头.错误} 读取配置文件失败，配置文件不是有效的 json 字段:\n{Fore.RED}{e}{Fore.RESET}")
-            print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
+            print(f"{MSHead.Error} 读取配置文件失败，配置文件不是有效的 json 字段:\n{Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Hint} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
             return 1
         except Exception as e:
-            print(f"{消息头.错误} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} 读取配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
             return 1
     else:
-        print(f"{消息头.错误} 配置文件不存在")
-        print(f"{消息头.提示} 运行 sundry config init 来初始化配置文件")
+        print(f"{MSHead.Error} 配置文件不存在")
+        print(f"{MSHead.Hint} 运行 sundry config init 来初始化配置文件")
         return 1
 
 def 修改配置项(配置项: str, 值: str) -> int:
@@ -183,22 +190,22 @@ def 修改配置项(配置项: str, 值: str) -> int:
             with open(配置信息.所在位置, "w", encoding="utf-8") as f:
                 json.dump(配置数据, f, indent=4, ensure_ascii=False)
 
-            print(f"{消息头.成功} 成功更新 {Fore.BLUE}{配置项}{Fore.RESET} 为 {Fore.BLUE}{配置值}{Fore.RESET}")
+            print(f"{MSHead.Success} 成功更新 {Fore.BLUE}{配置项}{Fore.RESET} 为 {Fore.BLUE}{配置值}{Fore.RESET}")
             return 0
         except json.decoder.JSONDecodeError as e:
-            print(f"{消息头.错误} 读取配置文件失败，配置文件不是有效的 json 字段:\n{Fore.RED}{e}{Fore.RESET}")
-            print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
+            print(f"{MSHead.Error} 读取配置文件失败，配置文件不是有效的 json 字段:\n{Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Hint} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
             return 1
         except KeyError:
-            print(f"{消息头.错误} 更新配置文件失败: 当前配置文件中没有键 {Fore.BLUE}{配置项}{Fore.RESET}")
-            print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件，或通过 sundry config update 更新配置文件")
+            print(f"{MSHead.Error} 更新配置文件失败: 当前配置文件中没有键 {Fore.BLUE}{配置项}{Fore.RESET}")
+            print(f"{MSHead.Hint} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件，或通过 sundry config update 更新配置文件")
             return 1
         except Exception as e:
-            print(f"{消息头.错误} 更新配置失败: {Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} 更新配置失败: {Fore.RED}{e}{Fore.RESET}")
             return 1
     else:
-        print(f"{消息头.错误} 配置文件不存在")
-        print(f"{消息头.提示} 运行 sundry config init 来初始化配置文件")
+        print(f"{MSHead.Error} 配置文件不存在")
+        print(f"{MSHead.Hint} 运行 sundry config init 来初始化配置文件")
         return 1
 
 def 更新配置文件() -> int:
@@ -210,8 +217,8 @@ def 更新配置文件() -> int:
     """
 
     if not os.path.exists(配置信息.所在位置):
-        print(f"{消息头.错误} 配置文件不存在")
-        print(f"{消息头.提示} 运行 sundry config init 来初始化配置文件")
+        print(f"{MSHead.Error} 配置文件不存在")
+        print(f"{MSHead.Hint} 运行 sundry config init 来初始化配置文件")
         return 1
 
     try:
@@ -222,16 +229,16 @@ def 更新配置文件() -> int:
             with open(配置信息.所在位置, "r") as f:
                 jsonschema.validate(json.load(f), schema)
         else:
-            print(f"{消息头.警告} 未能获取到当前配置版本的 schema，跳过验证")
+            print(f"{MSHead.Warning} 未能获取到当前配置版本的 schema，跳过验证")
     except Exception as e:
-        print(f"{消息头.错误} 当前的配置文件似乎无效: {Fore.RED}{e}{Fore.RESET}")
-        print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
+        print(f"{MSHead.Error} 当前的配置文件似乎无效: {Fore.RED}{e}{Fore.RESET}")
+        print(f"{MSHead.Hint} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
         return 1
 
     if 当前配置版本 < float(配置信息.最新版本):
-        print(f"{消息头.信息} 看起来当前的配置文件需要更新，正在尝试自动更新...")
+        print(f"{MSHead.Information} 看起来当前的配置文件需要更新，正在尝试自动更新...")
     else:
-        print(f"{消息头.消息} 看起来当前的配置文件已经是最新的了")
+        print(f"{MSHead.Message} 看起来当前的配置文件已经是最新的了")
         return 0
 
     try:
@@ -260,15 +267,15 @@ def 更新配置文件() -> int:
         with open(配置信息.所在位置, "w", encoding="utf-8") as f:
             json.dump(新配置数据, f, indent=4, ensure_ascii=False)
 
-        print(f"{消息头.成功} 成功更新配置文件 {Fore.RED}{当前配置版本}{Fore.RESET} -> {Fore.GREEN}{配置信息.最新版本}{Fore.RESET}")
+        print(f"{MSHead.Success} 成功更新配置文件 {Fore.RED}{当前配置版本}{Fore.RESET} -> {Fore.GREEN}{配置信息.最新版本}{Fore.RESET}")
         return 0
     except json.decoder.JSONDecodeError as e:
-        print(f"{消息头.错误} 更新配置文件失败，现有配置文件不是有效的 json 字段:\n{Fore.RED}{e}{Fore.RESET}")
-        print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
+        print(f"{MSHead.Error} 更新配置文件失败，现有配置文件不是有效的 json 字段:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{MSHead.Hint} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
         return 1
     except Exception as e:
-        print(f"{消息头.错误} 更新配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
-        print(f"{消息头.提示} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
+        print(f"{MSHead.Error} 更新配置文件失败:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{MSHead.Hint} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
         return 1
 
 def main(args: list[str]) -> int:
@@ -284,8 +291,8 @@ def main(args: list[str]) -> int:
 
     try:
         if not args:
-            print(f"{消息头.错误} 缺少参数")
-            print(f"{消息头.提示} 运行 sundry --help 来获取命令帮助")
+            print(f"{MSHead.Error} 缺少参数")
+            print(f"{MSHead.Hint} 运行 sundry --help 来获取命令帮助")
             return 1
 
         if args[0] == "init":
@@ -295,15 +302,15 @@ def main(args: list[str]) -> int:
         elif args[0] in ["update", "更新", "upgrade"]:
             return 更新配置文件()
         elif args[0] in ["编辑", "edit", "打开", "open"]:
-            print(f"{消息头.信息} 配置文件 config.json 位于 {配置信息.所在位置}")
-            print(f"{消息头.信息} 尝试打开配置文件 config.json ...")
+            print(f"{MSHead.Information} 配置文件 config.json 位于 {配置信息.所在位置}")
+            print(f"{MSHead.Information} 尝试打开配置文件 config.json ...")
             return open_file(配置信息.所在位置)
         elif len(args) == 2:
             return 修改配置项(args[0], args[1])
         else:
-            print(f"{消息头.错误} 无效的操作: {args[0]}")
-            print(f"{消息头.提示} 运行 sundry --help 来获取命令帮助")
+            print(f"{MSHead.Error} 无效的操作: {args[0]}")
+            print(f"{MSHead.Hint} 运行 sundry --help 来获取命令帮助")
             return 1
     except KeyboardInterrupt:
-        print(f"\n{消息头.错误} 操作取消")
+        print(f"\n{MSHead.Error} 操作取消")
         return 1

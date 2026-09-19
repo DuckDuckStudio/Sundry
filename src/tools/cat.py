@@ -1,6 +1,6 @@
 import os
 
-from catfood.functions.print import 消息头
+from catfood.functions.print import MSHead
 from colorama import Fore
 from pygments import highlight  # pyright: ignore[reportUnknownVariableType]
 from pygments.formatters.terminal import TerminalFormatter
@@ -12,11 +12,11 @@ from function.maintain.config import 读取配置
 
 def 读取和输出(清单文件: str):
     if not os.path.exists(清单文件):
-        print(f"{消息头.错误} 清单文件不存在")
+        print(f"{MSHead.Error} 清单文件不存在")
         return 1
 
     try:
-        print(f"{消息头.成功} 清单文件位于 {Fore.BLUE}{清单文件}{Fore.RESET}\n")
+        print(f"{MSHead.Success} 清单文件位于 {Fore.BLUE}{清单文件}{Fore.RESET}\n")
 
         # 读取清单文件
         with open(清单文件, 'r', encoding="utf-8") as file:
@@ -30,10 +30,10 @@ def 读取和输出(清单文件: str):
 
         return 0
     except PermissionError:
-        print(f"{消息头.错误} 读取清单文件失败: {Fore.RED}没有权限{Fore.RESET}")
+        print(f"{MSHead.Error} 读取清单文件失败: {Fore.RED}没有权限{Fore.RESET}")
         return 1
     except FileNotFoundError:
-        print(f"{消息头.错误} 读取清单文件失败: {Fore.RED}文件不存在{Fore.RESET}")
+        print(f"{MSHead.Error} 读取清单文件失败: {Fore.RED}文件不存在{Fore.RESET}")
         return 1
 
 def main(args: list[str]) -> int:
@@ -56,23 +56,23 @@ def main(args: list[str]) -> int:
         elif (清单类型 in ["all", "全部", "所有"]):
             清单类型 = "all"
         else:
-            print(f"{消息头.错误} 清单类型不正确")
-            print(f"{消息头.提示} 清单类型必须是 {Fore.BLUE}installer version locale all{Fore.RESET} 中的一种")
+            print(f"{MSHead.Error} 清单类型不正确")
+            print(f"{MSHead.Hint} 清单类型必须是 {Fore.BLUE}installer version locale all{Fore.RESET} 中的一种")
             return 1
         # 获取区域
         区域设置 = ""
         if (清单类型 == "locale"):
             if (len(args) != 4):
-                print(f"{消息头.错误} 请告诉我您需要查看哪个区域的清单")
+                print(f"{MSHead.Error} 请告诉我您需要查看哪个区域的清单")
                 return 1
             区域设置 = args[3]
     else:
-        print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+        print(f"{MSHead.Error} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
     清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录=winget_pkgs目录)
     if not 清单目录:
-        print(f"{消息头.错误} 获取清单目录失败")
+        print(f"{MSHead.Error} 获取清单目录失败")
         return 1
 
     清单文件: list[str] | str
@@ -84,7 +84,7 @@ def main(args: list[str]) -> int:
                 清单文件.append(os.path.join(清单目录, 清单))
 
         if not 清单文件:
-            print(f"{消息头.错误} 清单目录下没有 YAML 文件")
+            print(f"{MSHead.Error} 清单目录下没有 YAML 文件")
             return 1
 
         for 清单 in 清单文件:

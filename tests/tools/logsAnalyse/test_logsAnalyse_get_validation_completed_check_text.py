@@ -12,7 +12,7 @@ def test_get_validation_completed_check_text_returns_none_for_missing_check_suit
 
 def test_get_validation_completed_check_text_returns_none_when_api_returns_none(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(
-        "tools.logsAnalyse.请求GitHubAPI",
+        "tools.logsAnalyse.request_github_api",
         lambda *args, **kwargs: None,  # pyright: ignore[reportUnknownArgumentType,reportUnknownLambdaType]
     )
     monkeypatch.setattr("tools.logsAnalyse.read_token", lambda: None)
@@ -39,7 +39,7 @@ def test_get_validation_completed_check_text_returns_none_for_invalid_response(
     response: dict[str, Any],
 ):
     monkeypatch.setattr(
-        "tools.logsAnalyse.请求GitHubAPI",
+        "tools.logsAnalyse.request_github_api",
         lambda *args, **kwargs: response,  # pyright: ignore[reportUnknownArgumentType,reportUnknownLambdaType]
     )
     monkeypatch.setattr("tools.logsAnalyse.read_token", lambda: None)
@@ -49,7 +49,7 @@ def test_get_validation_completed_check_text_returns_none_for_invalid_response(
 
 def test_get_validation_completed_check_text_returns_validation_text(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(
-        "tools.logsAnalyse.请求GitHubAPI",
+        "tools.logsAnalyse.request_github_api",
         lambda *args, **kwargs: {  # pyright: ignore[reportUnknownArgumentType,reportUnknownLambdaType]
             "check_runs": [
                 {"name": "9. Something Else", "output": {"text": "ignored"}},

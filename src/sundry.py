@@ -1,7 +1,7 @@
 import sys
 
 import ajaw
-from catfood.functions.print import 消息头
+from catfood.functions.print import MSHead
 from colorama import init
 
 from function.constant.general import SUNDRY_VERSION
@@ -46,7 +46,7 @@ def main() -> int:
         args = []
 
     if (sys.platform != "win32") and (not _can_it_run_on_non_windows_systems(tool, args)):
-        print(f"{消息头.错误} 该操作仅可在 Windows 上运行")
+        print(f"{MSHead.Error} 该操作仅可在 Windows 上运行")
         return 1
 
     # 开源的

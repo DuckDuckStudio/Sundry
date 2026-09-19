@@ -1,7 +1,7 @@
 import os
 import shutil
 
-from catfood.functions.print import 消息头
+from catfood.functions.print import MSHead
 from colorama import Fore
 
 from function.constant.paths import SUNDRY_TEMP_DIR
@@ -13,7 +13,7 @@ def main(哪个工具: str) -> int:
     """
 
     if not 哪个工具:
-        print(f"{消息头.警告} 未指定清理哪个工具产生的文件，默认清理除缓存外所有 Sundry 产生的文件 (aec)")
+        print(f"{MSHead.Warning} 未指定清理哪个工具产生的文件，默认清理除缓存外所有 Sundry 产生的文件 (aec)")
         哪个工具 = "aec"
 
     哪个工具 = 哪个工具.lower()
@@ -49,7 +49,7 @@ def main(哪个工具: str) -> int:
     elif 哪个工具 == "aec":
         待清理文件路径 = SUNDRY_TEMP_DIR
     else:
-        print(f"{消息头.错误} 不知道该如何清理 {哪个工具} 产生的文件")
+        print(f"{MSHead.Error} 不知道该如何清理 {哪个工具} 产生的文件")
         return 1
 
     return 清理文件(待清理文件路径, 哪个工具)
@@ -82,19 +82,19 @@ def 清理文件(待清理文件路径: str, 哪个工具: str) -> int:
                         shutil.rmtree(当前路径)
 
             if 有清理:
-                print(f"{消息头.成功} 成功清理 {哪个工具} 产生的文件")
+                print(f"{MSHead.Success} 成功清理 {哪个工具} 产生的文件")
             else:
-                print(f"{消息头.消息} 没有需要清理的文件")
+                print(f"{MSHead.Message} 没有需要清理的文件")
 
             return 0
         else:
             try:
                 shutil.rmtree(待清理文件路径)
-                print(f"{消息头.成功} 成功清理 {哪个工具} 产生的文件")
+                print(f"{MSHead.Success} 成功清理 {哪个工具} 产生的文件")
             except FileNotFoundError:
-                print(f"{消息头.消息} 没有需要清理的文件")
+                print(f"{MSHead.Message} 没有需要清理的文件")
 
             return 0
     except Exception as e:
-        print(f"{消息头.错误} 清理 {哪个工具} 产生的文件时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{MSHead.Error} 清理 {哪个工具} 产生的文件时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
