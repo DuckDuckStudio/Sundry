@@ -12,7 +12,7 @@ def test_get_pr_head_commit_hash_returns_none_for_missing_pr_number(pr_number: N
 
 def test_get_pr_head_commit_hash_returns_sha(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(
-        "tools.logsAnalyse.请求GitHubAPI",
+        "tools.logsAnalyse.request_github_api",
         lambda *args, **kwargs: {"head": {"sha": "abc123def456"}},  # pyright: ignore[reportUnknownArgumentType,reportUnknownLambdaType]
     )
     monkeypatch.setattr("tools.logsAnalyse.read_token", lambda: None)
@@ -22,7 +22,7 @@ def test_get_pr_head_commit_hash_returns_sha(monkeypatch: pytest.MonkeyPatch):
 
 def test_get_pr_head_commit_hash_returns_none_when_api_response_missing_head(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(
-        "tools.logsAnalyse.请求GitHubAPI",
+        "tools.logsAnalyse.request_github_api",
         lambda *args, **kwargs: {"message": "Not Found"},  # pyright: ignore[reportUnknownArgumentType,reportUnknownLambdaType]
     )
     monkeypatch.setattr("tools.logsAnalyse.read_token", lambda: None)
@@ -32,7 +32,7 @@ def test_get_pr_head_commit_hash_returns_none_when_api_response_missing_head(mon
 
 def test_get_pr_head_commit_hash_returns_none_when_api_returns_none(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.setattr(
-        "tools.logsAnalyse.请求GitHubAPI",
+        "tools.logsAnalyse.request_github_api",
         lambda *args, **kwargs: None,  # pyright: ignore[reportUnknownArgumentType,reportUnknownLambdaType]
     )
     monkeypatch.setattr("tools.logsAnalyse.read_token", lambda: None)

@@ -1,6 +1,6 @@
 import keyring
 from catfood.exceptions.operation import OperationFailed
-from catfood.functions.print import 消息头
+from catfood.functions.print import MSHead
 from colorama import Fore
 from keyring.errors import KeyringError
 
@@ -35,5 +35,5 @@ def read_token(silent: bool = False) -> str | None:
                 raise OperationFailed(f"没有读取到 Token，请确保您设置了 {source} 的 Token ({service_name}, {username})")
     except (OperationFailed, KeyringError) as e:
         if not silent:
-            print(f"{消息头.错误} 读取 Token 失败: {Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} 读取 Token 失败: {Fore.RED}{e}{Fore.RESET}")
         return None

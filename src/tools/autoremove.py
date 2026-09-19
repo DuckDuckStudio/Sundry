@@ -6,7 +6,7 @@ import requests
 import yaml
 from catfood.constant import YES
 from catfood.exceptions.request import RequestException
-from catfood.functions.print import 消息头
+from catfood.functions.print import MSHead
 from colorama import Fore
 
 import tools.remove as remove
@@ -19,25 +19,25 @@ from function.maintain.config import 读取配置
 def main(args: list[str]) -> int:
     try:
         if not args:
-            print(f"{消息头.错误} 请传递参数")
+            print(f"{MSHead.Error} 请传递参数")
             raise KeyboardInterrupt
 
         if len(args) == 1:
             args.append("")
         elif len(args) > 2:
-            print(f"{消息头.提示} 多余的参数，我们最多只需要 2 个参数")
+            print(f"{MSHead.Hint} 多余的参数，我们最多只需要 2 个参数")
             args = args[:2]
 
         版本列表: list[str] | None = 获取现有包版本(args[0])
         if not 版本列表:
-            print(f"{消息头.错误} 未能获取到版本列表")
+            print(f"{MSHead.Error} 未能获取到版本列表")
             raise KeyboardInterrupt
         # NOTE: 对版本列表切片可以只检查指定版本（及）以后的版本
         检查包版本(args[0], 版本列表, (args[1].lower() in (*YES, "skip", "skip-check")))
-        print(f"{消息头.成功} 成功检查 {Fore.BLUE}{args[0]}{Fore.RESET} 的所有版本")
+        print(f"{MSHead.Success} 成功检查 {Fore.BLUE}{args[0]}{Fore.RESET} 的所有版本")
         return 0
     except KeyboardInterrupt:
-        print(f"{消息头.错误} 操作中止")
+        print(f"{MSHead.Error} 操作中止")
         return 1
 
 def 检查包版本(包标识符: str, 版本列表: list[str], 跳过检查: bool) -> None:
@@ -53,20 +53,20 @@ def 检查包版本(包标识符: str, 版本列表: list[str], 跳过检查: bo
         if not 跳过检查:
             验证结果 = remove.使用WinGet验证(包标识符, 版本, AutoRemove=True)
             if not 验证结果:
-                print(f"{消息头.成功} 验证 {Fore.BLUE}{包标识符} {版本}{Fore.RESET} 通过！")
+                print(f"{MSHead.Success} 验证 {Fore.BLUE}{包标识符} {版本}{Fore.RESET} 通过！")
                 continue
             else:
                 InstallerUrls验证结果 = 检查所有安装程序URL(包标识符, 版本, 在浏览器中打开)
                 if InstallerUrls验证结果[0] in {1, 2}:
-                    print(f"{消息头.警告} 似乎有几个安装程序链接仍然有效，请检查它们。")
-                    if input(f"{消息头.问题} 要移除此版本吗? [y/N]: ").lower() not in YES:
+                    print(f"{MSHead.Warning} 似乎有几个安装程序链接仍然有效，请检查它们。")
+                    if input(f"{MSHead.Question} 要移除此版本吗? [y/N]: ").lower() not in YES:
                         continue
                 else:
                     验证结果.append(InstallerUrls验证结果[1])
-                print(f"{消息头.错误} {Fore.BLUE}{包标识符} {版本}{Fore.RESET} 下载失败！将移除此版本...")
+                print(f"{MSHead.Error} {Fore.BLUE}{包标识符} {版本}{Fore.RESET} 下载失败！将移除此版本...")
                 移除理由 = f"{移除理由}\n\n```logs\n{"\n".join(验证结果)}\n```"
         else:
-            print(f"{消息头.警告} 参数指定跳过检查，直接开始移除。")
+            print(f"{MSHead.Warning} 参数指定跳过检查，直接开始移除。")
 
         移除包版本(包标识符, 版本, 移除理由)
 
@@ -135,7 +135,7 @@ def 检查所有安装程序URL(包标识符: str, 包版本: str, 在浏览器�
                 InstallerUrls.add(item["InstallerUrl"])
 
         if not InstallerUrls:
-            print(f"{消息头.错误} {Fore.BLUE}{包标识符} {包版本}{Fore.RESET} 的安装程序清单中未找到 InstallerUrl")
+            print(f"{MSHead.Error} {Fore.BLUE}{包标识符} {包版本}{Fore.RESET} 的安装程序清单中未找到 InstallerUrl")
             return 3, ""
 
         # 检查所有 InstallerUrl 字段指向的 Url 是否有效
@@ -190,7 +190,7 @@ def 检查所有安装程序URL(包标识符: str, 包版本: str, 在浏览器�
     except Exception as e:
         if isinstance(e, KeyboardInterrupt):
             raise e
-        print(f"{消息头.错误} 检查安装程序清单中的 InstallerUrl(s) 失败:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{MSHead.Error} 检查安装程序清单中的 InstallerUrl(s) 失败:\n{Fore.RED}{e}{Fore.RESET}")
         return 3, ""
 
 def 检查响应类型(response: requests.Response) -> None:
@@ -207,8 +207,8 @@ def 检查响应类型(response: requests.Response) -> None:
 
 def 移除包版本(包标识符: str, 版本: str, 原因: str) -> None:
     if 检查重复拉取请求(包标识符, 版本):
-        print(f"{消息头.警告} 找到重复的拉取请求，跳过后续处理")
+        print(f"{MSHead.Warning} 找到重复的拉取请求，跳过后续处理")
         return
     if remove.main([包标识符, 版本, "True", 原因]):
-        print(f"{消息头.错误} 尝试移除 {Fore.BLUE}{包标识符} {版本}{Fore.RESET} 失败！")
+        print(f"{MSHead.Error} 尝试移除 {Fore.BLUE}{包标识符} {版本}{Fore.RESET} 失败！")
         raise KeyboardInterrupt

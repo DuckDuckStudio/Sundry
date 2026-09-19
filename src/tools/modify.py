@@ -10,8 +10,8 @@ from typing import Literal
 import requests
 from catfood.constant import YES
 from catfood.functions.files import open_file
-from catfood.functions.github.api import 这是谁的Token
-from catfood.functions.print import 消息头
+from catfood.functions.github.api import get_github_token_owner
+from catfood.functions.print import MSHead
 from colorama import Fore
 
 from function.constant.general import PR_TOOL_NOTE
@@ -41,7 +41,7 @@ def main(args: list[str]) -> Literal[1] | Literal[0]:
         else:
             解决 = ""
     else:
-        print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+        print(f"{MSHead.Error} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
     # 路径
@@ -63,7 +63,7 @@ def main(args: list[str]) -> Literal[1] | Literal[0]:
     # 直接用的话 None 会 global 到其他函数。
     # 不懂的话改改看就知道了。
     if not 可能是清单目录:
-        print(f"{消息头.错误} 获取清单目录失败")
+        print(f"{MSHead.Error} 获取清单目录失败")
         return 1
     清单目录 = 可能是清单目录
 
@@ -80,7 +80,7 @@ def main(args: list[str]) -> Literal[1] | Literal[0]:
 
         if found:
             审查者列表 = found.split('/')
-            我是谁 = 这是谁的Token(read_token(silent=True))
+            我是谁 = get_github_token_owner(read_token(silent=True))
             if not (我是谁 in 审查者列表) and (not 读取配置("github.pr.mention_self_when_reviewer")):
                 if 我是谁 not in 审查者列表:
                     try:
@@ -125,7 +125,7 @@ def main(args: list[str]) -> Literal[1] | Literal[0]:
             写入日志(f"Found the following version folder: {版本文件夹s}")
             break
         except FileNotFoundError as e:
-            print(f"{消息头.错误} {Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} {Fore.RED}{e}{Fore.RESET}")
             写入日志(f"Error getting package version number folder: {e}")
             try:
                 input("是否重新查找? [ENTER/CTRL+C]")
@@ -140,7 +140,7 @@ def main(args: list[str]) -> Literal[1] | Literal[0]:
 
     # 确保有获取到至少一个版本文件夹
     if not 版本文件夹s:
-        print(f"{消息头.错误} 没有找到任何版本文件夹，请检查参数是否正确。")
+        print(f"{MSHead.Error} 没有找到任何版本文件夹，请检查参数是否正确。")
         写入日志("No version folder found.", "ERROR")
         with open(os.path.join(程序所在目录, 日志文件路径), 'a', encoding="utf-8") as 日志文件: # 追加写入
             日志文件.write("~~ End of logging ~~\n")
@@ -151,7 +151,7 @@ def main(args: list[str]) -> Literal[1] | Literal[0]:
     for 版本文件夹 in 版本文件夹s:
         if 版本文件夹 != 包版本:
             if 读取配置("debug"):
-                print(f"{消息头.调试} 跳过版本文件夹: {版本文件夹}")
+                print(f"{MSHead.Debug} 跳过版本文件夹: {版本文件夹}")
                 写入日志(f"Skip version {版本文件夹}, because it's not in the list of versions to be modified.", "VERBOSE")
             continue
         if 修改版本(版本文件夹) == 1:
@@ -203,7 +203,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> 
     while True: # 不 break 直接 return
         github_token = read_token()
         if not github_token:
-            print(f"{消息头.错误} 拉取请求创建失败: Token 读取失败")
+            print(f"{MSHead.Error} 拉取请求创建失败: Token 读取失败")
             return 1
         api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
         请求头 = {
@@ -229,7 +229,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> 
             print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
             写入日志(f"    Failed to create pull request: {response.status_code} - {response.text}", "ERROR")
             try:
-                if input(f"{消息头.问题} 我应该重试吗[Y/N]: ").lower() not in (*YES, "应该", "重试", "retry"):
+                if input(f"{MSHead.Question} 我应该重试吗[Y/N]: ").lower() not in (*YES, "应该", "重试", "retry"):
                     return 1
                 print("正在重试...")
                 写入日志("    Retrying to create a pull request...")

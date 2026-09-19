@@ -10,8 +10,8 @@ import webbrowser
 import requests
 from catfood.constant import NO, YES
 from catfood.exceptions.operation import OperationFailed
-from catfood.functions.github.api import 这是谁的Token
-from catfood.functions.print import 消息头
+from catfood.functions.github.api import get_github_token_owner
+from catfood.functions.print import MSHead
 from colorama import Fore
 from translate import Translator  # type: ignore
 
@@ -30,7 +30,7 @@ def 创建拉取请求(包标识符: str, 分支名: str, 版本文件夹: str, 
     while True: # 不 break 直接 return
         github_token = read_token()
         if not github_token:
-            print(f"{消息头.错误} 拉取请求创建失败: Token 读取失败")
+            print(f"{MSHead.Error} 拉取请求创建失败: Token 读取失败")
             return 1
 
         api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
@@ -55,7 +55,7 @@ def 创建拉取请求(包标识符: str, 分支名: str, 版本文件夹: str, 
         else:
             print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
             try:
-                if input(f"{消息头.问题} 我应该重试吗[Y/N]: ").lower() not in (*YES, "应该", "重试", "retry"):
+                if input(f"{MSHead.Question} 我应该重试吗[Y/N]: ").lower() not in (*YES, "应该", "重试", "retry"):
                     return 1
                 print("正在重试...")
             except KeyboardInterrupt:
@@ -94,7 +94,7 @@ def main(args: list[str]) -> int:
                 # 其他值视为理由
                 理由 = args[2]
     else:
-        print(f"{消息头.错误} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+        print(f"{MSHead.Error} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
     清单目录 = 获取清单目录(包标识符, winget_pkgs目录=winget_pkgs目录)
@@ -124,11 +124,11 @@ def main(args: list[str]) -> int:
                 try:
                     subprocess.run(["winget", "show", "--id", 包标识符, "--version", 包版本, "--source", "winget", "--exact"], check=True)
                 except subprocess.CalledProcessError:
-                    print(f"{消息头.警告} 在默认源 (winget) 中运行 WinGet 失败，尝试指定字体源 (winget-font) ...")
+                    print(f"{MSHead.Warning} 在默认源 (winget) 中运行 WinGet 失败，尝试指定字体源 (winget-font) ...")
                     subprocess.run(["winget", "show", "--id", 包标识符, "--version", 包版本, "--source", "winget-font", "--exact"], check=True)
                     # 如果还有异常会被下面捕获
             except (subprocess.CalledProcessError, OperationFailed) as e:
-                print(f"{消息头.错误} 获取包信息失败: {Fore.RED}{e}{Fore.RESET}")
+                print(f"{MSHead.Error} 获取包信息失败: {Fore.RED}{e}{Fore.RESET}")
                 return 1
             cat.main([包标识符, 包版本, "installer"])
             print("======= 确认 =======")
@@ -160,7 +160,7 @@ def main(args: list[str]) -> int:
 
                 if found:
                     审查者列表 = found.split('/')
-                    我是谁 = 这是谁的Token(read_token(silent=True))
+                    我是谁 = get_github_token_owner(read_token(silent=True))
                     if not (我是谁 in 审查者列表) and (not 读取配置("github.pr.mention_self_when_reviewer")):
                         if 我是谁 not in 审查者列表:
                             try:

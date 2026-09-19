@@ -43,7 +43,7 @@ def test_find_explanation_for_error_code_falls_back_to_github_when_local_csv_is_
 
     monkeypatch.setattr("tools.logsAnalyse.读取配置", lambda *args, **kwargs: str(tmp_path))  # pyright: ignore[reportUnknownLambdaType,reportUnknownArgumentType]
     monkeypatch.setattr("builtins.open", raise_permission_error)
-    monkeypatch.setattr("tools.logsAnalyse.获取GitHub文件内容", lambda *args, **kwargs: csv_content)  # pyright: ignore[reportUnknownLambdaType,reportUnknownArgumentType]
+    monkeypatch.setattr("tools.logsAnalyse.get_github_file_content", lambda *args, **kwargs: csv_content)  # pyright: ignore[reportUnknownLambdaType,reportUnknownArgumentType]
     monkeypatch.setattr("tools.logsAnalyse.read_token", lambda: None)
 
     find_explanation_for_error_code(42)
@@ -65,7 +65,7 @@ def test_find_explanation_for_error_code_falls_back_to_github(
         return csv_content
 
     monkeypatch.setattr("tools.logsAnalyse.读取配置", lambda *args, **kwargs: None)  # pyright: ignore[reportUnknownLambdaType,reportUnknownArgumentType]
-    monkeypatch.setattr("tools.logsAnalyse.获取GitHub文件内容", fake_get_file_content)
+    monkeypatch.setattr("tools.logsAnalyse.get_github_file_content", fake_get_file_content)
     monkeypatch.setattr("tools.logsAnalyse.read_token", lambda: "token")
 
     find_explanation_for_error_code("ERROR_EXAMPLE")
@@ -85,7 +85,7 @@ def test_find_explanation_for_error_code_does_not_print_when_code_is_missing(
 ):
     monkeypatch.setattr("tools.logsAnalyse.读取配置", lambda *args, **kwargs: str(tmp_path))  # pyright: ignore[reportUnknownLambdaType,reportUnknownArgumentType]
     monkeypatch.setattr("tools.logsAnalyse.read_token", lambda: None)
-    monkeypatch.setattr("tools.logsAnalyse.获取GitHub文件内容", lambda *args, **kwargs: None)  # pyright: ignore[reportUnknownLambdaType,reportUnknownArgumentType]
+    monkeypatch.setattr("tools.logsAnalyse.get_github_file_content", lambda *args, **kwargs: None)  # pyright: ignore[reportUnknownLambdaType,reportUnknownArgumentType]
 
     find_explanation_for_error_code(exit_code)
 

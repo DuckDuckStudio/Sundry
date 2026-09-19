@@ -6,8 +6,8 @@ from typing import Any, Literal
 
 from catfood.exceptions.operation import TryOtherMethods
 from catfood.exceptions.request import RequestException
-from catfood.functions.github.api import 请求GitHubAPI
-from catfood.functions.print import 多行带头输出, 消息头
+from catfood.functions.github.api import request_github_api
+from catfood.functions.print import MSHead, print_multiline_with_prefix
 from colorama import Fore
 
 from function.maintain.config import 读取配置
@@ -62,7 +62,7 @@ def 获取清单目录(
 
     if '.' not in 包标识符:
         if 读取配置("debug"):
-            print(f"{消息头.调试} 包标识符格式不正确（应带有 \'.\'），获取到 {包标识符}")
+            print(f"{MSHead.Debug} 包标识符格式不正确（应带有 \'.\'），获取到 {包标识符}")
         return None
 
     if not winget_pkgs目录:
@@ -83,13 +83,13 @@ def 获取清单目录(
         if not 包类型:
             if not os.path.exists(清单目录):
                 if 读取配置("debug"):
-                    print(f"{消息头.调试} 未能在 {类型} 目录下找到清单目录")
+                    print(f"{MSHead.Debug} 未能在 {类型} 目录下找到清单目录")
                 continue
 
             if 包版本 and any(os.path.isdir(os.path.join(清单目录, item)) for item in os.listdir(清单目录)):
                 if 读取配置("debug"):
-                    print(f"{消息头.调试} 目录 {os.path.relpath(清单目录, winget_pkgs目录)} 下存在其他文件夹，不是版本文件夹")
-                    print(f"{消息头.提示} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的，也可能是因为 {类型} 目录下也有标识符部分相同的包")
+                    print(f"{MSHead.Debug} 目录 {os.path.relpath(清单目录, winget_pkgs目录)} 下存在其他文件夹，不是版本文件夹")
+                    print(f"{MSHead.Hint} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的，也可能是因为 {类型} 目录下也有标识符部分相同的包")
                 continue
 
         return 清单目录
@@ -131,7 +131,7 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
         if not 版本列表:
             raise TryOtherMethods("未能通过本地 winget-pkgs 仓库获取版本列表")
     except TryOtherMethods as e:
-        print(f"{消息头.警告} {e}，尝试改用 WinGet...")
+        print(f"{MSHead.Warning} {e}，尝试改用 WinGet...")
 
         # 从 WinGet 输出获取版本号
         try:
@@ -140,13 +140,13 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
                 capture_output=True, text=True, check=True
             )
         except subprocess.CalledProcessError as e:
-            print(f"{消息头.警告} 在默认源 (winget) 中运行 WinGet 失败，尝试指定字体源 (winget-font) ...")
+            print(f"{MSHead.Warning} 在默认源 (winget) 中运行 WinGet 失败，尝试指定字体源 (winget-font) ...")
             if 读取配置("debug", 静默=True):
-                print(f"{消息头.调试} WinGet 输出")
-                print(f"{消息头.调试} stderr:")
-                多行带头输出(e.stderr, 消息头.调试)
-                print(f"{消息头.调试} stdout:")
-                多行带头输出(e.stdout, 消息头.调试)
+                print(f"{MSHead.Debug} WinGet 输出")
+                print(f"{MSHead.Debug} stderr:")
+                print_multiline_with_prefix(e.stderr, MSHead.Debug)
+                print(f"{MSHead.Debug} stdout:")
+                print_multiline_with_prefix(e.stdout, MSHead.Debug)
 
             try:
                 结果 = subprocess.run(
@@ -154,13 +154,13 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
                     capture_output=True, text=True, check=True
                 )
             except subprocess.CalledProcessError as e:
-                print(f"{消息头.错误} 未能获取现有包版本，WinGet 又失败了 (返回 {e.returncode})")
+                print(f"{MSHead.Error} 未能获取现有包版本，WinGet 又失败了 (返回 {e.returncode})")
                 if 读取配置("debug", 静默=True):
-                    print(f"{消息头.调试} WinGet 输出")
-                    print(f"{消息头.调试} stderr:")
-                    多行带头输出(e.stderr, 消息头.调试)
-                    print(f"{消息头.调试} stdout:")
-                    多行带头输出(e.stdout, 消息头.调试)
+                    print(f"{MSHead.Debug} WinGet 输出")
+                    print(f"{MSHead.Debug} stderr:")
+                    print_multiline_with_prefix(e.stderr, MSHead.Debug)
+                    print(f"{MSHead.Debug} stdout:")
+                    print_multiline_with_prefix(e.stdout, MSHead.Debug)
                 return None
 
         离开始还有几行 = 3
@@ -173,7 +173,7 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
     if 版本列表:
         return 版本列表
     else:
-        print(f"{消息头.错误} 未能获取现有包版本列表")
+        print(f"{MSHead.Error} 未能获取现有包版本列表")
         return None
 
 def FormatManifest(Manifest: str, Comment: str = "# Created with Sundry-Locale") -> str:
@@ -267,7 +267,7 @@ def 获取PR清单(PR编号: str, 清单目录: str, token: str | None = None) -
     :rtype: int
     """
 
-    print(f"{消息头.信息} 尝试获取 PR #{PR编号} 中的清单...")
+    print(f"{MSHead.Information} 尝试获取 PR #{PR编号} 中的清单...")
     if not (清单文件夹路径 := _获取PR清单文件夹路径(PR编号, token)):
         return 1
 
@@ -277,18 +277,18 @@ def 获取PR清单(PR编号: str, 清单目录: str, token: str | None = None) -
         return 1
 
     if os.path.exists(清单目录):
-        print(f"{消息头.警告} 临时清单目录下{Fore.YELLOW}已存在同名清单目录{Fore.RESET}，Sundry 将覆盖掉它。")
+        print(f"{MSHead.Warning} 临时清单目录下{Fore.YELLOW}已存在同名清单目录{Fore.RESET}，Sundry 将覆盖掉它。")
         try:
             shutil.rmtree(清单目录)
         except Exception as e:
-            print(f"{消息头.错误} 移除同名清单目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
-            print(f"{消息头.提示} 清单目录位于: {清单目录}")
+            print(f"{MSHead.Error} 移除同名清单目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Hint} 清单目录位于: {清单目录}")
             return 1
     os.makedirs(清单目录, exist_ok=True)
 
     try:
         api = f"https://api.github.com/repos/{fork仓库}/contents/{清单文件夹路径}?ref={fork分支}" # NOTE: 这里不对 url 进行编码，因为包标识符不允许出现特殊字符/中文
-        清单目录响应: list[dict[str, Any]] | None = 请求GitHubAPI(api, token=token)
+        清单目录响应: list[dict[str, Any]] | None = request_github_api(api, token=token)
         if not isinstance(清单目录响应, list):
             raise RequestException(f"未获取到清单文件夹信息: {清单目录响应}")
 
@@ -301,7 +301,7 @@ def 获取PR清单(PR编号: str, 清单目录: str, token: str | None = None) -
             if not isinstance(文件名, str):
                 raise ValueError(f"未能获取到清单文件名: {清单文件}")
 
-            清单文件响应: dict[str, str | int | dict[str, str]] | None = 请求GitHubAPI(api, token=token)
+            清单文件响应: dict[str, str | int | dict[str, str]] | None = request_github_api(api, token=token)
             if not 清单文件响应:
                 raise RequestException(f"未获取到清单文件信息: {清单文件响应}")
 
@@ -314,10 +314,10 @@ def 获取PR清单(PR编号: str, 清单目录: str, token: str | None = None) -
             with open(os.path.join(清单目录, 文件名), "wb") as 清单文件:
                 清单文件.write(清单内容)
     except Exception as e:
-        print(f"{消息头.错误} 下载清单文件失败:\n{Fore.RED}{e}{Fore.RESET}")
+        print(f"{MSHead.Error} 下载清单文件失败:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
 
-    print(f"{消息头.成功} 成功获取 PR #{PR编号} 中的清单")
+    print(f"{MSHead.Success} 成功获取 PR #{PR编号} 中的清单")
     return 0
 
 def _获取PR清单文件夹路径(PR编号: str, token: str | None = None) -> str | None:
@@ -337,7 +337,7 @@ def _获取PR清单文件夹路径(PR编号: str, token: str | None = None) -> s
     清单文件夹 = None
     清单文件路径: list[str] = []
 
-    响应 = 请求GitHubAPI(api, token=token)
+    响应 = request_github_api(api, token=token)
     if 响应:
         for 文件 in 响应:
             文件相对路径: str = 文件["filename"]
@@ -347,23 +347,23 @@ def _获取PR清单文件夹路径(PR编号: str, token: str | None = None) -> s
                 if 清单文件夹 is None:
                     清单文件夹 = os.path.dirname(文件相对路径)
                 elif 清单文件夹 != os.path.dirname(文件相对路径):
-                    print(f"{消息头.错误} 此 PR 修改了多个文件夹下的文件")
+                    print(f"{MSHead.Error} 此 PR 修改了多个文件夹下的文件")
                     return None
             else:
-                print(f"{消息头.错误} 非预期的清单类型: {Fore.BLUE}{文件相对路径}{Fore.RESET}")
+                print(f"{MSHead.Error} 非预期的清单类型: {Fore.BLUE}{文件相对路径}{Fore.RESET}")
                 print(f"{Fore.YELLOW}Hint{Fore.RESET} 请确定 PR 是对清单的修改，并确定修改的文件都是 .yaml 格式")
                 return None
             if 文件["status"] != "removed":
                 非预期状态 = False
 
         if 非预期状态:
-            print(f"{消息头.错误} 这是个纯移除或没有修改的 PR")
+            print(f"{MSHead.Error} 这是个纯移除或没有修改的 PR")
             return None
 
         print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取清单文件夹相对路径")
         return 清单文件夹
     else:
-        print(f"{消息头.错误} 未能获取清单文件夹相对路径，请求 {Fore.BLUE}{api}{Fore.RESET} 失败。")
+        print(f"{MSHead.Error} 未能获取清单文件夹相对路径，请求 {Fore.BLUE}{api}{Fore.RESET} 失败。")
         return None
 
 def _获取PR仓库和分支(PR编号: str, token: str | None = None) -> tuple[str, str] | None:
@@ -380,7 +380,7 @@ def _获取PR仓库和分支(PR编号: str, token: str | None = None) -> tuple[s
 
     api = f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{PR编号}"
 
-    响应 = 请求GitHubAPI(api, token=token)
+    响应 = request_github_api(api, token=token)
     if 响应:
         try:
             fork仓库 = 响应["head"]["repo"]["full_name"]
@@ -388,7 +388,7 @@ def _获取PR仓库和分支(PR编号: str, token: str | None = None) -> tuple[s
             print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取 PR HEAD 的仓库和分支")
             return fork仓库, fork分支
         except KeyError as e:
-            print(f"{消息头.错误} 未能获取 PR HEAD 的仓库和分支: 响应中没有键 {Fore.BLUE}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} 未能获取 PR HEAD 的仓库和分支: 响应中没有键 {Fore.BLUE}{e}{Fore.RESET}")
             return None
     else:
         return None

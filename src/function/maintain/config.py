@@ -5,7 +5,7 @@ from typing import Any, Literal
 import requests
 from catfood.constant import NO, YES
 from catfood.exceptions.operation import OperationFailed, TryOtherMethods
-from catfood.functions.print import 消息头
+from catfood.functions.print import MSHead
 from colorama import Fore
 
 from function.constant.paths import CONFIG_FILE_PATH
@@ -188,7 +188,7 @@ def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None
             return 配置值
     except OperationFailed as e:
         if not 静默:
-            print(f"{消息头.错误} 读取配置 {配置项} 失败: {Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} 读取配置 {配置项} 失败: {Fore.RED}{e}{Fore.RESET}")
         return None
 
 def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> str | bool | None:
@@ -211,17 +211,17 @@ def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> s
                 return 当前字典[最后键]
             else:
                 if not 静默:
-                    print(f"{消息头.错误} 读取配置文件失败:\n{Fore.RED}值 \"{配置项}\" 为空{Fore.RESET}")
-                    print(f"{消息头.消息} 运行 sundry config {配置项} <值> 来修改配置文件中的值")
+                    print(f"{MSHead.Error} 读取配置文件失败:\n{Fore.RED}值 \"{配置项}\" 为空{Fore.RESET}")
+                    print(f"{MSHead.Message} 运行 sundry config {配置项} <值> 来修改配置文件中的值")
                 return None
         except KeyError as e:
             if not 静默:
-                print(f"{消息头.错误} 读取配置文件失败:\n{Fore.RED}键 {e} 不存在{Fore.RESET}")
+                print(f"{MSHead.Error} 读取配置文件失败:\n{Fore.RED}键 {e} 不存在{Fore.RESET}")
             return None
     else:
         if not 静默:
-            print(f"{消息头.错误} 配置文件不存在")
-            print(f"{消息头.消息} 运行 sundry config init 来初始化配置文件")
+            print(f"{MSHead.Error} 配置文件不存在")
+            print(f"{MSHead.Message} 运行 sundry config init 来初始化配置文件")
         return None
 
 def 获取当前配置版本() -> float:
@@ -254,22 +254,22 @@ def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
 
     try:
         # NOTE 这里的导入不要放顶级，会出现循环导入
-        from catfood.functions.github.api import 获取GitHub文件内容
+        from catfood.functions.github.api import get_github_file_content
 
         from function.github.token import read_token
 
-        print(f"{消息头.信息} 尝试从 GitHub API 获取配置文件 schema ...")
-        schema文件 = 获取GitHub文件内容("DuckDuckStudio/yazicbs.github.io", f"Tools/Sundry/config/schema/{版本}.json", read_token(silent=True))
+        print(f"{MSHead.Information} 尝试从 GitHub API 获取配置文件 schema ...")
+        schema文件 = get_github_file_content("DuckDuckStudio/yazicbs.github.io", f"Tools/Sundry/config/schema/{版本}.json", read_token(silent=True))
         if not schema文件:
             raise TryOtherMethods("未获取到内容")
-        print(f"{消息头.信息} 获取配置文件 schema 成功")
+        print(f"{MSHead.Information} 获取配置文件 schema 成功")
         return json.loads(schema文件)
     except Exception as e:
         try:
-            print(f"{消息头.警告} 获取配置文件 schema 失败 ({e})，通过 https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/{版本}.json 重试...")
+            print(f"{MSHead.Warning} 获取配置文件 schema 失败 ({e})，通过 https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/{版本}.json 重试...")
             响应 = requests.get(f"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/{版本}.json")
             响应.raise_for_status()
-            print(f"{消息头.信息} 获取配置文件 schema 成功")
+            print(f"{MSHead.Information} 获取配置文件 schema 成功")
             return 响应.json()
         except Exception:
             return None

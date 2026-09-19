@@ -2,7 +2,7 @@ import os
 import subprocess
 
 from catfood.constant import NO, YES
-from catfood.functions.print import 消息头
+from catfood.functions.print import MSHead
 from colorama import Fore
 
 from function.maintain.config import 读取配置
@@ -11,8 +11,8 @@ from function.maintain.config import 读取配置
 def main(args: list[str]) -> int:
     # 格式化输入
     if (len(args) < 3):
-        print(f"{消息头.错误} 参数不够")
-        print(f"{消息头.提示} 运行 sundry help 查看帮助")
+        print(f"{MSHead.Error} 参数不够")
+        print(f"{MSHead.Hint} 运行 sundry help 查看帮助")
         return 1
 
     # 第 1 个参数 - 需要还原的仓库
@@ -23,7 +23,7 @@ def main(args: list[str]) -> int:
     elif args[0].lower() in ["tools", "winget-tools", "工具仓库", "日志仓库"]:
         需要还原的仓库 = ["tools"]
     else:
-        print(f"{消息头.错误} 需要还原的仓库 (参数1) 不是有效值。")
+        print(f"{MSHead.Error} 需要还原的仓库 (参数1) 不是有效值。")
         return 1
 
     # 第 2 个参数 - 是否已提交
@@ -32,7 +32,7 @@ def main(args: list[str]) -> int:
     elif args[1].lower() in (*NO, "未提交"):
         是否已提交 = False
     else:
-        print(f"{消息头.错误} 是否已提交 (参数2) 不是有效值。")
+        print(f"{MSHead.Error} 是否已提交 (参数2) 不是有效值。")
         return 1
 
     # 第 3 个参数 - 是否丢弃
@@ -41,7 +41,7 @@ def main(args: list[str]) -> int:
     elif args[2].lower() in (*NO, "不丢弃"):
         是否丢弃 = False
     else:
-        print(f"{消息头.错误} 是否丢弃 (参数3) 不是有效值。")
+        print(f"{MSHead.Error} 是否丢弃 (参数3) 不是有效值。")
         return 1
 
     for repo in 需要还原的仓库:
@@ -56,7 +56,7 @@ def main(args: list[str]) -> int:
                 # 还原过程中发生错误，中止
                 return 1
         else:
-            print(f"{消息头.错误} 未能读到 {repo} 仓库的路径")
+            print(f"{MSHead.Error} 未能读到 {repo} 仓库的路径")
             return 1
     else:
         return 0
@@ -82,7 +82,7 @@ def 还原(哪个仓库: str, 仓库路径: str, 是否已提交: bool, 是否�
         # 获取当前所在分支
         当前分支 = subprocess.check_output(["git", "rev-parse", "--abbrev-ref", "HEAD"]).decode("utf-8").strip()
         if ((当前分支 == "master") and (哪个仓库 == "pkgs")) or ((当前分支 == "main") and (哪个仓库 == "tools")):
-            print(f"{消息头.错误} [{哪个仓库}仓库] 你不能丢弃主分支")
+            print(f"{MSHead.Error} [{哪个仓库}仓库] 你不能丢弃主分支")
             return False
 
         if ((not 是否已提交) and 是否丢弃):
@@ -98,9 +98,9 @@ def 还原(哪个仓库: str, 仓库路径: str, 是否已提交: bool, 是否�
             # 丢弃分支
             subprocess.run(["git", "branch", "-D", 当前分支], check=True)
         else:
-            print(f"{消息头.警告} [{哪个仓库}仓库] 未获取到需要丢弃的分支名称")
+            print(f"{MSHead.Warning} [{哪个仓库}仓库] 未获取到需要丢弃的分支名称")
     except Exception as e:
-        print(f"{消息头.错误} 尝试还原 {哪个仓库} 仓库时出现异常: {Fore.RED}{e}{Fore.RESET}")
+        print(f"{MSHead.Error} 尝试还原 {哪个仓库} 仓库时出现异常: {Fore.RED}{e}{Fore.RESET}")
         return False
-    print(f"{消息头.成功} 已还原 {哪个仓库} 仓库")
+    print(f"{MSHead.Success} 已还原 {哪个仓库} 仓库")
     return True

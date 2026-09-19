@@ -2,7 +2,7 @@ import os
 import subprocess
 
 from catfood.exceptions.operation import OperationFailed
-from catfood.functions.print import 消息头
+from catfood.functions.print import MSHead
 from colorama import Fore
 
 from function.maintain.config import 读取配置
@@ -17,7 +17,7 @@ def main() -> int:
             else:
                 raise OperationFailed
     except KeyboardInterrupt:
-        print(f"{消息头.错误} 已取消操作")
+        print(f"{MSHead.Error} 已取消操作")
         return 1
     except OperationFailed:
         return 1
@@ -31,5 +31,5 @@ def 清理远程(仓库: str, 仓库路径: str):
         subprocess.run(["git", "remote", "prune", "origin"], check=True)
         print(f"{Fore.GREEN}✓{Fore.RESET} 清理完毕")
     except subprocess.CalledProcessError as e:
-        print(f"{消息头.错误} 清理 {Fore.BLUE}{仓库}{Fore.RESET} 的远程已删除分支时出错，git 返回 {Fore.BLUE}{e.returncode}{Fore.RESET}")
+        print(f"{MSHead.Error} 清理 {Fore.BLUE}{仓库}{Fore.RESET} 的远程已删除分支时出错，git 返回 {Fore.BLUE}{e.returncode}{Fore.RESET}")
         raise OperationFailed

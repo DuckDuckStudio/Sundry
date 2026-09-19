@@ -13,8 +13,8 @@ from catfood.constant import NO
 from catfood.exceptions.operation import TryOtherMethods
 from catfood.functions.files import open_file
 from catfood.functions.format.github import IssueNumber
-from catfood.functions.github.api import 获取GitHub文件内容, 请求GitHubAPI
-from catfood.functions.print import 消息头
+from catfood.functions.github.api import get_github_file_content, request_github_api
+from catfood.functions.print import MSHead
 from colorama import Fore
 
 from function.constant.general import REQUEST_TIMEOUT
@@ -73,21 +73,21 @@ def main(args: list[str]) -> Literal[0, 1]:
     found = analyze_installation_verification_logs((logs_dir_path / "InstallationVerificationLogs"), parsed_args.detailed) or found
 
     if not found:
-        print(f"{消息头.警告} 未找到可能的问题")
+        print(f"{MSHead.Warning} 未找到可能的问题")
         if not parsed_args.detailed:
-            print(f'{消息头.提示} 请尝试使用 {Fore.BLUE}sundry logs-analyse "{parsed_args.pr}" --detailed{Fore.RESET} 来查看一般错误/异常')
+            print(f'{MSHead.Hint} 请尝试使用 {Fore.BLUE}sundry logs-analyse "{parsed_args.pr}" --detailed{Fore.RESET} 来查看一般错误/异常')
 
     keep_logs = parsed_args.keep_logs
     if keep_logs is None:
-        keep_logs = input(f"{消息头.问题} 是否保留日志文件? [{Fore.GREEN}Y{Fore.RESET}/n]: ").strip().lower() not in NO
+        keep_logs = input(f"{MSHead.Question} 是否保留日志文件? [{Fore.GREEN}Y{Fore.RESET}/n]: ").strip().lower() not in NO
 
     if keep_logs:
-        print(f"{消息头.消息} 打开 {Fore.BLUE}{logs_dir_path}{Fore.RESET}")
+        print(f"{MSHead.Message} 打开 {Fore.BLUE}{logs_dir_path}{Fore.RESET}")
         result = open_file(str(logs_dir_path))
         return (1 if found else 0) or result
     else:
         shutil.rmtree(logs_dir_path)
-        print(f"{消息头.成功} 已删除日志文件目录")
+        print(f"{MSHead.Success} 已删除日志文件目录")
         return 1 if found else 0
 
 
@@ -109,7 +109,7 @@ def get_pr_head_commit_hash(pr_number: int | None) -> str | None:
     if not pr_number:
         return None
 
-    responsed_data = 请求GitHubAPI(
+    responsed_data = request_github_api(
         f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{pr_number}",
         token=read_token()
     )
@@ -138,7 +138,7 @@ def get_check_suite_id(commit_hash: str | None) -> int | None:
         return None
 
     # NOTE: 当前 winget-pkgs 中一个提交的检查套件数还没超过 100，如果后续超过了需要处理分页。
-    responsed_data = 请求GitHubAPI(
+    responsed_data = request_github_api(
         f"https://api.github.com/repos/microsoft/winget-pkgs/commits/{commit_hash}/check-suites",
         params={
             "per_page": 100
@@ -187,7 +187,7 @@ def get_validation_completed_check_text(check_suite_id: int | None) -> str | Non
         return None
 
     # NOTE: 当前 winget-pkgs 中 WinGetValidator-Prod 检查套件的检查只有 10 个，如果后续超过 30 个需要增加每页大小或处理分页。
-    responsed_data = 请求GitHubAPI(
+    responsed_data = request_github_api(
         f"https://api.github.com/repos/microsoft/winget-pkgs/check-suites/{check_suite_id}/check-runs",
         token=read_token()
     )
@@ -273,28 +273,28 @@ def download_validation_log_zip(download_url: str | None) -> Path | None:
         if zip_file_path.exists():
             raise FileExistsError(f"验证日志 zip 文件下载位置 {Fore.BLUE}{zip_file_path}{Fore.RESET} {Fore.YELLOW}已存在同名 zip 文件{Fore.RESET}。")
     except FileExistsError as e:
-        print(f"{消息头.警告} {e}")
-        if input(f"{消息头.问题} 是否覆盖下载? [Y/n]: ").strip().lower() in NO:
+        print(f"{MSHead.Warning} {e}")
+        if input(f"{MSHead.Question} 是否覆盖下载? [Y/n]: ").strip().lower() in NO:
             return None
 
         # 移除同名文件
         zip_file_path.unlink()
 
     try:
-        print(f"{消息头.信息} 正在下载 {Fore.BLUE}{zip_file_name}{Fore.RESET} ...")
+        print(f"{MSHead.Information} 正在下载 {Fore.BLUE}{zip_file_name}{Fore.RESET} ...")
         response = requests.get(download_url, timeout=REQUEST_TIMEOUT)
         response.raise_for_status()
     except requests.HTTPError as e:
-        print(f"{消息头.错误} 下载 {Fore.BLUE}{download_url}{Fore.RESET} 失败: {Fore.RED}{e}{Fore.RESET}")
+        print(f"{MSHead.Error} 下载 {Fore.BLUE}{download_url}{Fore.RESET} 失败: {Fore.RED}{e}{Fore.RESET}")
         return None
 
     try:
         with open(zip_file_path, "wb") as zip_file:
             zip_file.write(response.content)
-        print(f"{消息头.成功} {Fore.BLUE}{zip_file_name}{Fore.RESET} 下载成功")
+        print(f"{MSHead.Success} {Fore.BLUE}{zip_file_name}{Fore.RESET} 下载成功")
         return zip_file_path
     except Exception as e:
-        print(f"{消息头.错误} 将响应内容写入 {Fore.BLUE}{zip_file_path}{Fore.RESET} 时遇到异常: {Fore.RED}{e}{Fore.RESET}")
+        print(f"{MSHead.Error} 将响应内容写入 {Fore.BLUE}{zip_file_path}{Fore.RESET} 时遇到异常: {Fore.RED}{e}{Fore.RESET}")
         return None
 
 
@@ -318,7 +318,7 @@ def get_validation_log_zip_from_args(args: list[str]) -> Path | None:
 
     pr_number = IssueNumber(args[0])
     if not pr_number:
-        print(f"{消息头.错误} 未能从给定的参数中获取 PR 编号")
+        print(f"{MSHead.Error} 未能从给定的参数中获取 PR 编号")
         return None
 
     result = download_validation_log_zip(
@@ -334,7 +334,7 @@ def get_validation_log_zip_from_args(args: list[str]) -> Path | None:
     )
 
     if result is None:
-        print(f"{消息头.错误} 未能获取到验证日志")
+        print(f"{MSHead.Error} 未能获取到验证日志")
 
     return result
 
@@ -361,8 +361,8 @@ def unzip_validation_log_zip(file_path: Path) -> Path:
         if dir_path.exists():
             raise FileExistsError(f"验证日志解压位置 {Fore.BLUE}{dir_path}{Fore.RESET} {Fore.YELLOW}已存在{Fore.RESET}。")
     except FileExistsError as e:
-        print(f"{消息头.警告} {e}")
-        if input(f"{消息头.问题} 是否覆盖? [Y/n]: ").strip().lower() in NO:
+        print(f"{MSHead.Warning} {e}")
+        if input(f"{MSHead.Question} 是否覆盖? [Y/n]: ").strip().lower() in NO:
             raise
 
         if dir_path.is_file():
@@ -375,7 +375,7 @@ def unzip_validation_log_zip(file_path: Path) -> Path:
     with zipfile.ZipFile(file_path) as zip_ref:
         zip_ref.extractall(dir_path)
     file_path.unlink()
-    print(f"{消息头.成功} {Fore.BLUE}{file_path.name}{Fore.RESET} 解压完成")
+    print(f"{MSHead.Success} {Fore.BLUE}{file_path.name}{Fore.RESET} 解压完成")
     return dir_path
 
 
@@ -522,12 +522,12 @@ def analyze_installation_verification_logs(dir_path: Path, detailed: bool) -> bo
                                 if matched := re.search(r"exit code (-?\d+)", line, re.IGNORECASE):
                                     find_explanation_for_error_code(matched.group(1))
                                     if matched.group(1) == "-2147467260":
-                                        print(f"{消息头.提示} 这可能是{Fore.YELLOW}验证管道的一个已知问题{Fore.RESET}导致的: https://github.com/microsoft/winget-pkgs/issues/323120")
+                                        print(f"{MSHead.Hint} 这可能是{Fore.YELLOW}验证管道的一个已知问题{Fore.RESET}导致的: https://github.com/microsoft/winget-pkgs/issues/323120")
                             case "ShellExecute installer failed" | "MSIX installer failed":
                                 if matched := re.search(f"{kw.keyword}:\\s*(-?\\d+)", line, re.IGNORECASE):
                                     find_explanation_for_error_code(matched.group(1))
                             case "Package failed updates, dependency or conflict validation.":
-                                print(f"{消息头.提示} 这可能是因为你在清单中指定的包依赖在 winget 源中并不存在，请检查并提交依赖清单。")
+                                print(f"{MSHead.Hint} 这可能是因为你在清单中指定的包依赖在 winget 源中并不存在，请检查并提交依赖清单。")
                                 find_explanation_for_error_code("80073CF3")
                             case _:
                                 pass
@@ -575,7 +575,7 @@ def find_explanation_for_error_code(exit_code: str | int):
     except TryOtherMethods:
         # 既然用户本地无法读取这个文件，就从 GitHub 上获取
         # https://github.com/microsoft/winget-pkgs/blob/master/Tools/ManualValidation/ExitCodes.csv
-        csvStr = 获取GitHub文件内容(
+        csvStr = get_github_file_content(
             "microsoft/winget-pkgs",
             "Tools/ManualValidation/ExitCodes.csv",
             read_token()
@@ -589,5 +589,5 @@ def find_explanation_for_error_code(exit_code: str | int):
         reader = csv.DictReader(exit_codes_io)
         for row in reader:
             if exit_code in [row["Hex"], row["Dec"], row["InvDec"], row["Symbol"]]:
-                print(f"{消息头.提示} 此错误代码或许代表:")
-                print(f"{消息头.提示} {" | ".join([f"Hex: {Fore.BLUE}{row['Hex']}{Fore.RESET}", f"Dec: {Fore.BLUE}{row['Dec']}{Fore.RESET}", f"InvDec: {Fore.BLUE}{row['InvDec']}{Fore.RESET}", f"Symbol: {Fore.BLUE}{row['Symbol']}{Fore.RESET}", f"Description: {Fore.BLUE}{row['Description']}{Fore.RESET}"]).replace(f"{Fore.BLUE}{exit_code}{Fore.RESET}", f"{Fore.MAGENTA}{exit_code}{Fore.RESET}")}")
+                print(f"{MSHead.Hint} 此错误代码或许代表:")
+                print(f"{MSHead.Hint} {" | ".join([f"Hex: {Fore.BLUE}{row['Hex']}{Fore.RESET}", f"Dec: {Fore.BLUE}{row['Dec']}{Fore.RESET}", f"InvDec: {Fore.BLUE}{row['InvDec']}{Fore.RESET}", f"Symbol: {Fore.BLUE}{row['Symbol']}{Fore.RESET}", f"Description: {Fore.BLUE}{row['Description']}{Fore.RESET}"]).replace(f"{Fore.BLUE}{exit_code}{Fore.RESET}", f"{Fore.MAGENTA}{exit_code}{Fore.RESET}")}")
