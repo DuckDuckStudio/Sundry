@@ -19,6 +19,14 @@ dependencies = [
 [tool.isort]
 line_length = 200
 
+[tool.mypy]
+mypy_path = "src/"
+explicit_package_bases = true
+disable_error_code = [
+    "import-untyped",
+    "name-defined",   # 未在全局定义的 global 变量，和 ty、pylint 的检查重复。
+]
+
 [tool.pylint.main]
 init-hook = 'import sys; sys.path.append("src")'
 max-line-length = 200
