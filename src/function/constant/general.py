@@ -4,6 +4,8 @@
 
 from typing import Final
 
+from function.maintain.config import 读取配置
+
 UNEXPECTED_TYPES: Final[set[str]] = {"xml", "json", "html"}
 """
 InstallerUrl 常见的意外响应类型。
@@ -27,6 +29,17 @@ PR_TOOL_NOTE: Final = f"> This PR is automatically created by [Sundry](https://g
 
 - 一般版本
 > This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) version x.x.x 🚀.
+"""
+
+_config_value = 读取配置("git.retry_interval")
+if not isinstance(_config_value, int):
+    _config_value = 50
+
+RETRY_INTERVAL: Final[int] = _config_value
+"""
+func/command/run 中的 runCommand 函数的重试间隔
+
+默认为 50，单位为秒
 """
 
 # TODO 通过配置文件设置请求超时时间
