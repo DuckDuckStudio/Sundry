@@ -27,17 +27,21 @@ type 所有配置项 = Literal[
 ]
 
 class 配置信息:
+    """
+    存放有关 Sundry 配置文件（config.json）的信息。
+    """
+
     默认配置: dict[str, Any] = {
         "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.4.json",
         "version": "1.4",
         "debug": False,
         "paths": {
-            "winget-pkgs": "",
-            "winget-tools": ""
+            "winget-pkgs": None,
+            "winget-tools": None
         },
         "repos": {
-            "winget-pkgs": "",
-            "winget-tools": ""
+            "winget-pkgs": None,
+            "winget-tools": None
         },
         "git": {
             "retry_interval": 50,
@@ -240,7 +244,7 @@ def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> s
                 return 当前字典[最后键]
             else:
                 if not 静默:
-                    print(f"{MSHead.Error} 读取配置文件失败:\n{Fore.RED}值 \"{配置项}\" 为空{Fore.RESET}")
+                    print(f"{MSHead.Error} 读取配置文件失败:\n{Fore.RED}\"{配置项}\" 的值为空 (null){Fore.RESET}")
                     print(f"{MSHead.Message} 运行 sundry config {配置项} <值> 来修改配置文件中的值")
                 return None
         except KeyError as e:
