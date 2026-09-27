@@ -8,9 +8,32 @@ import tempfile
 from pathlib import Path
 from typing import Final
 
-SUNDRY_LOCATION: Final[str] = os.path.normpath(os.path.dirname(os.path.abspath(sys.argv[0])))
+
+def _get_sundry_location() -> Path:
+    """
+    获取 Sundry 所在的目录。
+
+    Returns:
+        Path:
+            Sundry 的所在目录的绝对路径。
+
+            - 如果没有打包为 exe，则返回 `__file__/../../..`（`function/constant/path.py/../../..`）。
+            - 如果打包为 exe 了，则返回 `sys.argv[0]`。
+
+            判断逻辑依照 Pyinstaller 文档 [Run-time Informations](https://pyinstaller.org/en/stable/runtime-information.html)。
+    """
+
+    if getattr(sys, "frozen", False) and hasattr(sys, "_MEIPASS"):
+        # 已打包
+        return Path(sys.argv[0]).resolve().parent
+    else:
+        # 未打包
+        return Path(__file__).parent.parent.parent
+
+
+SUNDRY_LOCATION: Final[Path] = _get_sundry_location()
 """
-Sundry 自身的安装位置。
+Sundry 的所在目录的绝对路径。
 """
 
 SUNDRY_TEMP_DIR: Final[str] = os.path.join(tempfile.gettempdir(), "Sundry")
