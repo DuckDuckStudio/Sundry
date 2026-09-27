@@ -232,8 +232,8 @@ jobs:
           cd "$GITHUB_WORKSPACE"
           echo "[DEBUG] 运行 python ./Release/src/sundry.py sync"
           python ./Release/src/sundry.py sync || exit_code=$?
-          if [ "${exit_code:-0}" -eq 1 ]; then
-            # 403
+          if [ "${exit_code:-0}" -eq 128 ]; then
+            # fatal: could not read Username for 'https://github.com': No such device or address
             exit 0
           fi
           exit ${exit_code:-0}
