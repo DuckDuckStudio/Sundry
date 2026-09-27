@@ -9,11 +9,11 @@ from catfood.exceptions.request import RequestException
 from catfood.functions.print import MSHead
 from colorama import Fore
 
-import tools.remove as remove
 from function.constant.general import UNEXPECTED_TYPES
 from function.files.manifest import 获取清单目录, 获取现有包版本
 from function.github.pr import 检查重复拉取请求
 from function.maintain.config import 读取配置
+from tools import remove
 
 
 def main(args: list[str]) -> int:

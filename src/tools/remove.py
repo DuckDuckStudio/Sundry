@@ -15,13 +15,12 @@ from catfood.functions.print import MSHead
 from colorama import Fore
 from translate import Translator  # type: ignore
 
-import tools.cat as cat
-import tools.sync as sync
 from function.constant.general import PR_TOOL_NOTE
 from function.files.manifest import 获取清单目录, 获取现有包版本
 from function.git.format import branchName
 from function.github.token import read_token
 from function.maintain.config import 读取配置
+from tools import cat, sync
 
 
 # 创建拉取请求

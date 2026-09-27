@@ -51,25 +51,25 @@ def main() -> int:
 
     # 开源的
     if tool in ("移除", "remove"):
-        import tools.remove as remove
+        from tools import remove
         return remove.main(args)
     elif tool in ("自动移除", "autoremove"):
-        import tools.autoremove as autoremove
+        from tools import autoremove
         return autoremove.main(args)
     elif tool in ("单改", "单修改", "modify"):
-        import tools.modify as modify
+        from tools import modify
         return modify.main(args)
     elif tool in ("忽略", "检查忽略", "ignore"):
-        import tools.ignore as ignore
+        from tools import ignore
         return ignore.main(args)
     elif tool in ("sync", "同步", "synchronize", "sync-fork"):
-        import tools.sync as sync
+        from tools import sync
         return sync.main()
-    elif tool in ("prune"):
-        import tools.prune as prune
+    elif tool == "prune":
+        from tools import prune
         return prune.main()
     elif tool == "cat":
-        import tools.cat as cat
+        from tools import cat
         return cat.main(args)
     elif tool == "repr":
         import tools.repr
@@ -78,20 +78,20 @@ def main() -> int:
         from tools import logsAnalyse
         return logsAnalyse.main(args)
     elif tool in ("verify", "验证"):
-        import tools.verify as verify
+        from tools import verify
         return verify.main(args)
     # 维护
     elif tool in ("config", "配置"):
-        import tools.maintain.config as config
+        from tools.maintain import config
         return config.main(args)
     elif tool in ("还原", "revert"):
-        import tools.maintain.revert as revert
+        from tools.maintain import revert
         return revert.main(args)
     elif tool in ("fun"):
-        import tools.maintain.fun as fun
+        from tools.maintain import fun
         return fun.main(args)
     elif tool in ("清理", "cleanup", "clean"):
-        import tools.maintain.cleanup as cleanup
+        from tools.maintain import cleanup
         arg = args[0] if args else ""
         return cleanup.main(arg) # 仅接受单个 str 参数
     # 其他
