@@ -152,9 +152,16 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool) -> str
 def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
     """
     [验证/转换后的配置值]
-    读取 Sundry 配置文件的指定配置项，并返回配置值。
-    如果读取失败则返回 None。
+
+    读取 Sundry 配置文件中指定的配置项，并返回配置值。
+
+    如果读取失败则返回 `None`。
+
+    对于配置项 `debug`，一律启用静默。
     """
+
+    if 配置项 == "debug":
+        静默 = True
 
     try:
         配置值: str | bool | None = 读取配置项(配置项, 静默)
