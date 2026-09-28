@@ -169,6 +169,9 @@ def 修改配置项(配置项: str, 值: str) -> int:
         退出代码
     """
 
+    if 配置项 in ("$schema", "version"):
+        print(f"{MSHead.Warning} 理论上你不应该修改配置项 {配置项} 的值")
+
     if os.path.exists(配置信息.所在位置):
         try:
             配置值 = 转换配置值(配置项, 值)
