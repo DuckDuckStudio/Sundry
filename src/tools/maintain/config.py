@@ -3,17 +3,18 @@ import os
 from typing import Any
 
 import jsonschema
+import jsonschema.exceptions
 from catfood.constant import NO, YES
 from catfood.exceptions.operation import OperationFailed
 from catfood.functions.files import open_file
 from catfood.functions.print import MSHead
 from colorama import Fore
+from packaging.version import parse as parse_version
 from pygments import highlight  # pyright: ignore[reportUnknownVariableType]
 from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexers.data import JsonLexer  # pyright: ignore[reportMissingTypeStubs]
 
 from function.maintain.config import (
-    获取当前配置版本,
     获取配置schema,
     读取配置,
     读取配置项,
@@ -225,21 +226,25 @@ def 更新配置文件() -> int:
         return 1
 
     try:
-        当前配置版本 = 获取当前配置版本()
+        try:
+            当前配置版本 = 读取配置("version")
+            if not isinstance(当前配置版本, str):
+                raise OperationFailed
 
-        schema = 获取配置schema(当前配置版本)
-        if schema:
-            with open(配置信息.所在位置, "r") as f:
-                jsonschema.validate(json.load(f), schema)
-        else:
-            print(f"{MSHead.Warning} 未能获取到当前配置版本的 schema，跳过验证")
-    except Exception as e:
-        print(f"{MSHead.Error} 当前的配置文件似乎无效: {Fore.RED}{e}{Fore.RESET}")
-        print(f"{MSHead.Hint} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
+            if schema := 获取配置schema(当前配置版本):
+                with open(配置信息.所在位置, "r", encoding="utf-8") as f:
+                    jsonschema.validate(json.load(f), schema)
+            else:
+                print(f"{MSHead.Warning} 未能获取到当前配置版本的 schema，跳过验证")
+        except jsonschema.exceptions.ValidationError as e:
+            print(f"{MSHead.Error} 当前的配置文件似乎无效: {Fore.RED}{e}{Fore.RESET}")
+            raise OperationFailed from e
+    except OperationFailed:
+        print(f"{MSHead.Hint} 请{Fore.YELLOW}考虑{Fore.RESET}运行 {Fore.BLUE}sundry config init{Fore.RESET} 来覆盖现有的配置文件")
         return 1
 
-    if 当前配置版本 < float(配置信息.最新版本):
-        print(f"{MSHead.Information} 看起来当前的配置文件需要更新，正在尝试自动更新...")
+    if parse_version(当前配置版本) < parse_version(配置信息.最新版本):
+        print(f"{MSHead.Information} 看起来当前的配置文件需要更新 ({Fore.RED}{当前配置版本}{Fore.RESET} -> {Fore.GREEN}{配置信息.最新版本}{Fore.RESET})，正在尝试自动更新...")
     else:
         print(f"{MSHead.Message} 看起来当前的配置文件已经是最新的了")
         return 0
