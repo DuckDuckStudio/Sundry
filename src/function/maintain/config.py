@@ -8,6 +8,7 @@ from catfood.exceptions.operation import OperationFailed, TryOtherMethods
 from catfood.functions.print import MSHead
 from colorama import Fore
 
+from function.constant.general import REQUEST_TIMEOUT
 from function.constant.paths import CONFIG_FILE_PATH
 
 type 所有配置项 = Literal[
@@ -124,7 +125,7 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool) -> str
                 owner, repo = parts
                 api_url = f"https://api.github.com/repos/{owner}/{repo}"
                 try:
-                    response = requests.head(api_url)
+                    response = requests.head(api_url, timeout=REQUEST_TIMEOUT)
                     if response.status_code < 400:
                         return None
                     elif response.status_code == 404:
@@ -267,7 +268,7 @@ def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
     except Exception as e:
         try:
             print(f"{MSHead.Warning} 获取配置文件 schema 失败 ({e})，通过 https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/{版本}.json 重试...")
-            响应 = requests.get(f"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/{版本}.json")
+            响应 = requests.get(f"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/{版本}.json", timeout=REQUEST_TIMEOUT)
             响应.raise_for_status()
             print(f"{MSHead.Information} 获取配置文件 schema 成功")
             return 响应.json()

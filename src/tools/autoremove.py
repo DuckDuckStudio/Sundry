@@ -9,7 +9,7 @@ from catfood.exceptions.request import RequestException
 from catfood.functions.print import MSHead
 from colorama import Fore
 
-from function.constant.general import UNEXPECTED_TYPES
+from function.constant.general import REQUEST_TIMEOUT, UNEXPECTED_TYPES
 from function.files.manifest import 获取清单目录, 获取现有包版本
 from function.github.pr import 检查重复拉取请求
 from function.maintain.config import 读取配置
@@ -87,7 +87,7 @@ def 使用GitHubAPI检查安装程序URL(InstallerUrl: str) -> str:
         api = "/".join(api)
 
         # I am too lazy so I don't use token, just send request.
-        响应 = requests.get(api)
+        响应 = requests.get(api, timeout=REQUEST_TIMEOUT)
 
         if 响应.status_code == 404:
             return f"{Fore.YELLOW}失效{Fore.RESET} (Tag 不存在)"
@@ -150,7 +150,7 @@ def 检查所有安装程序URL(包标识符: str, 包版本: str, 在浏览器�
                     webbrowser.open(InstallerUrl)
                 try:
                     # 尝试 HEAD 下
-                    响应 = requests.head(InstallerUrl, allow_redirects=True)
+                    响应 = requests.head(InstallerUrl, allow_redirects=True, timeout=REQUEST_TIMEOUT)
                     if 400 <= 响应.status_code:
                         raise RequestException
                     else:
@@ -160,7 +160,7 @@ def 检查所有安装程序URL(包标识符: str, 包版本: str, 在浏览器�
             except RequestException:
                 try:
                     # 以 GET 方法重试
-                    响应 = requests.get(InstallerUrl, allow_redirects=True)
+                    响应 = requests.get(InstallerUrl, allow_redirects=True, timeout=REQUEST_TIMEOUT)
                     if 响应.status_code < 400:
                         检查响应类型(响应)
                     elif 响应.status_code in (401, 403, 404):

@@ -8,6 +8,7 @@ from catfood.functions.files import open_file
 from catfood.functions.print import MSHead
 from colorama import Fore
 
+from function.constant.general import REQUEST_TIMEOUT
 from function.git.format import branchName
 from function.github.token import read_token
 from function.maintain.config import 读取配置
@@ -143,7 +144,7 @@ def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = No
     if 读取配置("github.pr.maintainer_can_modify") == False:
         数据["maintainer_can_modify"] = False
     # =======================
-    response = requests.post(api, headers=请求头, json=数据)
+    response = requests.post(api, headers=请求头, json=数据, timeout=REQUEST_TIMEOUT)
     if response.status_code == 201:
         print(f"{MSHead.Success} 拉取请求创建成功: {response.json()["html_url"]}")
         subprocess.run(["gh", "pr", "edit", f"{response.json()["html_url"]}", "--add-label", "auto"], check=True)

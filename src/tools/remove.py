@@ -15,7 +15,7 @@ from catfood.functions.print import MSHead
 from colorama import Fore
 from translate import Translator  # type: ignore
 
-from function.constant.general import PR_TOOL_NOTE
+from function.constant.general import PR_TOOL_NOTE, REQUEST_TIMEOUT
 from function.files.manifest import 获取清单目录, 获取现有包版本
 from function.git.format import branchName
 from function.github.token import read_token
@@ -47,7 +47,7 @@ def 创建拉取请求(包标识符: str, 分支名: str, 版本文件夹: str, 
         if 读取配置("github.pr.maintainer_can_modify") == False:
             数据["maintainer_can_modify"] = False
 
-        response = requests.post(api, headers=请求头, json=数据)
+        response = requests.post(api, headers=请求头, json=数据, timeout=REQUEST_TIMEOUT)
         if response.status_code == 201:
             print(f"    {Fore.GREEN}拉取请求创建成功: {response.json()["html_url"]}")
             return response.json()["html_url"]
