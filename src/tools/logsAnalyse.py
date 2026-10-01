@@ -26,8 +26,8 @@ from function.constant.logsAnalyse import (
 )
 from function.constant.paths import VALIDATION_LOGS_DIR, VALIDATION_LOGS_ZIP_DIR
 from function.constant.regexes import LOGS_ZIP_DOWNLOAD_URL
-from function.github.token import read_token
 from function.maintain.config import 读取配置
+from tools.maintain.token import read_token
 
 
 def main(args: list[str]) -> Literal[0, 1]:
