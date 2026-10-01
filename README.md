@@ -377,7 +377,7 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 | modify | ✕ | 验证清单需要 WinGet，不确定如何读取 Token |
 | logs-analyse | 部分支持 | 不支持自动打开日志文件夹 |
 | verify | ✕ | 您只能在 Windows 上验证包 |
-| ignore | ✕ | 不确定如何读取 Token |
+| ignore | 部分支持 | 仅支持 `list` 操作；不确定如何读取 Token |
 | cat | ✓ |  |
 | sync | ✓ |  |
 | prune | ✓ |  |
