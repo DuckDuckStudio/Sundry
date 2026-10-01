@@ -11,8 +11,8 @@ from colorama import Fore
 
 from function.constant.general import REQUEST_TIMEOUT, RETRY_INTERVAL
 from function.git.format import branchName
-from function.github.token import read_token
 from function.maintain.config import 读取配置
+from tools.maintain.token import read_token
 
 
 def 追加忽略字段(检测程序路径: str, 忽略字段: str, 理由: str) -> bool | str:
