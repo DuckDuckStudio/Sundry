@@ -31,15 +31,26 @@ PR_TOOL_NOTE: Final = f"> This PR is automatically created by [Sundry](https://g
 > This PR is automatically created by [Sundry](https://github.com/DuckDuckStudio/Sundry/) version x.x.x 🚀.
 """
 
-_config_value = 读取配置("git.retry_interval")
-if not isinstance(_config_value, int):
-    _config_value = 50
+def _get_retry_interval() -> int:
+    """
+    尝试从 git.retry_interval 配置获取 Git 操作重试间隔秒数，
+    如果没能获取到返回默认值 50 秒。
 
-RETRY_INTERVAL: Final[int] = _config_value
+    Returns:
+        int: Git 操作重试间隔秒数，默认为 50 秒。
+    """
+
+    _config_value = 读取配置("git.retry_interval")
+    if not isinstance(_config_value, int):
+        _config_value = 50
+
+    return _config_value
+
+RETRY_INTERVAL: int
 """
-func/command/run 中的 runCommand 函数的重试间隔
+Git 操作重试间隔秒数
 
-默认为 50，单位为秒
+默认为 50 秒
 """
 
 # TODO 通过配置文件设置请求超时时间
@@ -47,3 +58,25 @@ REQUEST_TIMEOUT: Final = 30
 """
 请求超时时间（秒）
 """
+
+def __getattr__(name: str) -> int:
+    """
+    初始化需要读取配置的常量
+
+    - RETRY_INTERVAL
+
+    Args:
+        name: 读取的属性的名称
+
+    Returns:
+        int: 初始化后的值
+
+    Raises:
+        AttributeError: 意外的名称
+    """
+
+    if name == "RETRY_INTERVAL":
+        _retry_interval = _get_retry_interval()
+        globals()["RETRY_INTERVAL"] = _retry_interval
+        return _retry_interval
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
