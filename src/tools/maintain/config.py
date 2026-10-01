@@ -12,6 +12,7 @@ from pygments import highlight  # pyright: ignore[reportUnknownVariableType]
 from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexers.data import JsonLexer  # pyright: ignore[reportMissingTypeStubs]
 
+import tools.maintain.token
 from function.maintain.config import (
     获取当前配置版本,
     获取配置schema,
@@ -75,7 +76,15 @@ def 获取用户输入(配置项: str) -> str | bool | int:
     while True:
         配置值 = input(提示消息).strip()
         try:
-            return 转换配置值(配置项, 配置值)
+            配置值 = 转换配置值(配置项, 配置值)
+            if (
+                (配置项 == "github.token") and (配置值 == "keyring") and
+                (tools.maintain.token.read_token() is None) and
+                tools.maintain.token.set_token()
+            ):
+                continue
+
+            return 配置值
         except OperationFailed as e:
             print(f"{MSHead.Error} 无法转换配置值: {Fore.RED}{e}{Fore.RESET}")
 
@@ -313,6 +322,8 @@ def main(args: list[str]) -> int:
             print(f"{MSHead.Information} 配置文件 config.json 位于 {配置信息.所在位置}")
             print(f"{MSHead.Information} 尝试打开配置文件 config.json ...")
             return open_file(配置信息.所在位置)
+        elif args[0] == "token":
+            return tools.maintain.token.main(args[1] if len(args) > 1 else "")
         elif len(args) == 2:
             return 修改配置项(args[0], args[1])
         else:

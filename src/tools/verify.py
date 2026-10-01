@@ -16,8 +16,8 @@ from pygments.lexers.data import YamlLexer  # pyright: ignore[reportMissingTypeS
 
 from function.constant.paths import VERIFY_TEMP_DIR
 from function.files.manifest import 获取PR清单, 获取清单目录
-from function.github.token import read_token
 from function.maintain.config import 读取配置
+from tools.maintain.token import read_token
 
 
 def main(args: list[str]) -> int:
