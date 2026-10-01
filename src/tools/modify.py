@@ -14,7 +14,7 @@ from catfood.functions.github.api import get_github_token_owner
 from catfood.functions.print import MSHead
 from colorama import Fore
 
-from function.constant.general import PR_TOOL_NOTE
+from function.constant.general import PR_TOOL_NOTE, REQUEST_TIMEOUT
 from function.files.manifest import FormatManifest, 获取清单目录
 from function.git.format import branchName
 from function.github.token import read_token
@@ -220,7 +220,7 @@ def 创建拉取请求(分支名: str, 版本文件夹: str, 审查: str="") -> 
         if 读取配置("github.pr.maintainer_can_modify") == False:
             数据["maintainer_can_modify"] = False
 
-        response = requests.post(api, headers=请求头, json=数据)
+        response = requests.post(api, headers=请求头, json=数据, timeout=REQUEST_TIMEOUT)
         if response.status_code == 201:
             print(f"    {Fore.GREEN}拉取请求创建成功: {response.json()["html_url"]}")
             写入日志(f"    Pull request created successfully: {response.json()["html_url"]}")
