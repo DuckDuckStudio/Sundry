@@ -74,8 +74,8 @@ class 配置信息:
         return _freeze_mapping(config_dict)
 
     默认配置 = _freeze_config_dict({
-        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.3.json",
-        "version": "1.3",
+        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.4.json",
+        "version": "1.4",
         "debug": False,
         "paths": {
             "winget-pkgs": "",
@@ -160,7 +160,7 @@ class 配置信息:
         "i18n.lang",
     )
 
-    最新版本: str = "1.3"
+    最新版本: str = "1.4"
 
     所在位置: str = CONFIG_FILE_PATH
     """等同于 `from function.constant.paths import CONFIG_FILE_PATH`。"""
