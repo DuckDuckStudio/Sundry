@@ -19,9 +19,9 @@ from translate import Translator  # pyright: ignore[reportMissingTypeStubs]
 from function.constant.general import PR_TOOL_NOTE, REQUEST_TIMEOUT, RETRY_INTERVAL
 from function.files.manifest import 获取清单目录, 获取现有包版本
 from function.git.format import branchName
-from function.github.token import read_token
 from function.maintain.config import 读取配置
 from tools import cat, sync
+from tools.maintain.token import read_token
 
 
 # 创建拉取请求
