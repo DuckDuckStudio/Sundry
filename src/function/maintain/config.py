@@ -28,8 +28,8 @@ type 所有配置项 = Literal[
 
 class 配置信息:
     默认配置: dict[str, Any] = {
-        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.3.json",
-        "version": "1.3",
+        "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.4.json",
+        "version": "1.4",
         "debug": False,
         "paths": {
             "winget-pkgs": "",
@@ -90,7 +90,7 @@ class 配置信息:
         "repos.winget-tools"
     ]
 
-    最新版本: str = "1.3"
+    最新版本: str = "1.4"
 
     所在位置: str = CONFIG_FILE_PATH
     """等同于 `from function.constant.paths import CONFIG_FILE_PATH`。"""
