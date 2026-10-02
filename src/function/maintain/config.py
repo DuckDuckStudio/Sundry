@@ -145,6 +145,24 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool) -> str
     elif (配置项 == "github.token") and (配置值 not in ["glm", "komac", "env"]):
         return "未知的 Token 读取源"
 
+    elif (配置项 == "version"):
+        if isinstance(配置值, str):
+            if not (
+               (len(配置值) == 3) and
+               (配置值[0].isdigit()) and
+               (配置值[1] == '.') and
+               (配置值[2].isdigit())
+            ):
+                return "格式不正确，应是 x.y 的格式（其中 x、y 为一位非负整数）"
+
+            if (
+                (配置值[0] == '0') or
+                ((配置值[0] == '1') and (int(配置值[2]) < 1))
+            ):
+                return "弃用的配置文件版本"
+        else:
+            return f"应是字符串，但实际是 {Fore.BLUE}{type(配置值)}{Fore.RESET}"
+
     else:
         return None
 
@@ -231,28 +249,7 @@ def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> s
             print(f"{MSHead.Message} 运行 sundry config init 来初始化配置文件")
         return None
 
-def 获取当前配置版本() -> float:
-    """
-    尝试从配置文件中的 version 字段获取当前配置文件的版本，失败返回 `None`。
-
-    该函数不会输出错误，但会抛出 `ValueError`。
-    """
-
-    配置版本 = 读取配置("version", 静默=True)
-    if not isinstance(配置版本, str):
-        raise ValueError("未能获取当前配置文件版本")
-
-    try:
-        配置版本 = float(配置版本)
-    except ValueError as e:
-        raise ValueError(f"获取到的当前配置文件版本无效: ({e})")
-
-    if not (1.1 <= 配置版本):
-        raise ValueError(f"获取到的当前配置文件版本无效 ({配置版本})")
-
-    return 配置版本
-
-def 获取配置schema(版本: str | float) -> dict[str, Any] | None:
+def 获取配置schema(版本: str) -> dict[str, Any] | None:
     """
     尝试从 GitHub 仓库和网站上获取指定版本的配置文件的 json schema，获取失败返回 `None`。
 
