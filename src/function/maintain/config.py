@@ -119,23 +119,22 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool) -> str
         return None
 
     elif 配置项.startswith("repos.") and isinstance(配置值, str):
-        while True:
-            parts = 配置值.split("/")
-            if len(parts) == 2:
-                owner, repo = parts
-                api_url = f"https://api.github.com/repos/{owner}/{repo}"
-                try:
-                    response = requests.head(api_url, timeout=REQUEST_TIMEOUT)
-                    if response.status_code < 400:
-                        return None
-                    elif response.status_code == 404:
-                        return f"仓库 {Fore.BLUE}{配置值}{Fore.RESET} 不存在或没有权限访问"
-                    else:
-                        return f"无法验证仓库，GitHub API 响应 {Fore.BLUE}{response.status_code}{Fore.RESET}"
-                except Exception:
-                    return None # NOTE 避免网络问题导致的假性配置错误
-            else:
-                return "仓库格式不正确，应为 owner/repo 的格式"
+        parts = 配置值.split("/")
+        if len(parts) == 2:
+            owner, repo = parts
+            api_url = f"https://api.github.com/repos/{owner}/{repo}"
+            try:
+                response = requests.head(api_url, timeout=REQUEST_TIMEOUT)
+                if response.status_code < 400:
+                    return None
+                elif response.status_code == 404:
+                    return f"仓库 {Fore.BLUE}{配置值}{Fore.RESET} 不存在或没有权限访问"
+                else:
+                    return f"无法验证仓库，GitHub API 响应 {Fore.BLUE}{response.status_code}{Fore.RESET}"
+            except Exception:
+                return None  # NOTE 避免网络问题导致的假性配置错误
+        else:
+            return "仓库格式不正确，应为 owner/repo 的格式"
 
     elif (配置项 in 配置信息.布尔值项) and (not isinstance(配置值, bool)):
         return f"应是布尔值，但实际是 {Fore.BLUE}{type(配置值)}{Fore.RESET}"
