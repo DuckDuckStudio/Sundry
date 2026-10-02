@@ -265,7 +265,6 @@ def 更新配置文件() -> int:
                         配置值 = 读取配置项(新路径, 静默=True)
                         if (配置值 is None):
                             if (新路径 in 配置信息.必填项):
-                                from tools.maintain.config import 获取用户输入
                                 配置字典[键] = 获取用户输入(新路径)
                         else:
                             配置字典[键] = 配置值

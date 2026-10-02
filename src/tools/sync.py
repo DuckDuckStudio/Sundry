@@ -54,8 +54,8 @@ def main() -> int:
                     print(f"{Fore.BLUE}  已移除旧 master 分支")
                     subprocess.run(["git", "switch", "-c", "master"], check=True) # 创建并签出到 master 分支
                     print(f"{Fore.BLUE}  已创建并签出到 master 分支")
-                except subprocess.CalledProcessError as e:
-                    print(f"{MSHead.Error} 替换 master 分支失败:\n{Fore.RED}{e}{Fore.RESET}")
+                except subprocess.CalledProcessError as e1:
+                    print(f"{MSHead.Error} 替换 master 分支失败:\n{Fore.RED}{e1}{Fore.RESET}")
                     return 1
             else:
                 print(f"{MSHead.Message} 已取消操作")
