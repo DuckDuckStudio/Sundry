@@ -139,28 +139,28 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
                 ["winget", "show", "--id", 包标识符, "-s", "winget", "-e", "--versions"],
                 capture_output=True, text=True, check=True
             )
-        except subprocess.CalledProcessError as e:
+        except subprocess.CalledProcessError as e1:
             print(f"{MSHead.Warning} 在默认源 (winget) 中运行 WinGet 失败，尝试指定字体源 (winget-font) ...")
             if 读取配置("debug", 静默=True):
                 print(f"{MSHead.Debug} WinGet 输出")
                 print(f"{MSHead.Debug} stderr:")
-                print_multiline_with_prefix(e.stderr, MSHead.Debug)
+                print_multiline_with_prefix(e1.stderr, MSHead.Debug)
                 print(f"{MSHead.Debug} stdout:")
-                print_multiline_with_prefix(e.stdout, MSHead.Debug)
+                print_multiline_with_prefix(e1.stdout, MSHead.Debug)
 
             try:
                 结果 = subprocess.run(
                     ["winget", "show", "--id", 包标识符, "-s", "winget-font", "-e", "--versions"],
                     capture_output=True, text=True, check=True
                 )
-            except subprocess.CalledProcessError as e:
-                print(f"{MSHead.Error} 未能获取现有包版本，WinGet 又失败了 (返回 {e.returncode})")
+            except subprocess.CalledProcessError as e2:
+                print(f"{MSHead.Error} 未能获取现有包版本，WinGet 又失败了 (返回 {e2.returncode})")
                 if 读取配置("debug", 静默=True):
                     print(f"{MSHead.Debug} WinGet 输出")
                     print(f"{MSHead.Debug} stderr:")
-                    print_multiline_with_prefix(e.stderr, MSHead.Debug)
+                    print_multiline_with_prefix(e2.stderr, MSHead.Debug)
                     print(f"{MSHead.Debug} stdout:")
-                    print_multiline_with_prefix(e.stdout, MSHead.Debug)
+                    print_multiline_with_prefix(e2.stdout, MSHead.Debug)
                 return None
 
         离开始还有几行 = 3
