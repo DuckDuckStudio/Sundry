@@ -131,7 +131,7 @@ def 创建拉取请求(分支名: str, owner: str, 忽略字段: str | None = No
             "title": "chore(checker): 更新忽略字段",
             "head": f"{owner}{分支名}",
             "base": f"{owner}main",
-            "body": f"### 此 PR 由 [Sundry](https://github.com/DuckDuckStudio/Sundry/) 创建，用于向检查代码**更新**忽略字段"
+            "body": "### 此 PR 由 [Sundry](https://github.com/DuckDuckStudio/Sundry/) 创建，用于向检查代码**更新**忽略字段"
         }
     else:
         # 移除创建的 PR 会带理由
