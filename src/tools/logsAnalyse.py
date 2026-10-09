@@ -20,7 +20,6 @@ from colorama import Fore
 from function.constant.general import REQUEST_TIMEOUT
 from function.constant.logsAnalyse import (
     DETAILED_KEYWORD_MAP,
-    EXCLUDE_MAP,
     EXE_LIST_LIMIT,
     KEYWORD_MAP,
 )
@@ -35,7 +34,7 @@ def main(args: list[str]) -> Literal[0, 1]:
     `sundry logs-analyse` 命令的入口函数。
 
     Args:
-        args: `sundry logs-analyse <PR 链接/PR 编号/检查链接> [--detailed]`
+        args: `sundry logs-analyse <PR 链接/PR 编号/检查链接> [--detailed] [--keep-logs | --no-keep-logs]`
 
     Returns:
         退出代码
@@ -501,11 +500,7 @@ def analyze_installation_verification_logs(dir_path: Path, detailed: bool) -> bo
         with open(log_file, encoding="utf-8", errors="ignore") as f:
             for line in f:
                 for kw in keyword_map:
-                    exclude_substrings = EXCLUDE_MAP.get(kw.keyword, [])
-                    if (
-                        kw.matched(line, log_file.name)
-                        and (not any(exclude in line for exclude in exclude_substrings))
-                    ):
+                    if kw.matched(line, log_file.name):
                         found = True
                         highlighted_line = re.sub(
                             re.escape(kw.keyword),
