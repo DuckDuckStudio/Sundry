@@ -50,25 +50,35 @@ class LogKeyWord:
     Attributes:
         keyword: 关键词文本
         explanation: 对应的解释
+        excludes: 排除的内容
         file: 限定文件名
     """
 
     keyword: str
     explanation: Explanation
+    excludes: tuple[str, ...] | list[str] | set[str] | None = None
     file: str | None = None
 
     def matched(self, content: str, file_name: str | None = None) -> bool:
         """
         判断内容是否匹配关键词，不区分大小写。
 
+        同时排除包含该关键词对应的排除内容的内容。
+
         Args:
             content: 指定的内容
+            file_name: 内容所在的文件的名称
 
         Returns:
             bool: 是否匹配
         """
 
-        if self.keyword.lower() in content.lower():
+        if (
+            # 关键词在内容中
+            (self.keyword.lower() in content.lower())
+            # 且 对应的排除内容不在内容中
+            and ((not any(exclude in content for exclude in self.excludes)) if self.excludes else True)
+        ):
             if self.file is None:
                 return True
             elif file_name is not None:
@@ -85,7 +95,7 @@ KEYWORD_MAP: Final[tuple[LogKeyWord, ...]] = (
     LogKeyWord(
         "CmdTool: Failed with hr = 0x8050111c. Check C:\\Users\\VALIDA~1\\AppData\\Local\\Temp\\MpCmdRun.log for more information",
         Explanation("Defender 扫描失败，这不是误报，这可能和 https://github.com/microsoft/winget-pkgs/issues/399077 有关", Fore.YELLOW),
-        "Log_InstallationClient",
+        file="Log_InstallationClient",
     ),
 )
 """
@@ -97,25 +107,31 @@ InstallationVerificationLogs 中匹配的关键词。
 DETAILED_KEYWORD_MAP: Final[tuple[LogKeyWord, ...]] = (
     LogKeyWord("InternetOpenUrl() failed.", Explanation("遇到了网络错误", Fore.RED)),
     LogKeyWord("MSIX installer failed", Explanation("MSIX 安装程序失败", Fore.RED)),
-    LogKeyWord("fail", Explanation("一般错误")),
-    LogKeyWord("error", Explanation("一般错误")),
-    LogKeyWord("Exception", Explanation("异常")),
+    LogKeyWord(
+        "fail",
+        Explanation("一般错误"),
+        excludes=(
+            "Failed to open available source: msstore",  # msstore 的问题
+        ),
+    ),
+    LogKeyWord(
+        "error",
+        Explanation("一般错误"),
+        excludes=(
+            # 无关错误
+            "Standard error:",
+            "The FileSystemWatcher has detected an error",
+            "error.exe",  # 不是错误，只是名字带 error 的可执行文件。例如 Git.Git 的 C:\Program Files\Git\usr\bin\gpg-error.exe
+        ),
+    ),
+    LogKeyWord(
+        "Exception",
+        Explanation("异常"),
+        excludes=(
+            "--- End of inner exception stack trace ---",  # 不是异常描述
+        ),
+    ),
 )
 """
 InstallationVerificationLogs 在详细模式中额外匹配的关键词。
-"""
-
-EXCLUDE_MAP = {
-    "error": [
-        # 无关错误
-        "Standard error:",
-        "The FileSystemWatcher has detected an error",
-        "error.exe",  # 不是错误，只是名字带 error 的可执行文件。例如 Git.Git 的 C:\Program Files\Git\usr\bin\gpg-error.exe
-    ],
-    "fail": [
-        "Failed to open available source: msstore",  # msstore 的问题
-    ],
-}
-"""
-InstallationVerificationLogs 中匹配的关键词的排除字符串。
 """
