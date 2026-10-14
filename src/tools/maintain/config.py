@@ -103,7 +103,7 @@ def 初始化配置文件() -> int:
 
         for 键 in ("paths", "repos"):
             # 必须要用户给的配置项
-            递归获取输入(默认配置[键], 键)
+            默认配置[键]["winget-pkgs"] = 获取用户输入(f"{键}.winget-pkgs")
 
         if input(f"{MSHead.OptionalQuestion} 继续设置其他配置项? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
             for 键 in list(默认配置.keys()):
@@ -119,6 +119,10 @@ def 初始化配置文件() -> int:
 
             if input(f"{MSHead.Question} 是否修改缓存配置? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
                 递归获取输入(默认配置["cache"], "cache")
+
+            if input(f"{MSHead.OptionalQuestion} 是否使用 ({Fore.YELLOW}将在未来弃用的{Fore.RESET}) sundry ignore? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
+                for 键 in ("paths", "repos"):
+                    默认配置[键]["winget-tools"] = 获取用户输入(f"{键}.winget-tools")
 
         if not os.path.exists(os.path.dirname(配置信息.所在位置)):
             os.makedirs(os.path.dirname(配置信息.所在位置), exist_ok=True)
