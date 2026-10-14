@@ -23,7 +23,7 @@ from function.maintain.config import (
 )
 
 
-def 获取用户输入(配置项: str) -> str | bool:
+def 获取用户输入(配置项: str) -> str | bool | int:
     """
     获取用户输入的配置值，并返回转换后的配置值。
 
@@ -42,6 +42,7 @@ def 获取用户输入(配置项: str) -> str | bool:
         "repos.winget-pkgs": f"{MSHead.Question} 您的远程 winget-{Fore.YELLOW}pkgs{Fore.RESET} 仓库是什么 (owner/winget-pkgs): ",
         "repos.winget-tools": f"{MSHead.Question} 您的远程 winget-{Fore.YELLOW}tools{Fore.RESET} 仓库是什么 (owner/winget-tools): ",
         # git.*
+        "git.retry_interval": f"{MSHead.Question} 重试命令的间隔是? [间隔应为{Fore.GREEN}整数{Fore.RESET}，{Fore.RED}负数{Fore.RESET}为不重试，{Fore.YELLOW}零{Fore.RESET}为立即重试] (默认为{Fore.BLUE} 50 {Fore.RESET}秒): ",
         "git.signature": f"{MSHead.Question} 是否要为 Git 提交签名? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # github.pr.*
         "github.pr.maintainer_can_modify": f"{MSHead.Question} 是否允许维护者修改您的 PR 内容? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
