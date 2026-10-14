@@ -52,7 +52,7 @@ class 配置信息:
                 "maintainer_can_modify": False,
                 "mention_self_when_reviewer": False
             },
-            "token": "glm",
+            "token": "keyring",
         },
         "tools": {
             "autoremove": {
@@ -145,7 +145,7 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool | int) 
     elif (配置项 == "i18n.lang") and (配置值 not in ["zh-cn", "en-us"]):
         return f"不支持的语言 {Fore.BLUE}{配置值}{Fore.RESET}"
 
-    elif (配置项 == "github.token") and (配置值 not in ["glm", "komac", "env"]):
+    elif (配置项 == "github.token") and (配置值 not in ["keyring", "glm", "komac", "env"]):
         return "未知的 Token 读取源"
 
     elif (配置项 == "git.retry_interval") and (not isinstance(配置值, int)):
@@ -266,7 +266,7 @@ def 获取配置schema(版本: str) -> dict[str, Any] | None:
         # NOTE 这里的导入不要放顶级，会出现循环导入
         from catfood.functions.github.api import get_github_file_content
 
-        from function.github.token import read_token
+        from tools.maintain.token import read_token
 
         print(f"{MSHead.Information} 尝试从 GitHub API 获取配置文件 schema ...")
         schema文件 = get_github_file_content("DuckDuckStudio/yazicbs.github.io", f"Tools/Sundry/config/schema/{版本}.json", read_token(silent=True))
@@ -321,7 +321,7 @@ def 转换配置值(配置项: 所有配置项 | str, 配置值: str) -> str | b
         if not 配置值:
             # 使用默认配置值
             if 配置项 == "github.token":
-                配置值 = "glm"
+                配置值 = "keyring"
             elif 配置项 == "i18n.lang":
                 配置值 = "zh-cn"
             else:
