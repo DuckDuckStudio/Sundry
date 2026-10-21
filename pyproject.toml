@@ -54,7 +54,7 @@ pythonpath = "src"
 
 [dependency-groups]
 build = [
-    "Pillow==12.3.0",
+    "Pillow==13.0.0",
     "pyinstaller==6.22.3",
 ]
 lint = [
