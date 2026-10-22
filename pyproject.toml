@@ -3,7 +3,7 @@ name = "Sundry"
 version = "255.255.255" # 占位
 description = "Sundry 是一个 WinGet 相关的工具，帮您更方便地移除清单、修改清单、分析验证错误等。"
 authors = [{ name = "鸭鸭「カモ」" }]
-requires-python = ">=3.12"
+requires-python = ">=3.12,<3.15"
 dependencies = [
     "ajaw~=1.1.2",
     "catfood==2.3.0",
