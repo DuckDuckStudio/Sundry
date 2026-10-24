@@ -91,6 +91,13 @@ class 配置信息:
         "repos.winget-tools"
     ]
 
+    未实现项 = (
+        "tools.prune.remote.prune_merged_branches",
+        "tools.prune.remote.prune_closed_branches",
+        "tools.verify.show_warning_on_non-clean_windows",
+        "i18n.lang",
+    )
+
     最新版本: str = "1.3"
 
     所在位置: str = CONFIG_FILE_PATH
