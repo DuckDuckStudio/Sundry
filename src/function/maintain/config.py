@@ -317,7 +317,7 @@ def 转换配置值(配置项: 所有配置项 | str, 配置值: str) -> str | b
             配置值 = 配置值.lower()
         elif 配置项.startswith("paths."):
             配置值 = os.path.abspath(os.path.normpath(配置值.replace("~", os.path.expanduser("~"))))
-        elif 配置值.startswith("repos.") and 配置值.startswith("https://github.com/"):
+        elif 配置项.startswith("repos.") and 配置值.startswith("https://github.com/"):
             配置值 = 配置值.replace("https://github.com/", "").rstrip(".git")
 
         # 验证配置值
