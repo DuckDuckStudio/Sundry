@@ -98,6 +98,8 @@ def 初始化配置文件() -> int:
                 if isinstance(v, dict):
                     递归获取输入(v, 新路径)
                 else:
+                    if 新路径 in 配置信息.未实现项:
+                        continue
                     配置字典[k] = 获取用户输入(新路径)
 
         for 键 in ("paths", "repos"):
@@ -107,11 +109,10 @@ def 初始化配置文件() -> int:
         if input(f"{MSHead.OptionalQuestion} 继续设置其他配置项? (默认为{Fore.YELLOW}否{Fore.RESET}): ").lower() in YES:
             for 键 in list(默认配置.keys()):
                 if 键 in (
-                    # NOTE: 这里只能跳过顶级键，如 debug, version 等
-                    "$schema", "version", "debug", # 不需要询问用户，直接用默认值
-                    "paths", "repos", "cache", # 别的地方问过了
-                    # 暂未实现
-                    "i18n"
+                    # NOTE: 这里只能跳过顶级键，如 debug, version 等，
+                    # NOTE: 如果需要跳过具体配置，请在 递归获取输入 函数中判断。
+                    "$schema", "version", "debug",  # 不需要询问用户，直接用默认值
+                    "paths", "repos", "cache",  # 别的地方问过了
                 ):
                     continue
                 递归获取输入(默认配置[键], 键)
