@@ -90,9 +90,7 @@ class 配置信息:
 
     必填项: list[str] = [
         "paths.winget-pkgs",
-        "paths.winget-tools",
-        "repos.winget-pkgs",
-        "repos.winget-tools"
+        "repos.winget-pkgs"
     ]
 
     未实现项 = (
