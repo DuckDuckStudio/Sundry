@@ -51,6 +51,7 @@ disable = [
 
 [tool.pytest.ini_options]
 pythonpath = "src"
+strict_xfail = true
 
 [dependency-groups]
 build = [
@@ -61,9 +62,9 @@ lint = [
     "isort~=9.0",
     "pylint~=4.1",
     "ruff~=0.17",
-    "ty~=0.0.92",
+    "ty~=0.0.95",
 ]
 test = [
-    "pytest~=9.1",
+    "pytest~=9.2",
     "pytest-cov~=7.1"
 ]
