@@ -189,6 +189,9 @@ def 修改配置项(配置项: str, 值: str) -> int:
                 当前字典 = 当前字典[键]
             最后键 = 键路径列表[-1]
 
+            if 最后键 not in 当前字典:
+                raise KeyError(最后键)
+
             当前字典[最后键] = 配置值
 
             with open(配置信息.所在位置, "w", encoding="utf-8") as f:
