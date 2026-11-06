@@ -14,6 +14,7 @@ from pygments import highlight  # pyright: ignore[reportUnknownVariableType]
 from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexers.data import JsonLexer  # pyright: ignore[reportMissingTypeStubs]
 
+import tools.maintain.token
 from function.maintain.config import (
     获取配置schema,
     读取配置,
@@ -48,7 +49,7 @@ def 获取用户输入(配置项: str) -> str | bool | int:
         "github.pr.maintainer_can_modify": f"{MSHead.Question} 是否允许维护者修改您的 PR 内容? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         "github.pr.mention_self_when_reviewer": f"{MSHead.Question} 创建 PR 时，如果自己在 Auth.csv 中作为包修改的审查者时，是否在 PR 中请求自己审查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # github.token
-        "github.token": f"{MSHead.Question} 我该从哪里读取 GitHub Token? [{Fore.GREEN}glm(默认){Fore.RESET}, 环境变量 GITHUB_TOKEN (env), komac]: ",
+        "github.token": f"{MSHead.Question} 我该从哪里读取 GitHub Token? [{Fore.GREEN}keyring(默认){Fore.RESET}, 环境变量 GITHUB_TOKEN (env), komac, glm (已弃用，不推荐)]: ",
         # tools.autoremove.*
         "tools.autoremove.open_in_browser": f"{MSHead.Question} 在自动移除 (autoremove) 时，是否要在浏览器中打开清单中的安装程序链接 (InstallerUrl) 以供检查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # tools.prune.*
@@ -76,7 +77,15 @@ def 获取用户输入(配置项: str) -> str | bool | int:
     while True:
         配置值 = input(提示消息).strip()
         try:
-            return 转换配置值(配置项, 配置值)
+            配置值 = 转换配置值(配置项, 配置值)
+            if (
+                (配置项 == "github.token") and (配置值 == "keyring") and
+                (tools.maintain.token.read_token() is None) and
+                tools.maintain.token.set_token()
+            ):
+                continue
+
+            return 配置值
         except OperationFailed as e:
             print(f"{MSHead.Error} 无法转换配置值: {Fore.RED}{e}{Fore.RESET}")
 
@@ -318,6 +327,8 @@ def main(args: list[str]) -> int:
             print(f"{MSHead.Information} 配置文件 config.json 位于 {配置信息.所在位置}")
             print(f"{MSHead.Information} 尝试打开配置文件 config.json ...")
             return open_file(配置信息.所在位置)
+        elif args[0] == "token":
+            return tools.maintain.token.main(args[1] if len(args) > 1 else "")
         elif len(args) == 2:
             return 修改配置项(args[0], args[1])
         else:
