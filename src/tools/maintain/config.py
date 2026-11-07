@@ -175,20 +175,39 @@ def 修改配置项(配置项: str, 值: str) -> int:
 
     if os.path.exists(配置信息.所在位置):
         try:
-            配置值 = 转换配置值(配置项, 值)
-
             with open(配置信息.所在位置, "r", encoding="utf-8") as f:
                 配置数据 = json.load(f)
 
-            # 解析嵌套键路径
             键路径列表 = 配置项.split(".")
+            默认配置项 = 配置信息.默认配置
+
+            for 键 in 键路径列表:
+                if (
+                    (not isinstance(默认配置项, dict))  # 没有更深的嵌套字典了
+                    or (键 not in 默认配置项)  # 或当前字典中没有该键
+                ):
+                    raise KeyError(配置项)
+                # 如果你使用 Pylance（不是 Pyright），
+                # 可以删掉下面的禁用注释来看看运气，
+                # 如果运气好推断出来是 Any 就不会报错，
+                # 如果推断出来是 Any | Any 或 Any | Unknown 就会报错。
+                # 输入一些内容以刷新运气，祝你好运。
+                默认配置项 = 默认配置项[键]  # pyright: ignore[reportUnknownVariableType]
+            if isinstance(默认配置项, dict):
+                print(f"{MSHead.Error} {Fore.BLUE}{配置项}{Fore.RESET} 是一个分类，而不是一个配置项。")
+                return 1
+
             当前字典 = 配置数据
-            # NOTE 我对这里的操作不太理解，这似乎是同一个引用?
-            # NOTE 反正现在这里这样写是可以的，改当前字典会影响配置数据。
             for 键 in 键路径列表[:-1]:
+                if 键 not in 当前字典:
+                    当前字典[键] = {}
+                if not isinstance(当前字典[键], dict):
+                    # TODO 专门说明当前配置文件中有一个分类被覆盖成了一个配置项，导致无法修改的情况
+                    raise KeyError(配置项)
                 当前字典 = 当前字典[键]
             最后键 = 键路径列表[-1]
 
+            配置值 = 转换配置值(配置项, 值)
             当前字典[最后键] = 配置值
 
             with open(配置信息.所在位置, "w", encoding="utf-8") as f:
@@ -201,11 +220,11 @@ def 修改配置项(配置项: str, 值: str) -> int:
             print(f"{MSHead.Hint} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件")
             return 1
         except KeyError:
-            print(f"{MSHead.Error} 更新配置文件失败: 当前配置文件中没有键 {Fore.BLUE}{配置项}{Fore.RESET}")
+            print(f"{MSHead.Error} 未知的配置项 {Fore.BLUE}{配置项}{Fore.RESET}")
             print(f"{MSHead.Hint} 请{Fore.YELLOW}考虑{Fore.RESET}运行 sundry config init 来覆盖现有的配置文件，或通过 sundry config update 更新配置文件")
             return 1
         except Exception as e:
-            print(f"{MSHead.Error} 更新配置失败: {Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} 更新配置失败：{Fore.RED}{e}{Fore.RESET}")
             return 1
     else:
         print(f"{MSHead.Error} 配置文件不存在")
