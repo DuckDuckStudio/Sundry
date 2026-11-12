@@ -7,58 +7,20 @@ import tempfile
 import time
 import webbrowser
 
-import requests
 from catfood.constant import NO, YES
 from catfood.exceptions.operation import OperationFailed
 from catfood.functions.github.api import get_github_token_owner
 from catfood.functions.print import MSHead
 from colorama import Fore
-from translate import Translator  # type: ignore
+from translate import Translator  # pyright: ignore[reportMissingTypeStubs]
 
-from function.constant.general import PR_TOOL_NOTE, REQUEST_TIMEOUT
 from function.files.manifest import 获取清单目录, 获取现有包版本
 from function.git.format import branchName
+from function.github.pr import submitPR
 from function.github.token import read_token
 from function.maintain.config import 读取配置
 from tools import cat, sync
 
-
-# 创建拉取请求
-def 创建拉取请求(包标识符: str, 分支名: str, 版本文件夹: str, 理由: str):
-    global owner, 手动验证结果
-    while True: # 不 break 直接 return
-        github_token = read_token()
-        if not github_token:
-            print(f"{MSHead.Error} 拉取请求创建失败: Token 读取失败")
-            return 1
-
-        api = "https://api.github.com/repos/microsoft/winget-pkgs/pulls"
-        请求头 = {
-            "Authorization": f"token {github_token}",
-            "Accept": "application/vnd.github.v3+json"
-        }
-        数据: dict[str, str | bool] = {
-            "title": f"Remove version: {包标识符} version {版本文件夹} (Auto)",
-            "head": f"{owner}:{分支名}",
-            "base": "master",
-            "body": f"{PR_TOOL_NOTE}\n\n{理由}{f'\n{手动验证结果}' if 手动验证结果 else ''}\n\n---\n"
-        }
-
-        if 读取配置("github.pr.maintainer_can_modify") == False:
-            数据["maintainer_can_modify"] = False
-
-        response = requests.post(api, headers=请求头, json=数据, timeout=REQUEST_TIMEOUT)
-        if response.status_code == 201:
-            print(f"    {Fore.GREEN}拉取请求创建成功: {response.json()["html_url"]}")
-            return response.json()["html_url"]
-        else:
-            print(f"    {Fore.RED}拉取请求创建失败: {response.status_code} - {response.text}")
-            try:
-                if input(f"{MSHead.Question} 我应该重试吗[Y/N]: ").lower() not in (*YES, "应该", "重试", "retry"):
-                    return 1
-                print("正在重试...")
-            except KeyboardInterrupt:
-                return 1
 
 def main(args: list[str]) -> int:
     global 手动验证结果, owner
@@ -142,7 +104,7 @@ def main(args: list[str]) -> int:
                     手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
                     if 手动验证结果:
                         # 自动将手动验证结果翻译为英文
-                        手动验证结果 = Translator(from_lang='zh', to_lang='en').translate(手动验证结果) # type: ignore
+                        手动验证结果 = Translator(from_lang='zh', to_lang='en').translate(手动验证结果)  # pyright: ignore[reportUnknownMemberType]
                         手动验证结果 = f"{手动验证结果} (auto-translate)"
                         if input(f"自动翻译结果: {Fore.BLUE}{手动验证结果}{Fore.RESET} 正确吗? ").lower() not in (*YES, "正确", "对", "对的", ""): # 空字符串代表直接 Enter
                             手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
@@ -213,8 +175,14 @@ def main(args: list[str]) -> int:
     while (not 理由):
         理由 = input("移除此包版本的理由: ")
 
-    if 创建拉取请求(包标识符, 新分支名, 包版本, 理由) == 1:
-        return 1 # 拉取请求创建失败
+    if not submitPR(
+        branch=新分支名,
+        packageIdentifier=包标识符,
+        packageVersion=包版本,
+        doWhat="Remove version",
+        information=f"{理由}{f'\n{手动验证结果}' if 手动验证结果 else ''}"
+    ):
+        return 1  # 拉取请求创建失败
 
     print(f"{Fore.GREEN} 成功移除 {包标识符} 版本 {包版本}")
     print(f"{Fore.BLUE}开始清理工作区")
