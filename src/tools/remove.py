@@ -1,4 +1,3 @@
-import csv
 import os
 import re
 import shutil
@@ -6,18 +5,18 @@ import subprocess
 import tempfile
 import time
 import webbrowser
+from pathlib import Path
 
 from catfood.constant import NO, YES
 from catfood.exceptions.operation import OperationFailed
-from catfood.functions.github.api import get_github_token_owner
 from catfood.functions.print import MSHead
 from colorama import Fore
 from translate import Translator  # pyright: ignore[reportMissingTypeStubs]
 
-from function.files.manifest import 获取清单目录, 获取现有包版本
+from function.files.manifest import find_reviewers, 获取清单目录, 获取现有包版本
 from function.git.format import branchName
 from function.github.pr import submitPR
-from function.github.token import read_token
+from function.interactions import ask_for_reviewers
 from function.maintain.config import 读取配置
 from tools import cat, sync
 
@@ -110,27 +109,16 @@ def main(args: list[str]) -> int:
                             手动验证结果 = input("手动验证结果: ").replace("\\n", "\n")
                         手动验证结果 = f"Manual Verification:\n{手动验证结果}"
 
-            with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode='r', encoding="utf-8") as file:
-                csv_reader = csv.DictReader(file)
-                # 遍历 CSV 文件中的每一行
-                found = False # 标记是否找到了包标识符
-                for row in csv_reader:
-                    if row['PackageIdentifier'] == 包标识符:
-                        found = row['Account']
-                        break # 找到后退出循环
-
-                if found:
-                    审查者列表 = found.split('/')
-                    我是谁 = get_github_token_owner(read_token(silent=True))
-                    if not (我是谁 in 审查者列表) and (not 读取配置("github.pr.mention_self_when_reviewer")):
-                        if 我是谁 not in 审查者列表:
-                            try:
-                                input(f"{Fore.YELLOW}⚠ 看起来此包在 Auth.csv 中被要求所有者({", ".join(审查者列表)})审查，您还是想要移除此包版本吗 (这将在 PR 中 @审查者): [ENTER/CTRL+C]{Fore.RESET}")
-                            except KeyboardInterrupt:
-                                return 1
-
-                        格式化审查者 = ' , '.join([f"@{审查者}" for 审查者 in 审查者列表])
+            审查者列表 = find_reviewers(包标识符, Path(winget_pkgs目录))
+            match ask_for_reviewers(审查者列表, "移除此包版本"):
+                case "cancel":
+                    return 1
+                case "continue_with_mention":
+                    if 审查者列表:
+                        格式化审查者 = '、'.join([f"@{审查者}" for 审查者 in 审查者列表])
                         理由 = f"{理由}\n\n{格式化审查者} PTAL"
+                case "continue_without_mention":
+                    pass
 
             验证结果日志 = 使用WinGet验证(包标识符, 包版本)
             if 验证结果日志:

@@ -17,7 +17,7 @@
 | 配置项 | 作用 | 默认值 |
 |-----|-----|-----|
 | `debug` | 调试模式开关，打开后会输出一些调试信息，除非需要不建议打开 | `false` (bool) |
-| `github.pr.mention_self_when_reviewer` | 自己在 [Auth.csv](https://github.com/microsoft/winget-pkgs/blob/master/Tools/ManualValidation/Auth.csv) 中作为包修改的审查者时，是否在 PR 中请求自己审查 | `false` (bool) |
+| `github.pr.mention_self_when_reviewer` | 自己作为包修改的审查者时，是否在 PR 中请求自己审查 | `false` (bool) |
 | `cache.*` | 缓存开关，用于控制是否自动缓存某些内容 | / |
 | `cache.validate.schema` | 控制是否缓存验证清单时使用的 yaml schema | `true` (bool) |
 

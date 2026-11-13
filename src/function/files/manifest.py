@@ -1,8 +1,12 @@
 import base64
+import csv
+import fnmatch
+import json
 import os
 import shutil
 import subprocess
-from typing import Any, Literal
+from pathlib import Path
+from typing import Any, Literal, cast
 
 from catfood.exceptions.operation import TryOtherMethods
 from catfood.exceptions.request import RequestException
@@ -16,7 +20,7 @@ from function.maintain.config import 读取配置
 class 清单信息:
     """有关包清单的一些信息"""
 
-    版本列表: list[str]= ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0", "1.10.0", "1.12.0", "1.28.0"]
+    版本列表: list[str] = ["1.0.0", "1.1.0", "1.2.0", "1.3.0", "1.4.0", "1.5.0", "1.6.0", "1.7.0", "1.9.0", "1.10.0", "1.12.0", "1.28.0"]
     """包清单的所有版本（包括已弃用版本）"""
 
     旧版本列表: list[str] = 版本列表[:-1]
@@ -35,11 +39,12 @@ class 清单信息:
     ]
     """包清单的所有类型"""
 
+
 def 获取清单目录(
     包标识符: str,
     包版本: str | None = None,
     包类型: Literal["manifests", "fonts"] | None = None,
-    winget_pkgs目录: str | None = None
+    winget_pkgs目录: str | None = None,
 ) -> str | None:
     """
     依据指定的包标识符（和包版本）获取该包（版本）的清单目录。
@@ -60,9 +65,9 @@ def 获取清单目录(
     :rtype: str | None
     """
 
-    if '.' not in 包标识符:
+    if "." not in 包标识符:
         if 读取配置("debug"):
-            print(f"{MSHead.Debug} 包标识符格式不正确（应带有 \'.\'），获取到 {包标识符}")
+            print(f"{MSHead.Debug} 包标识符格式不正确（应带有 '.'），获取到 {包标识符}")
         return None
 
     if not winget_pkgs目录:
@@ -76,7 +81,9 @@ def 获取清单目录(
         if 包类型 and (类型 != 包类型):
             continue
 
-        清单目录 = os.path.join(winget_pkgs目录, 类型, 包标识符[0].lower(), *包标识符.split('.'))
+        清单目录 = os.path.join(
+            winget_pkgs目录, 类型, 包标识符[0].lower(), *包标识符.split(".")
+        )
         if 包版本:
             清单目录 = os.path.join(清单目录, 包版本)
 
@@ -86,15 +93,170 @@ def 获取清单目录(
                     print(f"{MSHead.Debug} 未能在 {类型} 目录下找到清单目录")
                 continue
 
-            if 包版本 and any(os.path.isdir(os.path.join(清单目录, item)) for item in os.listdir(清单目录)):
+            if 包版本 and any(
+                os.path.isdir(os.path.join(清单目录, item))
+                for item in os.listdir(清单目录)
+            ):
                 if 读取配置("debug"):
-                    print(f"{MSHead.Debug} 目录 {os.path.relpath(清单目录, winget_pkgs目录)} 下存在其他文件夹，不是版本文件夹")
-                    print(f"{MSHead.Hint} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的，也可能是因为 {类型} 目录下也有标识符部分相同的包")
+                    print(
+                        f"{MSHead.Debug} 目录 {os.path.relpath(清单目录, winget_pkgs目录)} 下存在其他文件夹，不是版本文件夹"
+                    )
+                    print(
+                        f"{MSHead.Hint} 这可能是因为你 {Fore.YELLOW}错误的将包标识符的一部分当作包版本{Fore.RESET} 导致的，也可能是因为 {类型} 目录下也有标识符部分相同的包"
+                    )
                 continue
 
         return 清单目录
 
     return None
+
+
+def _find_reviewers_from_dot_package_file(package_file: Path) -> list[str] | None:
+    """
+    从指定的 `.package` 文件中读取审查者列表。
+
+    会输出错误信息。
+
+    Args:
+        package_file: 指定的 `.package` 文件路径。
+
+    Returns:
+        list[str]: 读取到的审查者列表。
+        None: 读取失败或没有指定审查者。
+    """
+
+    package_data = json.loads(package_file.read_text(encoding="utf-8"))
+    if not isinstance(package_data, dict):
+        print(
+            f"{MSHead.Error} {Fore.BLUE}{package_file}{Fore.RESET} 理应包含 JSON 对象（dict），但读取到的数据类型是 {type(package_data).__name__}。"
+        )
+        return None
+    package_data = cast(dict[str, Any], package_data)
+
+    owners = package_data.get("owners", [])
+    if not isinstance(owners, list):
+        print(
+            f"{MSHead.Error} {Fore.BLUE}{package_file}{Fore.RESET} 中的 owners 理应是数组（list），但读取到的数据类型是 {type(owners).__name__}。"
+        )
+        return None
+    owners = cast(list[Any], owners)
+
+    reviewers: list[str] = []
+    for owner_data in owners:
+        if not isinstance(owner_data, dict):
+            print(
+                f"{MSHead.Error} {Fore.BLUE}{package_file}{Fore.RESET} 中的 owners 中的每个 owner 理应都是对象（dict），但第 {owners.index(owner_data) + 1} 个 owner 读取到的数据类型是 {type(owner_data).__name__}。"
+            )
+            continue
+        owner_data = cast(dict[str, Any], owner_data)
+
+        login = owner_data.get("login")
+        if login is None:
+            continue
+        if not isinstance(login, str):
+            print(
+                f"{MSHead.Error} {Fore.BLUE}{package_file}{Fore.RESET} 中的 owners 中的每个 owner 的 login 理应是字符串（str），但第 {owners.index(owner_data) + 1} 个 owner 中的 login 读取到的数据类型是 {type(login).__name__}。"
+            )
+            continue
+        if login.strip():
+            reviewers.append(login.strip())
+
+    return reviewers or None
+
+
+def _find_reviewers_from_ManualValidationPipeline_csv(
+    package_identifier: str, winget_pkgs_dir: Path
+) -> list[str] | None:
+    """
+    从 `ManualValidationPipeline.csv` 文件中查找该包的审查者。
+
+    Args:
+        package_identifier: 包标识符。
+        winget_pkgs_dir: winget-pkgs 仓库的路径。
+
+    Returns:
+        list[str]: 查找到的审查者列表。
+        None: csv 文件不存在 或 该包没有指定审查者。
+    """
+
+    csv_path: Path = (
+        winget_pkgs_dir / "Tools" / "ManualValidation" / "ManualValidationPipeline.csv"
+    )
+
+    if not csv_path.is_file():
+        return None
+
+    with open(csv_path, "r", encoding="utf-8", newline="") as file:
+        matching_rows = [
+            row
+            for row in csv.DictReader(file)
+            if row.get("PackageIdentifier")
+            and fnmatch.fnmatchcase(package_identifier, row["PackageIdentifier"])
+        ]
+
+    matching_rows.sort(key=lambda row: row["PackageIdentifier"] != package_identifier)
+    for row in matching_rows:
+        usernames = row.get("gitHubUserName", "")
+        reviewers = [
+            username.strip() for username in usernames.split("/") if username.strip()
+        ]
+        if reviewers:
+            return reviewers
+
+    return None
+
+
+def find_reviewers(
+    package_identifier: str, winget_pkgs_dir: Path | None = None
+) -> list[str] | None:
+    """
+    从 `.package` 或 `ManualValidationPipeline.csv` 中查找该包的审查者。
+
+    会输出错误信息。
+
+    Args:
+        package_identifier: 包标识符。
+        winget_pkgs_dir: （可选）如果在调用处已经有获取了 winget-pkgs 仓库的路径，则可传递此路径，避免重复读取。
+
+    Returns:
+        list[str]: 查找到的审查者列表。
+        None: 该包没有指定审查者。
+    """
+
+    if not winget_pkgs_dir:
+        # 不直接赋值是因为类型检查
+        config_value = 读取配置("paths.winget-pkgs")
+        if not isinstance(config_value, str):
+            return None
+        winget_pkgs_dir = Path(config_value)
+        del config_value
+
+    manifest_dir = 获取清单目录(
+        package_identifier, winget_pkgs目录=str(winget_pkgs_dir)
+    )
+    if manifest_dir:
+        manifest_dir = Path(manifest_dir)
+        manifest_root_dir: Path = (
+            winget_pkgs_dir / manifest_dir.relative_to(winget_pkgs_dir).parts[0]
+        )
+
+        current_dir = manifest_dir
+        while True:
+            package_file = current_dir / ".package"
+            if package_file.is_file():
+                reviewers = _find_reviewers_from_dot_package_file(package_file)
+                if reviewers:
+                    return reviewers
+                break
+
+            if current_dir == manifest_root_dir:
+                break
+            current_dir = current_dir.parent
+
+    return _find_reviewers_from_ManualValidationPipeline_csv(
+        package_identifier, winget_pkgs_dir
+    )
+
 
 def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = None) -> list[str] | None:
     """
@@ -136,11 +298,24 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
         # 从 WinGet 输出获取版本号
         try:
             结果 = subprocess.run(
-                ["winget", "show", "--id", 包标识符, "-s", "winget", "-e", "--versions"],
-                capture_output=True, text=True, check=True
+                [
+                    "winget",
+                    "show",
+                    "--id",
+                    包标识符,
+                    "-s",
+                    "winget",
+                    "-e",
+                    "--versions",
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
             )
         except subprocess.CalledProcessError as e1:
-            print(f"{MSHead.Warning} 在默认源 (winget) 中运行 WinGet 失败，尝试指定字体源 (winget-font) ...")
+            print(
+                f"{MSHead.Warning} 在默认源 (winget) 中运行 WinGet 失败，尝试指定字体源 (winget-font) ..."
+            )
             if 读取配置("debug", 静默=True):
                 print(f"{MSHead.Debug} WinGet 输出")
                 print(f"{MSHead.Debug} stderr:")
@@ -150,11 +325,24 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
 
             try:
                 结果 = subprocess.run(
-                    ["winget", "show", "--id", 包标识符, "-s", "winget-font", "-e", "--versions"],
-                    capture_output=True, text=True, check=True
+                    [
+                        "winget",
+                        "show",
+                        "--id",
+                        包标识符,
+                        "-s",
+                        "winget-font",
+                        "-e",
+                        "--versions",
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=True,
                 )
             except subprocess.CalledProcessError as e2:
-                print(f"{MSHead.Error} 未能获取现有包版本，WinGet 又失败了 (返回 {e2.returncode})")
+                print(
+                    f"{MSHead.Error} 未能获取现有包版本，WinGet 又失败了 (返回 {e2.returncode})"
+                )
                 if 读取配置("debug", 静默=True):
                     print(f"{MSHead.Debug} WinGet 输出")
                     print(f"{MSHead.Debug} stderr:")
@@ -165,7 +353,7 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
 
         离开始还有几行 = 3
         for 行 in [line for line in 结果.stdout.splitlines() if line.strip()]:
-            if (离开始还有几行 < 1):
+            if 离开始还有几行 < 1:
                 版本列表.append(行)
             if (包标识符 in 行) or (离开始还有几行 < 3):
                 离开始还有几行 -= 1
@@ -175,6 +363,7 @@ def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = Non
     else:
         print(f"{MSHead.Error} 未能获取现有包版本列表")
         return None
+
 
 def FormatManifest(Manifest: str, Comment: str = "# Created with Sundry-Locale") -> str:
     """
@@ -196,39 +385,60 @@ def FormatManifest(Manifest: str, Comment: str = "# Created with Sundry-Locale")
     for OldManifestVersion in 清单信息.旧版本列表:
         # 修改 ManifestVersion
         if f"ManifestVersion: {OldManifestVersion}" in Manifest:
-            print(f"更新 ManifestVersion: {Fore.RED}{OldManifestVersion}{Fore.RESET} -> {Fore.GREEN}{清单信息.最新版本}{Fore.RESET}")
-            Manifest = Manifest.replace(f"ManifestVersion: {OldManifestVersion}", f"ManifestVersion: {清单信息.最新版本}")
+            print(
+                f"更新 ManifestVersion: {Fore.RED}{OldManifestVersion}{Fore.RESET} -> {Fore.GREEN}{清单信息.最新版本}{Fore.RESET}"
+            )
+            Manifest = Manifest.replace(
+                f"ManifestVersion: {OldManifestVersion}",
+                f"ManifestVersion: {清单信息.最新版本}",
+            )
 
         # 修改 schema 引用，只替换版本号部分
         if f"{OldManifestVersion}.schema.json" in Manifest:
-            print(f"更新 schema 引用: {Fore.RED}{OldManifestVersion}{Fore.RESET}.schema.json -> {Fore.GREEN}{清单信息.最新版本}{Fore.RESET}.schema.json")
-            Manifest = Manifest.replace(f"{OldManifestVersion}.schema.json", f"{清单信息.最新版本}.schema.json")
+            print(
+                f"更新 schema 引用: {Fore.RED}{OldManifestVersion}{Fore.RESET}.schema.json -> {Fore.GREEN}{清单信息.最新版本}{Fore.RESET}.schema.json"
+            )
+            Manifest = Manifest.replace(
+                f"{OldManifestVersion}.schema.json", f"{清单信息.最新版本}.schema.json"
+            )
 
     # 替换工具注释
-    '''
-    判断是否 `清单文件内容`为空 或 第一行以`#`开头
-        如果是，在`清单文件内容`第一行前面追加三行工具注释与`# yaml-language-server: $schema=...`与一个空行。
-    否则，`清单文件内容`有内容且第一行以`#`开头
-        再判断`清单文件内容`第一行是否以`# yaml-language-server`开头
-            如果是，在`清单文件内容`第一行前面追加一行工具注释
-            如果不是，将`清单文件内容`第一行替换为工具注释
-    '''
+    # 判断是否 `清单文件内容`为空 或 第一行以`#`开头
+    #     如果是，在`清单文件内容`第一行前面追加三行工具注释与`# yaml-language-server: $schema=...`与一个空行。
+    # 否则，`清单文件内容`有内容且第一行以`#`开头
+    #     再判断`清单文件内容`第一行是否以`# yaml-language-server`开头
+    #         如果是，在`清单文件内容`第一行前面追加一行工具注释
+    #         如果不是，将`清单文件内容`第一行替换为工具注释
 
     # 按行分割文件内容
     lines: list[str] = Manifest.splitlines()
 
-    if (not lines) or (not lines[0].startswith("#")): # https://github.com/DuckDuckStudio/Sundry/issues/28
+    if (not lines) or (
+        not lines[0].startswith("#")
+    ):  # https://github.com/DuckDuckStudio/Sundry/issues/28
         # 如果清单文件内容为空或第一行不是以#开头
         # 第一行前面追加三行
         lines.insert(0, "")
-        if "\nManifestType: installer" in Manifest: # 安装程序清单
-            lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.{清单信息.最新版本}.schema.json")
-        elif "\nManifestType: defaultLocale" in Manifest: # 默认区域清单
-            lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.{清单信息.最新版本}.schema.json")
-        elif "\nManifestType: locale" in Manifest: # 一般区域清单
-            lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.{清单信息.最新版本}.schema.json")
-        else: # 版本清单
-            lines.insert(0, f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.{清单信息.最新版本}.schema.json")
+        if "\nManifestType: installer" in Manifest:  # 安装程序清单
+            lines.insert(
+                0,
+                f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.installer.{清单信息.最新版本}.schema.json",
+            )
+        elif "\nManifestType: defaultLocale" in Manifest:  # 默认区域清单
+            lines.insert(
+                0,
+                f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.defaultLocale.{清单信息.最新版本}.schema.json",
+            )
+        elif "\nManifestType: locale" in Manifest:  # 一般区域清单
+            lines.insert(
+                0,
+                f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.locale.{清单信息.最新版本}.schema.json",
+            )
+        else:  # 版本清单
+            lines.insert(
+                0,
+                f"# yaml-language-server: $schema=https://aka.ms/winget-manifest.version.{清单信息.最新版本}.schema.json",
+            )
         lines.insert(0, Comment)
     # 否则第一行是#开头
     else:
@@ -244,14 +454,15 @@ def FormatManifest(Manifest: str, Comment: str = "# Created with Sundry-Locale")
     Manifest = "\n".join(lines)
 
     # 确保最后有且只有一行空行
-    if not Manifest.endswith('\n'): # 如果最后没有换行符
-        Manifest += '\n' # 添加一个换行符
-    else: # 如果有了
-        Manifest = Manifest.rstrip('\n') + '\n'
+    if not Manifest.endswith("\n"):  # 如果最后没有换行符
+        Manifest += "\n"  # 添加一个换行符
+    else:  # 如果有了
+        Manifest = Manifest.rstrip("\n") + "\n"
         # 管他几个先全移除 -> 添加一个换行符
         # .rstrip() 去除文本末尾的指定字符
 
     return Manifest
+
 
 def 获取PR清单(PR编号: str, 清单目录: str, token: str | None = None) -> int:
     """
@@ -277,17 +488,21 @@ def 获取PR清单(PR编号: str, 清单目录: str, token: str | None = None) -
         return 1
 
     if os.path.exists(清单目录):
-        print(f"{MSHead.Warning} 临时清单目录下{Fore.YELLOW}已存在同名清单目录{Fore.RESET}，Sundry 将覆盖掉它。")
+        print(
+            f"{MSHead.Warning} 临时清单目录下{Fore.YELLOW}已存在同名清单目录{Fore.RESET}，Sundry 将覆盖掉它。"
+        )
         try:
             shutil.rmtree(清单目录)
         except Exception as e:
-            print(f"{MSHead.Error} 移除同名清单目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}")
+            print(
+                f"{MSHead.Error} 移除同名清单目录时出现异常:\n{Fore.RED}{e}{Fore.RESET}"
+            )
             print(f"{MSHead.Hint} 清单目录位于: {清单目录}")
             return 1
     os.makedirs(清单目录, exist_ok=True)
 
     try:
-        api = f"https://api.github.com/repos/{fork仓库}/contents/{清单文件夹路径}?ref={fork分支}" # NOTE: 这里不对 url 进行编码，因为包标识符不允许出现特殊字符/中文
+        api = f"https://api.github.com/repos/{fork仓库}/contents/{清单文件夹路径}?ref={fork分支}"  # NOTE: 这里不对 url 进行编码，因为包标识符不允许出现特殊字符/中文
         清单目录响应: list[dict[str, Any]] | None = request_github_api(api, token=token)
         if not isinstance(清单目录响应, list):
             raise RequestException(f"未获取到清单文件夹信息: {清单目录响应}")
@@ -320,6 +535,7 @@ def 获取PR清单(PR编号: str, 清单目录: str, token: str | None = None) -
     print(f"{MSHead.Success} 成功获取 PR #{PR编号} 中的清单")
     return 0
 
+
 def _获取PR清单文件夹路径(PR编号: str, token: str | None = None) -> str | None:
     """
     尝试获取 PR 中修改的清单文件夹路径。
@@ -333,7 +549,7 @@ def _获取PR清单文件夹路径(PR编号: str, token: str | None = None) -> s
     """
 
     api = f"https://api.github.com/repos/microsoft/winget-pkgs/pulls/{PR编号}/files"
-    非预期状态 = True # 如果文件状态全是移除或没有状态，则为非预期状态
+    非预期状态 = True  # 如果文件状态全是移除或没有状态，则为非预期状态
     清单文件夹 = None
     清单文件路径: list[str] = []
 
@@ -350,8 +566,12 @@ def _获取PR清单文件夹路径(PR编号: str, token: str | None = None) -> s
                     print(f"{MSHead.Error} 此 PR 修改了多个文件夹下的文件")
                     return None
             else:
-                print(f"{MSHead.Error} 非预期的清单类型: {Fore.BLUE}{文件相对路径}{Fore.RESET}")
-                print(f"{Fore.YELLOW}Hint{Fore.RESET} 请确定 PR 是对清单的修改，并确定修改的文件都是 .yaml 格式")
+                print(
+                    f"{MSHead.Error} 非预期的清单类型: {Fore.BLUE}{文件相对路径}{Fore.RESET}"
+                )
+                print(
+                    f"{Fore.YELLOW}Hint{Fore.RESET} 请确定 PR 是对清单的修改，并确定修改的文件都是 .yaml 格式"
+                )
                 return None
             if 文件["status"] != "removed":
                 非预期状态 = False
@@ -363,8 +583,11 @@ def _获取PR清单文件夹路径(PR编号: str, token: str | None = None) -> s
         print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取清单文件夹相对路径")
         return 清单文件夹
     else:
-        print(f"{MSHead.Error} 未能获取清单文件夹相对路径，请求 {Fore.BLUE}{api}{Fore.RESET} 失败。")
+        print(
+            f"{MSHead.Error} 未能获取清单文件夹相对路径，请求 {Fore.BLUE}{api}{Fore.RESET} 失败。"
+        )
         return None
+
 
 def _获取PR仓库和分支(PR编号: str, token: str | None = None) -> tuple[str, str] | None:
     """
@@ -388,7 +611,9 @@ def _获取PR仓库和分支(PR编号: str, token: str | None = None) -> tuple[s
             print(f"{Fore.GREEN}✓{Fore.RESET} 成功获取 PR HEAD 的仓库和分支")
             return fork仓库, fork分支
         except KeyError as e:
-            print(f"{MSHead.Error} 未能获取 PR HEAD 的仓库和分支: 响应中没有键 {Fore.BLUE}{e}{Fore.RESET}")
+            print(
+                f"{MSHead.Error} 未能获取 PR HEAD 的仓库和分支: 响应中没有键 {Fore.BLUE}{e}{Fore.RESET}"
+            )
             return None
     else:
         return None
