@@ -1,4 +1,3 @@
-import csv
 import ctypes
 import json
 import os
@@ -6,6 +5,7 @@ import re
 import shutil
 import subprocess
 import winreg
+from pathlib import Path
 
 import yaml
 from catfood.functions.print import MSHead
@@ -15,7 +15,7 @@ from pygments.formatters.terminal import TerminalFormatter
 from pygments.lexers.data import YamlLexer  # pyright: ignore[reportMissingTypeStubs]
 
 from function.constant.paths import VERIFY_TEMP_DIR
-from function.files.manifest import 获取PR清单, 获取清单目录
+from function.files.manifest import 获取PR清单, find_reviewers, 获取清单目录
 from function.github.token import read_token
 from function.maintain.config import 读取配置
 
@@ -97,14 +97,8 @@ def main(args: list[str]) -> int:
             print(f"{MSHead.Error} 获取清单目录失败")
             return 1
 
-        # 如果该包在 Auth.csv 中，则警告用户
-        with open(os.path.join(winget_pkgs目录, "Tools", "ManualValidation", "Auth.csv"), mode="r", encoding="utf-8") as file:
-            csv_reader = csv.DictReader(file)
-            # 遍历 CSV 文件中的每一行
-            for row in csv_reader:
-                if row["PackageIdentifier"] == 包标识符:
-                    print(f"{Fore.YELLOW}⚠ 看起来此包在 Auth.csv 中被要求所有者({row["Account"]})审查{Fore.RESET}")
-                    break # 找到后退出循环
+        if 审查者列表 := find_reviewers(包标识符, Path(winget_pkgs目录)):
+            print(f"{Fore.YELLOW}⚠ 看起来此包的修改需要 {'、'.join(审查者列表)} 的审查{Fore.RESET}")
 
     # 如果有任何一步失败了，就 return 1
     if 验证清单(清单目录):

@@ -1,8 +1,12 @@
 import base64
+import csv
+import fnmatch
+import json
 import os
 import shutil
 import subprocess
-from typing import Any, Literal
+from pathlib import Path
+from typing import Any, Literal, cast
 
 from catfood.exceptions.operation import TryOtherMethods
 from catfood.exceptions.request import RequestException
@@ -105,6 +109,153 @@ def 获取清单目录(
         return 清单目录
 
     return None
+
+
+def _find_reviewers_from_dot_package_file(package_file: Path) -> list[str] | None:
+    """
+    从指定的 `.package` 文件中读取审查者列表。
+
+    会输出错误信息。
+
+    Args:
+        package_file: 指定的 `.package` 文件路径。
+
+    Returns:
+        list[str]: 读取到的审查者列表。
+        None: 读取失败或没有指定审查者。
+    """
+
+    package_data = json.loads(package_file.read_text(encoding="utf-8"))
+    if not isinstance(package_data, dict):
+        print(
+            f"{MSHead.Error} {Fore.BLUE}{package_file}{Fore.RESET} 理应包含 JSON 对象（dict），但读取到的数据类型是 {type(package_data).__name__}。"
+        )
+        return None
+    package_data = cast(dict[str, Any], package_data)
+
+    owners = package_data.get("owners", [])
+    if not isinstance(owners, list):
+        print(
+            f"{MSHead.Error} {Fore.BLUE}{package_file}{Fore.RESET} 中的 owners 理应是数组（list），但读取到的数据类型是 {type(owners).__name__}。"
+        )
+        return None
+    owners = cast(list[Any], owners)
+
+    reviewers: list[str] = []
+    for owner_data in owners:
+        if not isinstance(owner_data, dict):
+            print(
+                f"{MSHead.Error} {Fore.BLUE}{package_file}{Fore.RESET} 中的 owners 中的每个 owner 理应都是对象（dict），但第 {owners.index(owner_data) + 1} 个 owner 读取到的数据类型是 {type(owner_data).__name__}。"
+            )
+            continue
+        owner_data = cast(dict[str, Any], owner_data)
+
+        login = owner_data.get("login")
+        if login is None:
+            continue
+        if not isinstance(login, str):
+            print(
+                f"{MSHead.Error} {Fore.BLUE}{package_file}{Fore.RESET} 中的 owners 中的每个 owner 的 login 理应是字符串（str），但第 {owners.index(owner_data) + 1} 个 owner 中的 login 读取到的数据类型是 {type(login).__name__}。"
+            )
+            continue
+        if login.strip():
+            reviewers.append(login.strip())
+
+    return reviewers or None
+
+
+def _find_reviewers_from_ManualValidationPipeline_csv(
+    package_identifier: str, winget_pkgs_dir: Path
+) -> list[str] | None:
+    """
+    从 `ManualValidationPipeline.csv` 文件中查找该包的审查者。
+
+    Args:
+        package_identifier: 包标识符。
+        winget_pkgs_dir: winget-pkgs 仓库的路径。
+
+    Returns:
+        list[str]: 查找到的审查者列表。
+        None: csv 文件不存在 或 该包没有指定审查者。
+    """
+
+    csv_path: Path = (
+        winget_pkgs_dir / "Tools" / "ManualValidation" / "ManualValidationPipeline.csv"
+    )
+
+    if not csv_path.is_file():
+        return None
+
+    with open(csv_path, "r", encoding="utf-8", newline="") as file:
+        matching_rows = [
+            row
+            for row in csv.DictReader(file)
+            if row.get("PackageIdentifier")
+            and fnmatch.fnmatchcase(package_identifier, row["PackageIdentifier"])
+        ]
+
+    matching_rows.sort(key=lambda row: row["PackageIdentifier"] != package_identifier)
+    for row in matching_rows:
+        usernames = row.get("gitHubUserName", "")
+        reviewers = [
+            username.strip() for username in usernames.split("/") if username.strip()
+        ]
+        if reviewers:
+            return reviewers
+
+    return None
+
+
+def find_reviewers(
+    package_identifier: str, winget_pkgs_dir: Path | None = None
+) -> list[str] | None:
+    """
+    从 `.package` 或 `ManualValidationPipeline.csv` 中查找该包的审查者。
+
+    会输出错误信息。
+
+    Args:
+        package_identifier: 包标识符。
+        winget_pkgs_dir: （可选）如果在调用处已经有获取了 winget-pkgs 仓库的路径，则可传递此路径，避免重复读取。
+
+    Returns:
+        list[str]: 查找到的审查者列表。
+        None: 该包没有指定审查者。
+    """
+
+    if not winget_pkgs_dir:
+        # 不直接赋值是因为类型检查
+        config_value = 读取配置("paths.winget-pkgs")
+        if not isinstance(config_value, str):
+            return None
+        winget_pkgs_dir = Path(config_value)
+        del config_value
+
+    manifest_dir = 获取清单目录(
+        package_identifier, winget_pkgs目录=str(winget_pkgs_dir)
+    )
+    if manifest_dir:
+        manifest_dir = Path(manifest_dir)
+        manifest_root_dir: Path = (
+            winget_pkgs_dir / manifest_dir.relative_to(winget_pkgs_dir).parts[0]
+        )
+
+        current_dir = manifest_dir
+        while True:
+            package_file = current_dir / ".package"
+            if package_file.is_file():
+                reviewers = _find_reviewers_from_dot_package_file(package_file)
+                if reviewers:
+                    return reviewers
+                break
+
+            if current_dir == manifest_root_dir:
+                break
+            current_dir = current_dir.parent
+
+    return _find_reviewers_from_ManualValidationPipeline_csv(
+        package_identifier, winget_pkgs_dir
+    )
 
 
 def 获取现有包版本(包标识符: str, winget_pkgs仓库: str | None = None) -> list[str] | None:

@@ -36,7 +36,7 @@
             // 是否允许维护者修改您的 PR 内容
             "maintainer_can_modify": false, // bool
 
-            // 自己在 Auth.csv 中作为包修改的审查者时，是否在 PR 中请求自己审查
+            // 自己作为包修改的审查者时，是否在 PR 中请求自己审查
             "mention_self_when_reviewer": false // bool
         }
     },
