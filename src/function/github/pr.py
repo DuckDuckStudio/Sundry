@@ -7,8 +7,8 @@ from colorama import Fore
 from requests import HTTPError
 
 from function.constant.general import PR_TOOL_NOTE
-from function.github.token import read_token
 from function.maintain.config import 读取配置
+from tools.maintain.token import read_token
 
 
 def submitPR(

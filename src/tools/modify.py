@@ -19,8 +19,8 @@ import tools.sync
 from function.constant.general import PR_TOOL_NOTE, REQUEST_TIMEOUT, RETRY_INTERVAL
 from function.files.manifest import FormatManifest, 获取清单目录
 from function.git.format import branchName
-from function.github.token import read_token
 from function.maintain.config import 读取配置
+from tools.maintain.token import read_token
 
 
 def main(args: list[str]) -> Literal[1] | Literal[0]:
