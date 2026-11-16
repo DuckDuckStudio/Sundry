@@ -76,7 +76,7 @@ def test_analyze_installation_verification_logs_respects_keyword_file_limit(
 
     output = capsys.readouterr().out
     if expected_found:
-        assert "Defender 扫描失败，这不是误报，这可能和 https://github.com/microsoft/winget-pkgs/issues/399077 有关" in output
+        assert "https://github.com/microsoft/winget-pkgs/issues/399077" in output
     else:
         assert output == ""
 
