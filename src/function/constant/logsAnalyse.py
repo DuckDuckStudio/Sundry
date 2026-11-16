@@ -92,6 +92,7 @@ KEYWORD_MAP: Final[tuple[LogKeyWord, ...]] = (
     LogKeyWord("ShellExecute installer failed", Explanation("Shell 执行安装程序失败", Fore.YELLOW)),
     LogKeyWord("Installation failed with exit code", Explanation("以非正常退出代码退出", Fore.RED)),
     LogKeyWord("Package failed updates, dependency or conflict validation.", Explanation("安装依赖错误", Fore.YELLOW)),
+    LogKeyWord("Installation didn't complete within the timeout", Explanation("安装超时", Fore.YELLOW)),
     LogKeyWord(
         "CmdTool: Failed with hr = 0x8050111c. Check C:\\Users\\VALIDA~1\\AppData\\Local\\Temp\\MpCmdRun.log for more information",
         Explanation("Defender 扫描失败，这不是误报，这可能和 https://github.com/microsoft/winget-pkgs/issues/399077 有关", Fore.YELLOW),
