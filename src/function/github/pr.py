@@ -17,7 +17,7 @@ def submitPR(
     packageVersion: str,
     doWhat: str,
     information: str | None = None,
-    token: str | None = None
+    token: str | None = None,
 ) -> bool:
     """
     向上游仓库（microsoft/winget-pkgs）提交修改拉取请求。
@@ -34,51 +34,63 @@ def submitPR(
         bool: 是否成功创建拉取请求。
     """
 
-    pkgs_repo = 读取配置("repos.winget-pkgs")
-    if not isinstance(pkgs_repo, tuple):
-        print(f"{MSHead.Error} 未能获取配置文件中的 repos.winget-pkgs")
-        return False
-    owner: str = pkgs_repo[0]
-    del pkgs_repo
-
-    jsonData: dict[str, str | bool] = {
-        "title": f"{doWhat}: {packageIdentifier} version {packageVersion}",
-        "head": f"{owner}:{branch}",
-        "base": "master",
-        "body": PR_TOOL_NOTE
-    }
-
-    if information:
-        jsonData["body"] = f"{jsonData['body']}\n\n{information}"
-
-    # 保证 PR body 最后是分割线
-    if isinstance(jsonData["body"], str) and (not jsonData["body"].rstrip('\n').endswith("---")):
-        jsonData["body"] = f"{jsonData["body"].rstrip('\n')}\n\n---\n\n"
-
-    maintainer_can_modify = 读取配置("github.pr.maintainer_can_modify")
-    if isinstance(maintainer_can_modify, bool):
-        jsonData["maintainer_can_modify"] = maintainer_can_modify
-    del maintainer_can_modify
-
     try:
+        pkgs_repo = 读取配置("repos.winget-pkgs")
+        if not isinstance(pkgs_repo, tuple):
+            raise OperationFailed(
+                "未能从配置文件获取你的 winget-pkgs 仓库（repos.winget-pkgs）"
+            )
+        owner: str = pkgs_repo[0]
+        del pkgs_repo
+
+        jsonData: dict[str, str | bool] = {
+            "title": f"{doWhat}: {packageIdentifier} version {packageVersion}",
+            "head": f"{owner}:{branch}",
+            "base": "master",
+            "body": PR_TOOL_NOTE,
+        }
+
+        if information:
+            jsonData["body"] = f"{jsonData['body']}\n\n{information}"
+
+        # 保证 PR body 最后是分割线
+        if isinstance(jsonData["body"], str) and (
+            not jsonData["body"].rstrip("\n").endswith("---")
+        ):
+            jsonData["body"] = f"{jsonData["body"].rstrip('\n')}\n\n---\n\n"
+
+        maintainer_can_modify = 读取配置("github.pr.maintainer_can_modify")
+        if isinstance(maintainer_can_modify, bool):
+            jsonData["maintainer_can_modify"] = maintainer_can_modify
+        del maintainer_can_modify
+
+        if not (token or (token := read_token())):
+            raise OperationFailed("未能获取 GitHub Token")
+
         try:
             response = request_github_api(
                 api="https://api.github.com/repos/microsoft/winget-pkgs/pulls",
                 json=jsonData,
-                token=token or read_token(),
+                token=token,
                 method="POST",
-                raiseException=True
+                raiseException=True,
             )
             if not response:
-                raise ValueError(f"catfood 的 request_github_api 函数没有返回有效的预期值，实际返回 {response!r}")
-            print(f"{MSHead.Success} 拉取请求创建成功: {response.get("html_url", f"{Fore.YELLOW}未能获取到拉取请求链接{Fore.RESET}")}")
+                raise OperationFailed(
+                    f"GitHub API 没有返回有效的预期值，实际返回 {response!r}"
+                )
+            print(
+                f"{MSHead.Success} 拉取请求创建成功: {response.get("html_url", f"{Fore.YELLOW}未能获取到拉取请求链接{Fore.RESET}")}"
+            )
             return True
         except HTTPError as e:
             response = e.response
             if response is None:
                 raise OperationFailed(f"GitHub API 请求失败，未收到响应：{e}") from e
-            raise OperationFailed(f"GitHub API 响应 {response.status_code} 错误：{response.text}") from e
-    except Exception as e:
+            raise OperationFailed(
+                f"GitHub API 响应 {response.status_code} 错误：{response.text}"
+            ) from e
+    except OperationFailed as e:
         print(f"{MSHead.Error} 创建拉取请求失败: {Fore.RED}{e}{Fore.RESET}")
         return False
 
