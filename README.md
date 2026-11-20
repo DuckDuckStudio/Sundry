@@ -12,8 +12,8 @@ Sundry 是一个 WinGet 相关的工具，帮您更方便地移除清单、修�
 winget install --id DuckStudio.Sundry --source winget --exact
 ```
 
-### Ubuntu
-[从源构建](#ubuntu-1)。  
+### 其他系统
+[从源构建](#自己构建)。
 
 ## 使用说明
 当您获取本工具后，请先使用这个命令初始化配置文件:  
@@ -389,79 +389,30 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 | cleanup | ✓ |  |
 
 ## 自己构建
-### Windows
 
 > [!TIP]
-> 仓库下有一个适用于 Windows 的[构建流](https://github.com/DuckDuckStudio/Sundry/blob/main/.github/workflows/build.yaml)，你可以 fork 后直接运行，它会将结果上传为工件。  
+> 仓库下有一个适用于 Windows 的[构建工作流](https://github.com/DuckDuckStudio/Sundry/blob/main/.github/workflows/build.yaml)，你可以 fork 后直接运行，它会将结果上传为工件。
+>
+> 这里我们使用 [uv](https://docs.astral.sh/uv/)。
 
-1. 克隆后 `cd` 到项目所在目录
-2. 安装依赖
-```pwsh
-python -m venv .venv
-& ".venv\Scripts\Activate.ps1"
-python.exe -m pip install --upgrade pip
-pip install "." --group "build"
-
-# --only-deps 的变通实现
-# 参阅 https://pip.pypa.io/en/stable/user_guide/#a-note-on-only-deps-and-requirement-requirements-from-script-and-group
-pip uninstall sundry -y
-```
-> [!TIP]
-> 如果你更喜欢用 [uv](https://docs.astral.sh/uv/)，可以运行:
-> ```pwsh
-> uv sync --group "build" --no-install-project && rm uv.lock -v
-> & ".venv\Scripts\activate.ps1"
-> ```
-3. 更新代码中的版本号
-```pwsh
-python "自动化脚本/修改版本号.py" "2025.520.1314"
-```
-4. 转换图标格式 (可选)
-```pwsh
-python "自动化脚本/png-2-ico.py"
-```
-5. 构建
-```pwsh
-pyinstaller --onefile --distpath="Release" --name="sundry.exe" "src/sundry.py" --icon "icon/Sundry.ico"
-# 如果前面没转换图标格式，参数中的图标请用 icon/Sundry.png，Pyinstaller 会尝试自己转换格式。
-```
-6. 复制所需文件
-```pwsh
-Copy-Item -Path "src/fun.txt" -Destination "Release" -Verbose
-Copy-Item -Path "LICENSE" -Destination "Release" -Verbose
-```
-7. `Release` 下就是构建结果
-
-### Ubuntu
 ```bash
-set -e
-echo "克隆源码..."
+# 克隆源码
 git clone https://github.com/DuckDuckStudio/Sundry.git
 cd Sundry
-echo "创建虚拟环境并安装依赖..."
-python3 -m venv .venv
-source .venv/bin/activate
-pip install "." --group "build"
 
-# --only-deps 的变通实现
-# 参阅 https://pip.pypa.io/en/stable/user_guide/#a-note-on-only-deps-and-requirement-requirements-from-script-and-group
-pip uninstall sundry -y
+# 创建虚拟环境并安装依赖
+uv sync --group "build"
 
-echo "构建二进制文件..."
-python3 "自动化脚本/修改版本号.py" "2025.520.1314"
-pyinstaller --onefile --distpath="Release" --name="sundry" "src/sundry.py"
-deactivate
+# 构建二进制文件
+uv run "自动化脚本/修改版本号.py" "2025.520.1314"  # 修改为你喜欢的版本号 :)
+uv run pyinstaller --onefile --distpath="Release" --name="sundry" "src/sundry.py"
+
+# 整理文件
 cp -v "src/fun.txt" "Release"
 cp -v "LICENSE" "Release"
-echo "整理文件..."
-cd ..
-cp -rv "Sundry/Release" "./Release"
-rm -rvf Sundry
 cd Release
-echo "配置 Sundry..."
+
+# 恭喜，现在我们已经完成了
+# 将结果复制到其他位置时，请带上 fun.txt！
 ./sundry ver
-./sundry config init
 ```
-
-然后 `./Release` 下就是构建结果。  
-
