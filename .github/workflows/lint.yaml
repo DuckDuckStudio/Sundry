@@ -12,7 +12,7 @@ permissions: {}
 jobs:
   lint:
     name: 运行 Lint 检查
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     env:
       PYTHONIOENCODING: utf-8
 
