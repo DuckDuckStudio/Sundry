@@ -1,0 +1,60 @@
+name: Lint
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions: {}
+
+jobs:
+  lint:
+    name: 运行 Lint 检查
+    runs-on: ubuntu-latest
+    env:
+      PYTHONIOENCODING: utf-8
+
+    steps:
+      - name: 检出代码
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: 配置 Python
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: 3.14.x  # mypy 要求
+
+      - name: 安装 uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: false
+
+      - name: 安装 Linter
+        run: uv sync --group "lint" --group "build" --group "test"
+
+      # - name: 运行 isort - 和 Ruff I001 重复并冲突
+      #   run: uv run isort --check-only .
+
+      - name: 运行 mypy
+        run: uv run mypy .
+        continue-on-error: true
+
+      - name: 运行 pylint
+        # 直接用 . 的话会 lint 到 .venv 里面的代码……
+        run: uv run pylint src tests "自动化脚本"
+        continue-on-error: true
+
+      - name: 运行 pyright
+        run: uv run pyright
+        continue-on-error: true
+
+      - name: 运行 Ruff
+        run: uv run ruff check
+        continue-on-error: true
+
+      - name: 运行 ty
+        run: uv run ty check
+        continue-on-error: true
