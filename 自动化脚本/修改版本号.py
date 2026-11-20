@@ -11,6 +11,7 @@ import sys
 # https://github.com/DuckDuckStudio/Fufu_Tools/blob/main/LICENSE
 # ===========================================================
 
+
 def 替换文件内容(文件路径: str, 原文本: str, 新文本: str):
     try:
         # 读取文件内容
@@ -26,6 +27,7 @@ def 替换文件内容(文件路径: str, 原文本: str, 新文本: str):
     except Exception as e:
         print(f"[ERROR] 处理 {文件路径} 时出错: {e}")
         return 1
+
 
 def main(args: list[str]=sys.argv) -> int:
     if len(args) != 2:
@@ -51,6 +53,7 @@ def main(args: list[str]=sys.argv) -> int:
 
     print("[INFO] 🎉 成功处理所有文件")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
