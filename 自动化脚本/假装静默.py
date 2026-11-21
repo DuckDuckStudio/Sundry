@@ -1,6 +1,8 @@
 import os
 import sys
+
 from 修改版本号 import 替换文件内容
+
 
 def main():
     源码路径 = os.path.normpath(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(sys.argv[0]))), "src", "tools", "verify.py"))
@@ -21,6 +23,7 @@ def main():
 
     print("🎉 成功修改 verify 的源码来假装它可以静默执行")
     return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())

@@ -1,5 +1,6 @@
 import os
 import sys
+
 from PIL import Image
 
 # 将 icon\Sundry.png 转为 icon\Sundry.ico
