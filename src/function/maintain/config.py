@@ -27,7 +27,12 @@ type 所有配置项 = Literal[
     "i18n.lang"
 ]
 
+
 class 配置信息:
+    """
+    存放有关 Sundry 配置文件（config.json）的信息。
+    """
+
     默认配置: dict[str, Any] = {
         "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.3.json",
         "version": "1.3",
@@ -103,6 +108,7 @@ class 配置信息:
     所在位置: str = CONFIG_FILE_PATH
     """等同于 `from function.constant.paths import CONFIG_FILE_PATH`。"""
 
+
 def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool) -> str | None:
     """
     [验证配置]
@@ -173,6 +179,7 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool) -> str
     else:
         return None
 
+
 def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
     """
     [验证/转换后的配置值]
@@ -223,6 +230,7 @@ def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None
             print(f"{MSHead.Error} 读取配置 {配置项} 失败: {Fore.RED}{e}{Fore.RESET}")
         return None
 
+
 def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> str | bool | None:
     """
     [原始字符串]
@@ -256,6 +264,7 @@ def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> s
             print(f"{MSHead.Message} 运行 sundry config init 来初始化配置文件")
         return None
 
+
 def 获取配置schema(版本: str) -> dict[str, Any] | None:
     """
     尝试从 GitHub 仓库和网站上获取指定版本的配置文件的 json schema，获取失败返回 `None`。
@@ -285,6 +294,7 @@ def 获取配置schema(版本: str) -> dict[str, Any] | None:
         except Exception:
             return None
 
+
 def 转换配置值(配置项: 所有配置项 | str, 配置值: str) -> str | bool:
     """
     尝试将输入的配置值转换为符合配置文件要求的格式，如 y → true
@@ -309,26 +319,30 @@ def 转换配置值(配置项: 所有配置项 | str, 配置值: str) -> str | b
                 return False
             else:
                 raise OperationFailed(f"{Fore.BLUE}{配置值}{Fore.RED} 不能代表是或否，请使用 y / n")
-    else:
-        if not 配置值:
-            # 使用默认配置值
-            if 配置项 == "github.token":
-                配置值 = "glm"
-            elif 配置项 == "i18n.lang":
-                配置值 = "zh-cn"
-            else:
-                raise OperationFailed("指定的配置值为空，但该配置项没有默认值")
-
-        # 格式化配置值
-        if 配置项 in ("github.token", "i18n.lang"):
-            配置值 = 配置值.lower()
-        elif 配置项.startswith("paths."):
-            配置值 = os.path.abspath(os.path.normpath(配置值.replace("~", os.path.expanduser("~"))))
-        elif 配置项.startswith("repos.") and 配置值.startswith("https://github.com/"):
+    elif 配置项.startswith("repos."):
+        if "/" not in 配置值:
+            配置值 = 配置值 + "/" + 配置项.removeprefix("repos.")
+        elif 配置值.startswith("https://github.com/"):
             配置值 = 配置值.replace("https://github.com/", "").rstrip(".git")
+        # 继续接下来的“验证配置”步骤
 
-        # 验证配置值
-        if e := 验证配置(配置项, 配置值):
-            raise OperationFailed(f"验证配置值失败: {e.replace(Fore.RESET, Fore.RED)}")
+    # 默认值
+    if not 配置值:
+        if 配置项 == "github.token":
+            配置值 = "glm"
+        elif 配置项 == "i18n.lang":
+            配置值 = "zh-cn"
         else:
-            return 配置值
+            raise OperationFailed("指定的配置值为空，但该配置项没有默认值")
+
+    # 格式化配置值
+    if 配置项 in ("github.token", "i18n.lang"):
+        配置值 = 配置值.lower()
+    elif 配置项.startswith("paths."):
+        配置值 = os.path.abspath(os.path.normpath(配置值.replace("~", os.path.expanduser("~"))))
+
+    # 验证配置值
+    if e := 验证配置(配置项, 配置值):
+        raise OperationFailed(f"验证配置值失败: {e.replace(Fore.RESET, Fore.RED)}")
+    else:
+        return 配置值
