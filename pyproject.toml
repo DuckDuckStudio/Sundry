@@ -65,6 +65,7 @@ lint = [
     "pyright~=1.1.414",
     "ruff~=0.17",
     "ty~=0.0.98",
+    "types-colorama==0.4.15.20260508",  # ty 需要这个，不然 Fore.* 会变成 int。
 ]
 test = [
     "pytest~=9.2",
