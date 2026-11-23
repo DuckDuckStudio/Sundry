@@ -79,7 +79,7 @@ class 配置信息:
         }
     }
 
-    布尔值项: list[str] = [
+    布尔值项 = (
         "debug",
         "git.signature",
         "github.pr.maintainer_can_modify", "github.pr.mention_self_when_reviewer",
@@ -87,14 +87,14 @@ class 配置信息:
         "tools.prune.remote.prune_merged_branches", "tools.prune.remote.prune_closed_branches",
         "tools.verify.show_warning_on_non-clean_windows",
         "cache.validate.schema"
-    ]
+    )
 
-    必填项: list[str] = [
+    必填项 = (
         "paths.winget-pkgs",
         "paths.winget-tools",
         "repos.winget-pkgs",
         "repos.winget-tools"
-    ]
+    )
 
     未实现项 = (
         "tools.prune.remote.prune_merged_branches",
