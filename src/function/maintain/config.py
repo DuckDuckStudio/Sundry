@@ -1,6 +1,7 @@
 import json
 import os
-from typing import Any, Literal
+from types import MappingProxyType
+from typing import Any, Literal, cast
 
 import requests
 from catfood.constant import NO, YES
@@ -33,7 +34,46 @@ class 配置信息:
     存放有关 Sundry 配置文件（config.json）的信息。
     """
 
-    默认配置: dict[str, Any] = {
+    @staticmethod
+    def _freeze_config_dict(config_dict: dict[str, Any]) -> MappingProxyType[str, Any]:
+        """
+        将配置字典冻结为不可变的 :class:`MappingProxyType`。
+
+        注意：这里使用映射代理来冻结字典，修改原始字典仍然会影响冻结后的字典。
+
+        ```python
+        d = {"x": "y"}
+        fd = MappingProxyType(d)
+
+        # 此时 fd 不可变
+        # 但 d 依旧可变，修改 d 会影响 fd！
+        ```
+
+        Args:
+            config_dict (dict[str, Any]): 需要冻结的配置字典。
+
+        Returns:
+            MappingProxyType[str, Any]: 冻结后的配置字典。
+        """
+
+        def _freeze_mapping(current_config_dict: dict[str, Any]) -> MappingProxyType[str, Any]:
+            """
+            递归地冻结嵌套的字典，将其转换为不可变的 MappingProxyType。
+
+            Args:
+                current_config_dict (dict[str, Any]): 当前要冻结的字典。
+
+            Returns:
+                MappingProxyType[str, Any]: 冻结后的字典。
+            """
+            return MappingProxyType({
+                key: _freeze_mapping(cast(dict[str, Any], value)) if isinstance(value, dict) else value
+                for key, value in current_config_dict.items()
+            })
+
+        return _freeze_mapping(config_dict)
+
+    默认配置 = _freeze_config_dict({
         "$schema": "https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/1.3.json",
         "version": "1.3",
         "debug": False,
@@ -77,7 +117,24 @@ class 配置信息:
         "i18n": {
             "lang": "zh-cn"
         }
-    }
+    })
+
+    @classmethod
+    def get_a_copy_of_the_default_config(cls) -> dict[str, Any]:
+        """
+        获取可独立修改的默认配置副本。
+
+        Returns:
+            dict[str, Any]: 可独立修改的 `配置信息.默认配置` 副本。
+        """
+
+        def _copy_mapping(current_config_dict: MappingProxyType[str, Any]) -> dict[str, Any]:
+            return {
+                key: _copy_mapping(cast(MappingProxyType[str, Any], value)) if isinstance(value, MappingProxyType) else value
+                for key, value in current_config_dict.items()
+            }
+
+        return _copy_mapping(cls.默认配置)
 
     布尔值项 = (
         "debug",
