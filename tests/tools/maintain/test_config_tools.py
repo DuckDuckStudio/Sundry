@@ -1,5 +1,4 @@
 import json
-from copy import deepcopy
 from pathlib import Path
 from typing import Literal
 
@@ -92,21 +91,6 @@ class Test初始化配置文件:
     """
     对 `tools.maintain.config` 模块中的 `初始化配置文件` 函数的测试。
     """
-
-    @pytest.fixture(autouse=True)
-    def _isolate_默认配置(self, monkeypatch: pytest.MonkeyPatch) -> None:
-        """
-        `function.maintain.config` 中定义的 `配置信息` 中的 `默认配置` 是
-        可变的 `dict`，前一个 `case` 修改后，下一个 `case` 会使用修改后的结果。
-
-        所以，在测试前，需要先将该值 Mock 为一个 `deepcopy` 的值。
-        """
-
-        monkeypatch.setattr(
-            config.配置信息,
-            "默认配置",
-            deepcopy(config.配置信息.默认配置),
-        )
 
     def test_初始化配置文件_does_not_ask_for_unimplemented_items(
         self,

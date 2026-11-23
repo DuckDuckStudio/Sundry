@@ -1,5 +1,6 @@
 import json
 import os
+from types import MappingProxyType
 from typing import Any
 
 import jsonschema
@@ -88,10 +89,10 @@ def 初始化配置文件() -> int:
     """
 
     if not os.path.exists(配置信息.所在位置) or (input(f"{MSHead.Warning} 已经存在了一份配置文件，要覆盖它吗? (默认为{Fore.GREEN}是{Fore.RESET}): ").lower() not in NO):
-        默认配置: dict[str, Any] = 配置信息.默认配置
+        默认配置: dict[str, Any] = 配置信息.get_a_copy_of_the_default_config()
 
         # 递归函数用于获取嵌套配置输入
-        def 递归获取输入(配置字典: dict[str, Any], 当前路径: str="") -> None:
+        def 递归获取输入(配置字典: dict[str, Any], 当前路径: str = "") -> None:
             for k, v in 配置字典.items():
                 新路径: str = 当前路径 + "." + k if 当前路径 else k
                 v: dict[str, Any] | str | bool
@@ -180,11 +181,11 @@ def 修改配置项(配置项: str, 值: str) -> int:
                 配置数据 = json.load(f)
 
             键路径列表 = 配置项.split(".")
-            默认配置项 = 配置信息.默认配置
+            默认配置项 = 配置信息.默认配置  # 这里没有修改，不用复制
 
             for 键 in 键路径列表:
                 if (
-                    (not isinstance(默认配置项, dict))  # 没有更深的嵌套字典了
+                    (not isinstance(默认配置项, MappingProxyType))  # 没有更深的嵌套字典了
                     or (键 not in 默认配置项)  # 或当前字典中没有该键
                 ):
                     raise KeyError(配置项)
@@ -194,9 +195,10 @@ def 修改配置项(配置项: str, 值: str) -> int:
                 # 如果推断出来是 Any | Any 或 Any | Unknown 就会报错。
                 # 输入一些内容以刷新运气，祝你好运。
                 默认配置项 = 默认配置项[键]  # pyright: ignore[reportUnknownVariableType]
-            if isinstance(默认配置项, dict):
+            if isinstance(默认配置项, MappingProxyType):
                 print(f"{MSHead.Error} {Fore.BLUE}{配置项}{Fore.RESET} 是一个分类，而不是一个配置项。")
                 return 1
+            del 默认配置项
 
             当前字典 = 配置数据
             for 键 in 键路径列表[:-1]:
@@ -270,7 +272,7 @@ def 更新配置文件() -> int:
         return 0
 
     try:
-        新配置数据 = 配置信息.默认配置
+        新配置数据 = 配置信息.get_a_copy_of_the_default_config()
 
         def 递归获取配置值(配置字典: dict[str, Any], 当前路径: str="") -> None:
             for 键, 值 in 配置字典.items():
