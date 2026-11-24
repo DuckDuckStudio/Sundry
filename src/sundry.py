@@ -88,8 +88,9 @@ def main() -> int:
         from tools.maintain import revert
         return revert.main(args)
     elif tool in ("fun"):
+        print(f"{MSHead.Warning} sundry fun 已于 Sundry 2.0.0 弃用，请改用 fcm (https://github.com/DuckDuckStudio/fcm)")
         from tools.maintain import fun
-        return fun.main(args)
+        return fun.main(args)  # pyright: ignore[reportDeprecated]  # ty: ignore[deprecated]
     elif tool in ("清理", "cleanup", "clean"):
         from tools.maintain import cleanup
         arg = args[0] if args else ""
@@ -124,7 +125,7 @@ def main() -> int:
         print("            更新配置文件: sundry config update")
         print("        还原本地仓库修改: sundry revert <仓库> <是否已提交> <是否丢弃>")
         print("        清理产生的文件: sundry cleanup <工具名>")
-        print("        fun.txt: sundry fun <random/list/edit/add/remove/import> [参数...]")
+        print("        （已弃用，请改用 fcm）fun.txt: sundry fun <random/list/edit/add/remove/import> [参数...]")
         print("    其他 Sundry 命令:")
         print("        查看版本: sundry ver")
         print("        查看帮助: sundry help")

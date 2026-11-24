@@ -1,5 +1,6 @@
 import os
 import random
+import sys
 
 from catfood.exceptions.operation import OperationFailed
 from catfood.functions.files import open_file
@@ -8,7 +9,13 @@ from colorama import Fore
 
 from function.constant.paths import FUN_TEXT_PATH
 
+if sys.version_info < (3, 13):
+    from typing_extensions import deprecated
+else:
+    from warnings import deprecated
 
+
+@deprecated("sundry fun 已弃用，请改用 fcm (https://github.com/DuckDuckStudio/fcm)")
 def main(args: list[str]) -> int:
     """
     sundry fun ...
@@ -48,11 +55,13 @@ def main(args: list[str]) -> int:
         print(f"{MSHead.Error} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
         return 1
 
+@deprecated("sundry fun open 已弃用，请改用 fcm open (https://github.com/DuckDuckStudio/fcm)")
 def 编辑fun() -> int:
     print(f"{MSHead.Information} fun.txt 位于 {FUN_TEXT_PATH}")
     print(f"{MSHead.Information} 尝试打开 fun.txt ...")
     return open_file(FUN_TEXT_PATH)
 
+@deprecated("sundry fun import 已弃用，请改用 fcm import (https://github.com/DuckDuckStudio/fcm)")
 def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
     # 导入覆盖原
     try:
@@ -101,6 +110,7 @@ def 导入fun(原fun文件: str, 导入fun文件: str) -> int:
         print(f"{MSHead.Error} 导入 {Fore.BLUE}{导入fun文件}{Fore.RESET} 到 {Fore.BLUE}{原fun文件}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
 
+@deprecated("sundry fun remove 已弃用，请改用 fcm remove (https://github.com/DuckDuckStudio/fcm)")
 def 移除fun(条目: str) -> int:
     try:
         条目 = 条目.replace("\n", "\\n")
@@ -125,6 +135,7 @@ def 移除fun(条目: str) -> int:
         print(f"{MSHead.Error} 移除 {Fore.BLUE}{条目.replace("\\n", "\n")}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
 
+@deprecated("sundry fun add 已弃用，请改用 fcm add (https://github.com/DuckDuckStudio/fcm)")
 def 添加fun(新条目: str) -> int:
     # 查重
     try:
@@ -157,6 +168,7 @@ def 添加fun(新条目: str) -> int:
         print(f"{MSHead.Error} 添加 {Fore.BLUE}{新条目.replace("\\n", "\n")}{Fore.RESET} 到 {Fore.BLUE}{FUN_TEXT_PATH}{Fore.RESET} 时发生异常:\n{Fore.RED}{e}{Fore.RESET}")
         return 1
 
+@deprecated("sundry fun random / sundry fun list 已弃用，请改用 fcm get / fcm list (https://github.com/DuckDuckStudio/fcm)")
 def 获取fun(随机: bool) -> int:
     try:
         if not os.path.exists(FUN_TEXT_PATH):

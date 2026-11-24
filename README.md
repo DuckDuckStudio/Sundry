@@ -1,13 +1,13 @@
 # Sundry
 
-[![GitHub Releases 最新版本](https://img.shields.io/github/release/DuckDuckStudio/Sundry)](https://github.com/DuckDuckStudio/Sundry/releases/latest) ![GitHub Releases 下载数](https://img.shields.io/github/downloads/DuckDuckStudio/Sundry/total.svg)  
+[![GitHub Releases 最新版本](https://img.shields.io/github/release/DuckDuckStudio/Sundry)](https://github.com/DuckDuckStudio/Sundry/releases/latest) ![GitHub Releases 下载数](https://img.shields.io/github/downloads/DuckDuckStudio/Sundry/total.svg)
 
-Sundry 是一个 WinGet 相关的工具，帮您更方便地移除清单、修改清单、分析验证错误等。  
+Sundry 是一个 WinGet 相关的工具，帮您更方便地移除清单、修改清单、分析验证错误等。
 
 ## 如何获取
 ### Windows
-可以前往 [GitHub Release](https://github.com/DuckDuckStudio/Sundry/releases) 页面下载安装程序或 zip/7z 归档。  
-或者使用 WinGet 获取:  
+可以前往 [GitHub Release](https://github.com/DuckDuckStudio/Sundry/releases) 页面下载安装程序或 zip/7z 归档。
+或者使用 WinGet 获取:
 ```bash
 winget install --id DuckStudio.Sundry --source winget --exact
 ```
@@ -16,35 +16,35 @@ winget install --id DuckStudio.Sundry --source winget --exact
 [从源构建](#自己构建)。
 
 ## 使用说明
-当您获取本工具后，请先使用这个命令初始化配置文件:  
+当您获取本工具后，请先使用这个命令初始化配置文件:
 
 ```bash
 sundry config init
 ```
 
-> 题外话: 这个配置文件就是我将其从我自己的工具变为这里的工具的方法 XD  
-> 参见 [配置文件文档](docs/config/) 了解有关配置文件的更多说明。  
+> 题外话: 这个配置文件就是我将其从我自己的工具变为这里的工具的方法 XD
+> 参见 [配置文件文档](docs/config/) 了解有关配置文件的更多说明。
 
-初始化完配置文件后用以下命令确认下:  
+初始化完配置文件后用以下命令确认下:
 
 ```bash
 sundry config show
 ```
 
-如果有任何地方不对，请使用这个命令修改对应键的值:  
+如果有任何地方不对，请使用这个命令修改对应键的值:
 
 ```bash
 sundry config "<配置项>" "<值>"
 ```
 
-> 如果你想手动编辑配置文件，请运行 `sundry config edit`。  
+> 如果你想手动编辑配置文件，请运行 `sundry config edit`。
 
 ## 可用命令
 
 <details>
   <summary><code>sundry help</code></summary>
 
-![Sundry help 命令展示图。该命令用于输出 Sundry 帮助信息。](docs/photos/README/Demo/Commands/help.png)  
+![Sundry help 命令展示图。该命令用于输出 Sundry 帮助信息。](docs/photos/README/Demo/Commands/help.png)
 
 - 别名: 任何非命令字符
 - 作用: 显示 Sundry 帮助
@@ -55,7 +55,7 @@ sundry config "<配置项>" "<值>"
 <details>
   <summary><code>sundry ver</code></summary>
 
-![Sundry ver 命令展示图。该命令用于输出 Sundry 的版本和安装位置。](docs/photos/README/Demo/Commands/ver.png)  
+![Sundry ver 命令展示图。该命令用于输出 Sundry 的版本和安装位置。](docs/photos/README/Demo/Commands/ver.png)
 
 - 别名: `ver`, `版本`, `version`, `--version`, `--ver`, `-v`
 - 作用: 显示 Sundry 版本和安装位置
@@ -66,9 +66,9 @@ sundry config "<配置项>" "<值>"
 <details>
   <summary><code>sundry remove</code></summary>
 
-![Sundry remove 命令展示图。该命令用于从上游仓库（microsoft/winget-pkgs）中移除一个指定的包的指定版本，并带上理由（如果有）后自动创建拉取请求。](docs/photos/README/Demo/Commands/remove.png)  
+![Sundry remove 命令展示图。该命令用于从上游仓库（microsoft/winget-pkgs）中移除一个指定的包的指定版本，并带上理由（如果有）后自动创建拉取请求。](docs/photos/README/Demo/Commands/remove.png)
 
-> 截图来自拉取请求: https://github.com/microsoft/winget-pkgs/pull/265074  
+> 截图来自拉取请求: https://github.com/microsoft/winget-pkgs/pull/265074
 
 - 别名: `移除`, `remove`
 - 作用: **移除一个指定的包的指定版本**，并在移除前自动检查该版本是否确实存在问题。可以指定理由或跳过自动检查。**默认理由为“安装程序URL在GitHub Action上返回了404”。**
@@ -85,7 +85,7 @@ sundry config "<配置项>" "<值>"
 <details>
   <summary><code>sundry autoremove</code></summary>
 
-![Sundry autoremove 命令展示图。该命令用于自动检查并移除指定包标识符下的失效版本。](docs/photos/README/Demo/Commands/autoremove.png)  
+![Sundry autoremove 命令展示图。该命令用于自动检查并移除指定包标识符下的失效版本。](docs/photos/README/Demo/Commands/autoremove.png)
 
 - 别名: `自动移除`, `autoremove`
 - 作用: 自动检查并移除指定包标识符下的失效版本。
@@ -100,7 +100,7 @@ sundry config "<配置项>" "<值>"
 <details>
   <summary><code>sundry modify</code></summary>
 
-![Sundry modify 命令展示图。该命令用于帮助用户打开需要修改的那个包的那个版本，并在修改完毕后自动向上游仓库（microsoft/winget-pkgs）提交拉取请求。](docs/photos/README/Demo/Commands/modify.png)  
+![Sundry modify 命令展示图。该命令用于帮助用户打开需要修改的那个包的那个版本，并在修改完毕后自动向上游仓库（microsoft/winget-pkgs）提交拉取请求。](docs/photos/README/Demo/Commands/modify.png)
 
 - 别名: `单改`, `单修改`, `modify`
 - 作用: **修改一个指定的包的指定版本的清单**，并在修改完后自动提交拉取请求。
@@ -109,12 +109,12 @@ sundry config "<配置项>" "<值>"
   - 基本: `sundry modify XBMCFoundation.Kodi 18.2.0.0 ` (https://github.com/microsoft/winget-pkgs/pull/267613)
   - 指定理由: `sundry modify XBMCFoundation.Kodi 18.3.0.0 "替换 HTTP 为 HTTPS"` (https://github.com/microsoft/winget-pkgs/pull/267614)
   - 链接议题: `sundry modify DuckStudio.Sundry 1.2.6 "https://github.com/microsoft/winget-pkgs/issues/267539"`
-  - 指定理由的同时链接议题: 
+  - 指定理由的同时链接议题:
     ```pwsh
     sundry modify DuckStudio.Sundry 1.2.6 "一些修改。
     - Resolves https://github.com/microsoft/winget-pkgs/issues/267539"
     ```
-    > GitHub Docs: [使用关键词将拉取请求链接到议题](https://docs.github.com/zh/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)  
+    > GitHub Docs: [使用关键词将拉取请求链接到议题](https://docs.github.com/zh/issues/tracking-your-work-with-issues/using-issues/linking-a-pull-request-to-an-issue#linking-a-pull-request-to-an-issue-using-a-keyword)
 
 </details>
 
@@ -122,10 +122,10 @@ sundry config "<配置项>" "<值>"
 <details>
   <summary><code>sundry logs-analyse</code></summary>
 
-![Sundry logs-analyse 命令展示图。该命令用于分析验证日志，自动查找哪里失败了。](docs/photos/README/Demo/Commands/logs-analyse.png)  
+![Sundry logs-analyse 命令展示图。该命令用于分析验证日志，自动查找哪里失败了。](docs/photos/README/Demo/Commands/logs-analyse.png)
 
 > [!TIP]
-> [自 2026 年 8 月 10 日起，验证改为通过 GitHub App 进行](https://github.com/microsoft/winget-pkgs/issues/263724)，原先通过 ADO 进行的方式已弃用。  
+> [自 2026 年 8 月 10 日起，验证改为通过 GitHub App 进行](https://github.com/microsoft/winget-pkgs/issues/263724)，原先通过 ADO 进行的方式已弃用。
 > Sundry 自版本 1.9.0 起不再支持分析 ADO 验证的日志，如果你需要分析 ADO 验证的日志，请使用 Sundry 的旧版本。
 
 - 别名: `日志分析`, `logs-analyse`, `log-analyse`, `logs_analyse`, `logs`, `log`
@@ -147,7 +147,7 @@ sundry config "<配置项>" "<值>"
 1. 验证还在运行
 2. 日志已过期
 
-Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。  
+Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 
 > 分析结果前面的标识是什么意思？
 
@@ -171,10 +171,10 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 <details>
   <summary><code>sundry verify</code></summary>
 
-![Sundry verify 命令展示图。该命令用于测试本地或 PR 上的清单的安装和卸载，并获取注册表变更。](docs/photos/README/Demo/Commands/verify.png)  
+![Sundry verify 命令展示图。该命令用于测试本地或 PR 上的清单的安装和卸载，并获取注册表变更。](docs/photos/README/Demo/Commands/verify.png)
 
-> 截图是在 Hyper-V Windows 10 x64 虚拟机上的测试。  
-> 虽然他们已经换成了 Windows 11 虚拟机，不过我觉得也没啥差别，Sundry 也可以在 Windows 11 虚拟机上使用。  
+> 截图是在 Hyper-V Windows 10 x64 虚拟机上的测试。
+> 虽然他们已经换成了 Windows 11 虚拟机，不过我觉得也没啥差别，Sundry 也可以在 Windows 11 虚拟机上使用。
 
 - 别名: `verify`, `验证`
 - 作用: **用于测试本地或 PR 上的清单的安装和卸载，并获取 ARP 条目变更。**
@@ -188,15 +188,15 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
   - 测试 PR 清单: `sundry verify <PR链接>`
 
 > [!NOTE]
-> 1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了，GitHub API 会响应 404 Not Found。  
-> 2. 它暂时**无法获取 `UpgradeCode`**。  
+> 1. **它只能获取 HEAD 分支没被删除的 PR 的清单**，如果 HEAD 分支被删除了，GitHub API 会响应 404 Not Found。
+> 2. 它暂时**无法获取 `UpgradeCode`**。
 
 </details>
 
 <details>
   <summary><code>sundry ignore</code></summary>
 
-![Sundry ignore 命令展示图。该命令用于管理 winget-tools 中的检测脚本的忽略字段。](docs/photos/README/Demo/Commands/ignore.png)  
+![Sundry ignore 命令展示图。该命令用于管理 winget-tools 中的检测脚本的忽略字段。](docs/photos/README/Demo/Commands/ignore.png)
 
 - 别名: `忽略`, `检查忽略`, `ignore`
 - 作用: **管理 [winget-tools](https://github.com/DuckDuckStudio/winget-tools/) 中的检测脚本的忽略字段。**
@@ -207,8 +207,8 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
   - 编辑忽略字段: `sundry ignore edit`
   - 列出所有忽略字段: `sundry ignore list`
 
-> [!WARNING]  
-> 该命令计划在未来的 Sundry 中移除。  
+> [!WARNING]
+> 该命令计划在未来的 Sundry 中移除。
 
 </details>
 
@@ -216,7 +216,7 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 <details>
   <summary><code>sundry cat</code></summary>
 
-![Sundry cat 命令展示图。该命令用于获取指定包标识符的指定版本的清单，可以指定获取所有清单或某个类型的清单。](docs/photos/README/Demo/Commands/cat.png)  
+![Sundry cat 命令展示图。该命令用于获取指定包标识符的指定版本的清单，可以指定获取所有清单或某个类型的清单。](docs/photos/README/Demo/Commands/cat.png)
 
 - 别名: 没有别名，只能用 `cat`。
 - 作用: **获取指定包标识符的指定版本的清单**，可以指定获取所有清单或某个类型的清单。
@@ -240,11 +240,11 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 <details>
   <summary><code>sundry prune</code></summary>
 
-![Sundry prune 命令展示图。该命令用于清理仓库远程已删除的分支。](docs/photos/README/Demo/Commands/prune.png)  
+![Sundry prune 命令展示图。该命令用于清理仓库远程已删除的分支。](docs/photos/README/Demo/Commands/prune.png)
 
 - 别名: 没有别名，只能用 `prune`。
 - 作用: **清理仓库远程已删除的分支。**
-  - 等效于:  
+  - 等效于:
     ```bash
     cd $winget_pkgs
     git remote prune origin
@@ -260,7 +260,7 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 <details>
   <summary><code>sundry sync</code></summary>
 
-![Sundry sync 命令展示图。该命令用于同步 fork 仓库和上游仓库的修改。](docs/photos/README/Demo/Commands/sync.png)  
+![Sundry sync 命令展示图。该命令用于同步 fork 仓库和上游仓库的修改。](docs/photos/README/Demo/Commands/sync.png)
 
 - 别名: `sync`, `同步`, `synchronize`, `sync-fork`
 - 作用: **同步 fork 仓库和上游仓库的修改。**
@@ -273,7 +273,7 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 <details>
   <summary><code>sundry repr</code></summary>
 
-![Sundry repr 命令展示图。该命令用于显示字符串的真面目，就像\n那种。](docs/photos/README/Demo/Commands/repr.png)  
+![Sundry repr 命令展示图。该命令用于显示字符串的真面目，就像\n那种。](docs/photos/README/Demo/Commands/repr.png)
 
 - 别名: 没有别名，只能用 `repr`。
 - 作用: 等效于 Python 的 `repr()`，用于获取字符串真实的样子。
@@ -293,7 +293,7 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 <details>
   <summary><code>sundry config</code></summary>
 
-![Sundry config 命令展示图。该命令用于管理 Sundry 配置。](docs/photos/README/Demo/Commands/config.png)  
+![Sundry config 命令展示图。该命令用于管理 Sundry 配置。](docs/photos/README/Demo/Commands/config.png)
 
 - 别名: `config`, `配置`
 - 作用: 管理 Sundry 配置。
@@ -313,7 +313,7 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 <details>
   <summary><code>sundry revert</code></summary>
 
-![Sundry revert 命令展示图。该命令用于还原本地仓库的修改，如果 Sundry 在修改的某个过程中崩溃了，则可以使用此命令还原 Sundry 做的修改。](docs/photos/README/Demo/Commands/revert.png)  
+![Sundry revert 命令展示图。该命令用于还原本地仓库的修改，如果 Sundry 在修改的某个过程中崩溃了，则可以使用此命令还原 Sundry 做的修改。](docs/photos/README/Demo/Commands/revert.png)
 
 - 别名: `还原`, `revert`
 - 作用: **还原本地仓库的修改**，如果 Sundry 在修改的某个过程中崩溃了，则可以使用此命令还原 Sundry 做的修改。
@@ -329,7 +329,10 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 <details>
   <summary><code>sundry fun</code></summary>
 
-![Sundry fun 命令展示图。该命令用于管理 Sundry 的 fun.txt](docs/photos/README/Demo/Commands/fun.png)  
+![Sundry fun 命令展示图。该命令用于管理 Sundry 的 fun.txt](docs/photos/README/Demo/Commands/fun.png)
+
+> [!WARNING]
+> `sundry fun` 已于 [Sundry 2.0.0](https://github.com/DuckDuckStudio/Sundry/releases/tag/2.0.0) 弃用，请改用 [fcm](https://github.com/DuckDuckStudio/fcm/)。
 
 - 别名: 没有别名，只能用 `fun`。
 - 作用: **管理 Sundry 的 `fun.txt`。**
@@ -354,7 +357,7 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 <details>
   <summary><code>sundry cleanup</code></summary>
 
-![Sundry cleanup 命令展示图。该命令用于清理 Sundry 的各个工具运行时产生的文件。](docs/photos/README/Demo/Commands/cleanup.png)  
+![Sundry cleanup 命令展示图。该命令用于清理 Sundry 的各个工具运行时产生的文件。](docs/photos/README/Demo/Commands/cleanup.png)
 
 - 别名: `清理`, `cleanup`, `clean`
 - 作用: **清理 Sundry 的各个工具运行时产生的文件。**
