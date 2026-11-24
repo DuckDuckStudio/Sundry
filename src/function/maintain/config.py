@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 from types import MappingProxyType
 from typing import Any, Literal, cast
 
@@ -10,6 +11,17 @@ from catfood.functions.print import MSHead
 from colorama import Fore
 
 from function.constant.paths import CONFIG_FILE_PATH
+
+if sys.version_info < (3, 15):
+    # https://docs.python.org/3.15/builtins/functions.html#sentinel
+    # Sentinel == sentinel
+    # 不知道你们是怎么了，一直报错。
+    from typing_extensions import sentinel  # pylint: disable=redefined-builtin / W0622
+
+DO_NOT_USE = sentinel("DO_NOT_USE")
+"""
+`github.token` 为 `null`，要求不使用 GitHub Token。
+"""
 
 type 所有配置项 = Literal[
     "$schema",
@@ -164,7 +176,7 @@ class 配置信息:
     """等同于 `from function.constant.paths import CONFIG_FILE_PATH`。"""
 
 
-def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool | int) -> str | None:
+def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool | int | DO_NOT_USE) -> str | None:
     """
     验证指定的配置项和配置值的配对是否有效。
 
@@ -184,7 +196,7 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool | int) 
 
     if 配置项.startswith("paths.") and isinstance(配置值, str):
         配置值 = os.path.normpath(配置值)
-        if (not os.path.exists(配置值)):
+        if not os.path.exists(配置值):
             return f"目录 {Fore.BLUE}{配置值}{Fore.RESET} 不存在"
         return None
 
@@ -195,6 +207,7 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool | int) 
             api_url = f"https://api.github.com/repos/{owner}/{repo}"
             try:
                 from function.constant.general import REQUEST_TIMEOUT
+
                 response = requests.head(api_url, timeout=REQUEST_TIMEOUT)
                 if response.status_code < 400:
                     return None
@@ -213,13 +226,13 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool | int) 
     elif (配置项 == "i18n.lang") and (配置值 not in ["zh-cn", "en-us"]):
         return f"不支持的语言 {Fore.BLUE}{配置值}{Fore.RESET}"
 
-    elif (配置项 == "github.token") and (配置值 not in ["keyring", "glm", "komac", "env"]):
+    elif (配置项 == "github.token") and (配置值 not in ("keyring", "glm", "komac", "env", DO_NOT_USE)):
         return "未知的 Token 读取源"
 
     elif (配置项 == "git.retry_interval") and (not isinstance(配置值, int)):
         return f"应是整数，但实际是 {Fore.BLUE}{type(配置值)}{Fore.RESET}"
 
-    elif (配置项 == "version"):
+    elif 配置项 == "version":
         if isinstance(配置值, str):
             if not (
                (len(配置值) == 3) and
@@ -241,7 +254,7 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool | int) 
         return None
 
 
-def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None | str | tuple[str, str] | bool | int:
+def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None | tuple[str, str] | str | bool | int | DO_NOT_USE:
     """
     读取配置文件中指定的配置项，并返回经过转换和验证的配置值。
 
@@ -252,7 +265,7 @@ def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None
             对于配置项 `debug`，一律启用静默。
 
     Returns:
-        str | tuple[str, str] | bool: 经过转换和验证的配置值。
+        tuple[str, str] | str | bool | int | DO_NOT_USE: 经过转换和验证的配置值。
         None: 读取失败。
     """
 
@@ -260,7 +273,7 @@ def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None
         静默 = True
 
     try:
-        配置值: str | bool | int | None = 读取配置项(配置项, 静默)
+        配置值 = 读取配置项(配置项, 静默)
 
         if 配置值 is None:
             return None
@@ -291,7 +304,7 @@ def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None
         return None
 
 
-def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> str | bool | int | None:
+def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> str | bool | int | DO_NOT_USE | None:
     """
     读取配置文件中指定的配置项，并直接原样返回配置值。
 
@@ -300,7 +313,7 @@ def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> s
         静默: 是否不输出读取失败的原因。
 
     Returns:
-        str | bool | int: 读取到的配置值。
+        str | bool | int | DO_NOT_USE: 读取到的配置值。
         None: 读取失败。
     """
 
@@ -313,13 +326,16 @@ def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> s
             for 键 in 键路径[:-1]:
                 当前字典 = 当前字典[键]
             最后键 = 键路径[-1]
-            if 当前字典[最后键] is not None:
-                return 当前字典[最后键]
+            if 当前字典[最后键] is None:
+                if 配置项 == "github.token":
+                    return DO_NOT_USE
+                else:
+                    if not 静默:
+                        print(f'{MSHead.Error} 读取配置文件失败:\n{Fore.RED}"{配置项}" 的值为空 (null){Fore.RESET}')
+                        print(f"{MSHead.Message} 运行 sundry config {配置项} <值> 来修改配置文件中的值")
+                    return None
             else:
-                if not 静默:
-                    print(f"{MSHead.Error} 读取配置文件失败:\n{Fore.RED}\"{配置项}\" 的值为空 (null){Fore.RESET}")
-                    print(f"{MSHead.Message} 运行 sundry config {配置项} <值> 来修改配置文件中的值")
-                return None
+                return 当前字典[最后键]
         except KeyError as e:
             if not 静默:
                 print(f"{MSHead.Error} 读取配置文件失败:\n{Fore.RED}键 {e} 不存在{Fore.RESET}")
@@ -361,6 +377,7 @@ def 获取配置schema(版本: str) -> dict[str, Any] | None:
         try:
             print(f"{MSHead.Warning} 获取配置文件 schema 失败 ({e})，通过 https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/{版本}.json 重试...")
             from function.constant.general import REQUEST_TIMEOUT
+
             响应 = requests.get(f"https://duckduckstudio.github.io/yazicbs.github.io/Tools/Sundry/config/schema/{版本}.json", timeout=REQUEST_TIMEOUT)
             响应.raise_for_status()
             print(f"{MSHead.Information} 获取配置文件 schema 成功")
@@ -369,7 +386,7 @@ def 获取配置schema(版本: str) -> dict[str, Any] | None:
             return None
 
 
-def 转换配置值(配置项: 所有配置项 | str, 配置值: str) -> str | bool | int:
+def 转换配置值(配置项: 所有配置项 | str, 配置值: str) -> str | bool | int | None:
     """
     尝试将输入的配置值转换为符合配置文件要求的格式，如 `y` → `true`。
 
@@ -380,11 +397,13 @@ def 转换配置值(配置项: 所有配置项 | str, 配置值: str) -> str | b
         配置值: 用户输入的配置值。
 
     Returns:
-        str | bool: 转换并验证后的配置值。
+        str | bool | int: 转换并验证后的配置值。
 
     Raises:
         OperationFailed: 无法转换或验证失败。附带带颜色的原因。
     """
+
+    # TODO 这里需要明确哪些配置项的值会经过验证。
 
     if 配置项 in 配置信息.布尔值项:
         if 配置项.startswith("cache."):
@@ -417,6 +436,9 @@ def 转换配置值(配置项: 所有配置项 | str, 配置值: str) -> str | b
         elif 配置值.startswith("https://github.com/"):
             配置值 = 配置值.replace("https://github.com/", "").rstrip(".git")
         # 继续接下来的“验证配置”步骤
+    elif (配置项 == "github.token") and (配置值.lower() in ("null", "none")):
+        # 不使用 GitHub Token
+        return None
 
     # 默认值
     if not 配置值:

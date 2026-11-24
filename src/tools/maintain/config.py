@@ -25,7 +25,7 @@ from function.maintain.config import (
 )
 
 
-def 获取用户输入(配置项: str) -> str | bool | int:
+def 获取用户输入(配置项: str) -> str | bool | int | None:
     """
     获取用户输入的配置值，并返回转换后的配置值。
 
@@ -50,7 +50,7 @@ def 获取用户输入(配置项: str) -> str | bool | int:
         "github.pr.maintainer_can_modify": f"{MSHead.Question} 是否允许维护者修改您的 PR 内容? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         "github.pr.mention_self_when_reviewer": f"{MSHead.Question} 创建 PR 时，如果自己是包修改的审查者，是否在 PR 中请求自己审查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # github.token
-        "github.token": f"{MSHead.Question} 我该从哪里读取 GitHub Token? [{Fore.GREEN}keyring(默认){Fore.RESET}, 环境变量 GITHUB_TOKEN (env), komac, glm (已弃用，不推荐)]: ",
+        "github.token": f"{MSHead.Question} 我该从哪里读取 GitHub Token? [{Fore.GREEN}keyring(默认){Fore.RESET}, {Fore.BLUE}null(不使用Token){Fore.RESET}, 环境变量 GITHUB_TOKEN (env), komac, {Fore.BLACK}glm(已弃用，不推荐){Fore.RESET}]: ",
         # tools.autoremove.*
         "tools.autoremove.open_in_browser": f"{MSHead.Question} 在自动移除 (autoremove) 时，是否要在浏览器中打开清单中的安装程序链接 (InstallerUrl) 以供检查? (默认为{Fore.YELLOW}否{Fore.RESET}): ",
         # tools.prune.*
@@ -81,7 +81,7 @@ def 获取用户输入(配置项: str) -> str | bool | int:
             配置值 = 转换配置值(配置项, 配置值)
             if (
                 (配置项 == "github.token") and (配置值 == "keyring") and
-                (tools.maintain.token.read_token() is None) and
+                (tools.maintain.token.read_token_from(source="keyring") is None) and
                 tools.maintain.token.set_token()
             ):
                 continue

@@ -80,15 +80,15 @@ class Test获取用户输入:
             return next(answers)
 
         _fake_input = Mock(side_effect=_fake_input_func)
-        _fake_read_token = Mock(return_value=None)
+        _fake_read_token_from = Mock(return_value=None)
         _fake_set_token = Mock(return_value=1)
         monkeypatch.setattr("builtins.input", _fake_input)
-        monkeypatch.setattr(config.tools.maintain.token, "read_token", _fake_read_token)
+        monkeypatch.setattr(config.tools.maintain.token, "read_token_from", _fake_read_token_from)
         monkeypatch.setattr(config.tools.maintain.token, "set_token", _fake_set_token)
 
         assert config.获取用户输入("github.token") == "env"
         assert _fake_input.call_count == 2
-        _fake_read_token.assert_called_once_with()
+        _fake_read_token_from.assert_called_once_with(source="keyring")
         _fake_set_token.assert_called_once_with()  # 第二次输入 env，不需要设置
 
 

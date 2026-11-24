@@ -257,6 +257,9 @@ class Test转换配置值:
             ("repos.test", "https://github.com/owner/repo", "owner/repo"),
             ("repos.test", "https://github.com/owner/repo.git", "owner/repo"),
             ("repos.test", "owner", "owner/test"),
+            # null
+            ("github.token", "null", None),
+            ("github.token", "None", None),
         ],
     )
     def test_转换配置值_convert_valid_value(

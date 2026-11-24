@@ -12,7 +12,7 @@ from catfood.exceptions.operation import OperationFailed
 from catfood.functions.print import MSHead
 from colorama import Fore
 
-from function.maintain.config import 读取配置
+from function.maintain.config import DO_NOT_USE, 读取配置
 
 
 def main(operation: str) -> Literal[0, 1]:
@@ -92,51 +92,73 @@ def set_token() -> Literal[0, 1]:
         return 1
 
 
-def read_token(silent: bool = False) -> str | None:
+def read_token_from(
+    source: Literal["keyring", "komac", "env", "glm"] | str,
+) -> str | None:
     """
-    尝试从配置文件中指定的源读取 GitHub Token，读取失败返回 `None`。
+    尝试从指定的源读取 GitHub Token。
+
+    不会输出错误信息。
 
     Args:
-        silent: 是否在读取失败时保持沉默（不输出错误信息）。
+        source: 指定的读取源。
+
+    Returns:
+        str: 读取到的 GitHub Token。
+        None: 读取失败。
+
+    Raises:
+        ValueError: 未知的 GitHub Token 读取源。
+    """
+
+    match source:
+        case "env":
+            return os.getenv("GITHUB_TOKEN")
+        case "keyring":
+            return keyring.get_password("DuckStudio.Sundry-GitHubToken", "GitHubToken")
+        case "komac":
+            return keyring.get_password(
+                "github-access-token.komac", "github-access-token"
+            )
+        case "glm":
+            return keyring.get_password(
+                "github-access-token.glm", "github-access-token"
+            )
+        case _:
+            raise ValueError(f"未知的 GitHub Token 读取源: {source}。")
+
+
+def read_token(silent: bool = False) -> str | None:
+    """
+    尝试从配置文件中指定的源读取 GitHub Token。
+
+    Args:
+        silent: 是否保持沉默（不输出错误信息）。
 
     Returns:
         str: 读取到的 Token。
-        None: 读取失败。
+        None: 读取失败或配置不使用 GitHub Token。
     """
 
     try:
         source = 读取配置("github.token")
+
+        if source is DO_NOT_USE:
+            if not silent:
+                print(f"{MSHead.Information} 配置要求不使用 GitHub Token。")
+            return None
+
         if not isinstance(source, str):
-            raise OperationFailed("未能从配置文件中获取 GitHub Token 读取源")
+            raise OperationFailed("未能从配置文件中获取 GitHub Token 读取源。")
 
-        if source == "env":
-            if token := os.getenv("GITHUB_TOKEN"):
-                return token
-            else:
-                raise OperationFailed("未能从环境变量 GITHUB_TOKEN 中读取 GitHub Token")
-        else:
-            token: str | None
-            match source:
-                case "keyring":
-                    token = keyring.get_password(
-                        "DuckStudio.Sundry-GitHubToken", "GitHubToken"
-                    )
-                case "komac":
-                    token = keyring.get_password(
-                        "github-access-token.komac", "github-access-token"
-                    )
-                case "glm":
-                    token = keyring.get_password(
-                        "github-access-token.glm", "github-access-token"
-                    )
-                case _:
-                    raise OperationFailed(f"未知的 GitHub Token 读取源: {source}")
+        token = read_token_from(source)
+        if not token:
+            raise OperationFailed(
+                f"未能从 {'环境变量 GITHUB_TOKEN' if source == 'env' else source} 读取 GitHub Token。"
+            )
 
-            if token:
-                return token
-            else:
-                raise OperationFailed(f"未能从 {source} 源中读取 GitHub Token")
-    except (OperationFailed, keyring.errors.KeyringError) as e:
+        return token
+    except (OperationFailed, keyring.errors.KeyringError, ValueError) as e:
         if not silent:
-            print(f"{MSHead.Error} 读取 GitHub Token 失败: {Fore.RED}{e}{Fore.RESET}")
+            print(f"{MSHead.Error} 读取 GitHub Token 失败：{Fore.RED}{e}{Fore.RESET}")
         return None
