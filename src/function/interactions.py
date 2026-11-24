@@ -9,8 +9,8 @@ from catfood.functions.github.api import get_github_token_owner
 from catfood.functions.print import MSHead
 from colorama import Fore
 
-from function.github.token import read_token
 from function.maintain.config import 读取配置
+from tools.maintain.token import read_token
 
 
 def ask_for_reviewers(reviewers: list[str] | None, doWhat: str) -> Literal["cancel", "continue_without_mention", "continue_with_mention"]:
