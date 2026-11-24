@@ -408,7 +408,7 @@ uv sync --group "build"
 
 # 构建二进制文件
 uv run "自动化脚本/修改版本号.py" "2025.520.1314"  # 修改为你喜欢的版本号 :)
-uv run pyinstaller --onefile --distpath="Release" --name="sundry" "src/sundry.py"
+uv run pyinstaller --onefile --distpath="Release" --name="sundry" "src/sundry.py" --collect-data "ajaw"
 
 # 整理文件
 cp -v "src/fun.txt" "Release"
