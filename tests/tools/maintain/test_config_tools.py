@@ -3,7 +3,7 @@
 import json
 from collections.abc import Iterator
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 from unittest.mock import Mock
 
 import pytest
@@ -83,7 +83,9 @@ class Test获取用户输入:
         _fake_read_token_from = Mock(return_value=None)
         _fake_set_token = Mock(return_value=1)
         monkeypatch.setattr("builtins.input", _fake_input)
-        monkeypatch.setattr(config.tools.maintain.token, "read_token_from", _fake_read_token_from)
+        monkeypatch.setattr(
+            config.tools.maintain.token, "read_token_from", _fake_read_token_from
+        )
         monkeypatch.setattr(config.tools.maintain.token, "set_token", _fake_set_token)
 
         assert config.获取用户输入("github.token") == "env"
@@ -602,6 +604,138 @@ class Test更新配置文件:
 
         assert 更新配置文件() == 0
         assert "看起来当前的配置文件已经是最新的了" in capsys.readouterr().out
+
+    @pytest.mark.parametrize(
+        "migration_case",
+        [
+            pytest.param(
+                (
+                    "1.1",
+                    {
+                        "version": "1.1",
+                        "paths": {
+                            "winget-pkgs": "old-pkgs",
+                            "winget-tools": "old-tools",
+                        },
+                        "repos": {
+                            "winget-pkgs": "owner/pkgs",
+                            "winget-tools": "owner/tools",
+                        },
+                        "git": {"signature": True},
+                        "github": {"pr": {"maintainer_can_modify": True}},
+                        "tools": {"verify": {"check_url": True}},
+                    },
+                    "keyring",
+                    False,
+                    True,
+                ),
+                id="1.1",
+            ),
+            pytest.param(
+                (
+                    "1.2",
+                    {
+                        "version": "1.2",
+                        "debug": True,
+                        "paths": {
+                            "winget-pkgs": "old-pkgs",
+                            "winget-tools": "old-tools",
+                        },
+                        "repos": {
+                            "winget-pkgs": "owner/pkgs",
+                            "winget-tools": "owner/tools",
+                        },
+                        "git": {"signature": True},
+                        "github": {
+                            "pr": {
+                                "maintainer_can_modify": True,
+                                "mention_self_when_reviewer": True,
+                            }
+                        },
+                        "cache": {"validate": {"schema": False}},
+                    },
+                    "keyring",
+                    False,
+                    False,
+                ),
+                id="1.2",
+            ),
+            pytest.param(
+                (
+                    "1.3",
+                    {
+                        "version": "1.3",
+                        "debug": True,
+                        "paths": {
+                            "winget-pkgs": "old-pkgs",
+                            "winget-tools": "old-tools",
+                        },
+                        "repos": {
+                            "winget-pkgs": "owner/pkgs",
+                            "winget-tools": "owner/tools",
+                        },
+                        "git": {"signature": True},
+                        "github": {
+                            "pr": {
+                                "maintainer_can_modify": True,
+                                "mention_self_when_reviewer": True,
+                            },
+                            "token": "glm",
+                        },
+                        "tools": {"autoremove": {"open_in_browser": True}},
+                        "cache": {"validate": {"schema": False}},
+                    },
+                    "glm",
+                    True,
+                    False,
+                ),
+                id="1.3",
+            ),
+        ],
+    )
+    def test_更新配置文件_migrates_supported_historical_versions(
+        self,
+        migration_case: tuple[str, dict[str, Any], str, bool, bool],
+        monkeypatch: pytest.MonkeyPatch,
+        tmp_path: Path,
+    ) -> None:
+        """
+        `更新配置文件` 函数应迁移受支持的历史版本，保留已有值并补齐新默认值。
+        """
+
+        version, old_config, expected_token, expected_browser, expected_cache = (
+            migration_case
+        )
+        config_path = tmp_path / "config.json"
+        monkeypatch.setattr(config.配置信息, "所在位置", str(config_path))
+        config_path.write_text(json.dumps(old_config), encoding="utf-8")
+        monkeypatch.setattr(
+            config,
+            "获取配置schema",
+            lambda schema_version: {
+                "type": "object",
+                "properties": {"version": {"const": schema_version}},
+            },
+        )
+
+        assert 更新配置文件() == 0
+
+        migrated_config = json.loads(config_path.read_text(encoding="utf-8"))
+
+        expected_config = config.配置信息.get_a_copy_of_the_default_config()
+        expected_config["debug"] = version != "1.1"
+        expected_config["paths"]["winget-pkgs"] = "old-pkgs"
+        expected_config["paths"]["winget-tools"] = "old-tools"
+        expected_config["repos"]["winget-pkgs"] = "owner/pkgs"
+        expected_config["repos"]["winget-tools"] = "owner/tools"
+        expected_config["git"]["signature"] = True
+        expected_config["github"]["pr"]["maintainer_can_modify"] = True
+        expected_config["github"]["pr"]["mention_self_when_reviewer"] = version != "1.1"
+        expected_config["github"]["token"] = expected_token
+        expected_config["tools"]["autoremove"]["open_in_browser"] = expected_browser
+        expected_config["cache"]["validate"]["schema"] = expected_cache
+
+        assert migrated_config == expected_config
 
     def test_更新配置文件_does_not_mutate_default_config(
         self,
