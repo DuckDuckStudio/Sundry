@@ -168,13 +168,15 @@ class 配置信息:
 
 def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool) -> str | None:
     """
-    [验证配置]
+    验证指定的配置项和配置值的配对是否有效。
 
-    验证指定的配置项和配置值的配对是否有效，返回为什么无效。
+    Args:
+        配置项: 指定的配置项。
+        配置值: 指定的配置值。
 
-    有效返回 `None`，无效返回 `str` 原因。
-
-    配置项 = 键路径
+    Returns:
+        None: 该配置项和配置值的配对有效。
+        str: 该配置项和配置值的配对无效，返回原因。
     """
 
     if not 配置项:
@@ -239,14 +241,20 @@ def 验证配置(配置项: 所有配置项 | str, 配置值: str | bool) -> str
 
 def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None | str | tuple[str, str] | bool:
     """
-    [验证/转换后的配置值]
+    读取配置文件中指定的配置项，并返回经过转换和验证的配置值。
 
-    读取 Sundry 配置文件中指定的配置项，并返回配置值。
+    Args:
+        配置项: 需要读取的配置项。
+        静默:
+            是否不输出读取失败的原因。
+            对于配置项 `debug`，一律启用静默。
 
-    如果读取失败则返回 `None`。
-
-    对于配置项 `debug`，一律启用静默。
+    Returns:
+        str | tuple[str, str] | bool: 经过转换和验证的配置值。
+        None: 读取失败。
     """
+
+    # FIXME 在抛出 OperationFailed 前判断了一次是否静默，在 catch OperationFailed 处又判断了一次，重复了。
 
     if 配置项 == "debug":
         静默 = True
@@ -290,9 +298,15 @@ def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None
 
 def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> str | bool | None:
     """
-    [原始字符串]
-    读取指定配置项的值，并返回配置项值。
-    预期返回非空 str 或 bool，读取失败返回 None。
+    读取配置文件中指定的配置项，并直接原样返回配置值。
+
+    Args:
+        配置项: 需要读取的配置项。
+        静默: 是否不输出读取失败的原因。
+
+    Returns:
+        str | bool: 读取到的配置值。
+        None: 读取失败。
     """
 
     if os.path.exists(配置信息.所在位置):
@@ -324,9 +338,16 @@ def 读取配置项(配置项: 所有配置项 | str, 静默: bool = False) -> s
 
 def 获取配置schema(版本: str) -> dict[str, Any] | None:
     """
-    尝试从 GitHub 仓库和网站上获取指定版本的配置文件的 json schema，获取失败返回 `None`。
+    尝试从 GitHub 仓库和网站上获取指定版本的配置文件的 json schema。
 
     此函数会输出错误。
+
+    Args:
+        版本: 配置文件版本。
+
+    Returns:
+        dict[str, Any]: 该版本的配置文件的 json schema。
+        None: 获取失败。
     """
 
     try:
@@ -354,9 +375,19 @@ def 获取配置schema(版本: str) -> dict[str, Any] | None:
 
 def 转换配置值(配置项: 所有配置项 | str, 配置值: str) -> str | bool:
     """
-    尝试将输入的配置值转换为符合配置文件要求的格式，如 y → true
-    遇到无法转换的会 raise OperationFailed(原因)，我假设调用这个函数的地方会用红色显示错误消息
-    本函数会验证配置值是否有效
+    尝试将输入的配置值转换为符合配置文件要求的格式，如 `y` → `true`。
+
+    然后验证配置值是否有效。
+
+    Args:
+        配置项: 配置值对应的配置项。
+        配置值: 用户输入的配置值。
+
+    Returns:
+        str | bool: 转换并验证后的配置值。
+
+    Raises:
+        OperationFailed: 无法转换或验证失败。附带带颜色的原因。
     """
 
     if 配置项 in 配置信息.布尔值项:
