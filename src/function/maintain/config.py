@@ -254,8 +254,6 @@ def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None
         None: 读取失败。
     """
 
-    # FIXME 在抛出 OperationFailed 前判断了一次是否静默，在 catch OperationFailed 处又判断了一次，重复了。
-
     if 配置项 == "debug":
         静默 = True
 
@@ -270,13 +268,10 @@ def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None
             if isinstance(配置值, str):
                 配置值 = os.path.normpath(配置值)
             else:
-                if not 静默:
-                    raise OperationFailed(f"配置值的类型不是 str (实际是{type(配置值)})")
+                raise OperationFailed(f"配置值的类型不是 str (实际是{type(配置值)})")
 
         if 验证结果 := 验证配置(配置项, 配置值):
-            if not 静默:
-                raise OperationFailed(f"验证配置值失败: {Fore.RED}{验证结果}{Fore.RESET}")
-            return None
+            raise OperationFailed(f"验证配置值失败: {Fore.RED}{验证结果}{Fore.RESET}")
 
         if 配置项.startswith("repos.") and isinstance(配置值, str):
             # 分隔 owner 和 repo
@@ -284,9 +279,7 @@ def 读取配置(配置项: 所有配置项 | str, 静默: bool = False) -> None
                 owner, repo = 配置值.split("/")
                 return owner, repo
             except Exception as e:
-                if not 静默:
-                    raise OperationFailed(f"分割 owner 和 repo 失败\n{e}")
-                return None
+                raise OperationFailed(f"分割 owner 和 repo 失败\n{e}") from e
         else:
             # 直接返回
             return 配置值
