@@ -617,3 +617,29 @@ def _获取PR仓库和分支(PR编号: str, token: str | None = None) -> tuple[s
             return None
     else:
         return None
+
+
+def validate_manifest(manifest_dir: Path) -> int:
+    """
+    使用 `winget validate` 验证清单，并返回 winget 退出代码。
+
+    Args:
+        manifest_dir: 清单文件夹路径。
+
+    Returns:
+        int: winget 退出代码。
+    """
+
+    try:
+        subprocess.run(["winget", "validate", "--manifest", manifest_dir], check=True)
+        return 0
+    except subprocess.CalledProcessError as e:
+        if e.returncode == 2316632104:
+            # 清单验证成功，但出现警告
+            return 0
+        elif e.returncode == -1978335192:
+            if 读取配置("debug"):
+                print(f"{MSHead.InternalWarning} WinGet 返回了 returnCodes.md 中的退出代码，也许您应该修改这里的逻辑？")
+            return 0
+        else:
+            return e.returncode
