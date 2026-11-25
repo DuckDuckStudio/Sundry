@@ -393,29 +393,14 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 
 ## 自己构建
 
-> [!TIP]
-> 仓库下有一个适用于 Windows 的[构建工作流](https://github.com/DuckDuckStudio/Sundry/blob/main/.github/workflows/build.yaml)，你可以 fork 后直接运行，它会将结果上传为工件。
->
-> 这里我们使用 [uv](https://docs.astral.sh/uv/)。
+仓库下有一个适用于 Windows 的[构建工作流](https://github.com/DuckDuckStudio/Sundry/blob/main/.github/workflows/build.yaml)，你可以 fork 后直接运行，它会将结果上传为工件。
+
+你也可以直接使用 `uv run src/sundry.py <参数>` 运行。
+
+这里我们使用 [uv](https://docs.astral.sh/uv/) + [just](https://just.systems/man/zh/)：
 
 ```bash
-# 克隆源码
-git clone https://github.com/DuckDuckStudio/Sundry.git
-cd Sundry
-
-# 创建虚拟环境并安装依赖
-uv sync --group "build"
-
-# 构建二进制文件
-uv run "自动化脚本/修改版本号.py" "2025.520.1314"  # 修改为你喜欢的版本号 :)
-uv run pyinstaller --onefile --distpath="Release" --name="sundry" "src/sundry.py" --collect-data "ajaw"
-
-# 整理文件
-cp -v "src/fun.txt" "Release"
-cp -v "LICENSE" "Release"
-cd Release
-
-# 恭喜，现在我们已经完成了
-# 将结果复制到其他位置时，请带上 fun.txt！
-./sundry ver
+just build
 ```
+
+然后 `./Release` 下就是结果，简单吧。
