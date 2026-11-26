@@ -198,6 +198,13 @@ jobs:
           echo "[DEBUG] 运行 python ./Release/src/sundry.py verify /tmp/SundryTestWorkflow/Manifests/v6"
           python ./Release/src/sundry.py verify "/tmp/SundryTestWorkflow/Manifests/v6"
 
+      - name: 测试 - reg
+        shell: bash
+        if: ${{ runner.os == 'Windows' }}
+        run: |-
+          echo "[DEBUG] 运行 python ./Release/src/sundry.py reg visual studio"
+          python ./Release/src/sundry.py reg visual studio
+
       - name: 测试 - ignore
         shell: bash
         if: ${{ runner.os == 'Windows' }}
