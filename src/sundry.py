@@ -24,7 +24,7 @@ def _can_it_run_on_non_windows_systems(tool: str, args: list[str]) -> bool:
     if tool in [
         "移除", "remove", "自动移除", "autoremove", # 验证阶段需要 WinGet，不确定如何读取 Token
         "单改", "单修改", "modify", "hash-update",  # 验证清单需要 WinGet，不确定如何读取 Token
-        "verify", "test", "验证", "测试",           # 仅 Windows
+        "verify", "test", "验证", "测试", "reg",    # 仅 Windows
     ]:
         return False
 
@@ -71,6 +71,9 @@ def main() -> int:
     elif tool == "cat":
         from tools import cat
         return cat.main(args)
+    elif tool == "reg":
+        from tools import reg
+        return reg.main(args)
     elif tool == "repr":
         import tools.repr
         return tools.repr.main(args)
@@ -114,6 +117,7 @@ def main() -> int:
         print("    winget-tools 检查忽略: sundry ignore <add/remove/edit/list> [忽略字段] [理由]")
         print("    其他辅助命令:")
         print("        查看清单: sundry cat <包标识符> <版本> [清单类型] [区域设置(如果是locale类型)]")
+        print("        查找安装程序注册表条目: sundry reg <关键词>")
         print("        同步本地: sundry sync")
         print("        清理远程已删除分支: sundry prune")
         print("        格式化字符串: sundry repr <文件路径/文本内容> [编码(默认 UTF-8)]")
@@ -130,6 +134,7 @@ def main() -> int:
         print("        查看版本: sundry ver")
         print("        查看帮助: sundry help")
         return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
