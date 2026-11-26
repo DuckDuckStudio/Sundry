@@ -2,9 +2,16 @@
 测试 `tools.reg` 模块。
 """
 
-from typing import Any, Final
+import sys
 
 import pytest
+
+if sys.platform != "win32":
+    pytest.skip("只有 Windows 有 winreg 库", allow_module_level=True)
+
+# pylint: disable=wrong-import-position / C0413, wrong-import-order / C0411
+
+from typing import Any, Final
 
 import function.constant.registry
 import tools.reg
