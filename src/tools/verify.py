@@ -1,322 +1,222 @@
 import ctypes
 import json
-import os
-import re
-import shutil
 import subprocess
-import winreg
+from collections.abc import Callable
 from pathlib import Path
 
-import yaml
 from catfood.functions.print import MSHead
 from colorama import Fore
-from pygments import highlight  # pyright: ignore[reportUnknownVariableType]
-from pygments.formatters.terminal import TerminalFormatter
-from pygments.lexers.data import YamlLexer  # pyright: ignore[reportMissingTypeStubs]
 
-from function.constant.paths import VERIFY_TEMP_DIR
-from function.files.manifest import 获取PR清单, find_reviewers, 获取清单目录
-from function.maintain.config import 读取配置
-from tools.maintain.token import read_token
+from function.args import get_manifest_dir_from_args
+from function.constant.registry import REGISTRY_ENTRY
+from function.files.manifest import validate_manifest
+from function.registry import read_installer_registry_entries
 
 
 def main(args: list[str]) -> int:
-    # 初始化
-    包标识符: str = ""
-    包版本: str = ""
-    PR编号: str = ""
-    清单目录: str | None = None
-    winget_pkgs目录 = ""
-    github_token = None
+    """
+    `sundry verify` 命令的入口函数。
 
-    # 解析参数
-    if (len(args) == 2): # 符合参数个数要求
-        包标识符 = args[0]
-        包版本 = args[1]
-        winget_pkgs目录 = 读取配置("paths.winget-pkgs")
-        if not isinstance(winget_pkgs目录, str):
-            return 1
-    elif (len(args) == 1):
-        匹配 = re.match("https://github.com/microsoft/winget-pkgs/pull/(\\d+)", args[0])
-        if 匹配:
-            PR编号 = 匹配.group(1)
-            github_token = read_token(silent=True)
-            # 这里不做用户询问，测试时放 Token 确实有点...
-            # 但为了速率，这里有读到 Token 就带 Token，没有就没有
-            if not github_token:
-                print(f"{MSHead.Warning} 没有读到 Token，请求时不带 Token")
-        else:
-            # 不是链接，那就是路径
-            清单文件目录 = os.path.normpath(os.path.abspath(args[0]))
-            if not os.path.exists(清单文件目录):
-                print(f"{MSHead.Error} {Fore.RED}指定的清单文件目录不存在{Fore.RESET}")
-                return 1
+    Args:
+        args:
+            传入的参数列表
+            - `sundry verify <清单文件夹路径>`
+            - `sundry verify <GitHub PR 链接或编号>`
+            - `sundry verify <包标识符> <包版本>`
 
-            清单文件个数 = 0
-            for 清单文件 in os.listdir(清单文件目录):
-                清单文件个数 += 1
-                if os.path.isdir(清单文件):
-                    print(f"{MSHead.Error} {Fore.RED}清单文件目录下不应包含其他目录{Fore.RESET}")
-                    print(f"{Fore.YELLOW}Hint{Fore.RESET} 如果你想要验证仓库中的清单文件，请使用 sundry verify <包标识符> <版本>")
-                    print(f"{Fore.YELLOW}Hint{Fore.RESET} 更多说明请见 sundry help")
-                    return 1
-                elif not os.path.basename(清单文件).endswith(".yaml"):
-                    print(f"{MSHead.Error} {Fore.RED}清单文件应为 .yaml 文件: {清单文件} {Fore.RESET}")
-                    return 1
-                elif ("locale" not in os.path.basename(清单文件)) and ("installer" not in os.path.basename(清单文件)):
-                    # 不是 locale 或 installer 清单，那就是 version 清单
-                    # version 清单使用 <包标识符>.yaml 命名
-                    包标识符 = os.path.basename(清单文件).replace(".yaml", "")
-            if 清单文件个数 < 3:
-                print(f"{MSHead.Error} {Fore.RED}清单文件数量不够。预期至少有 3 个 .yaml 格式的清单文件，但实际只有 {清单文件个数} 个。{Fore.RESET}")
-                return 1
-            elif not 包标识符:
-                print(f"{MSHead.Error} {Fore.RED}未能从文件名上识别出包标识符，请确保清单文件命名合法。{Fore.RESET}")
-                return 1
+    Returns:
+        int: 退出代码。
+    """
 
-            # 好的，接下来让我为它们构建最少目录结构
-            # 这里相当于把 %TEMP%/Sundry/Verify/LocaleManifests/** 当作一个 winget-pkgs 仓库，后续就和传入 2 个参数时差不多了。
-            清单目录 = os.path.join(VERIFY_TEMP_DIR, "LocaleManifests", "manifests", 包标识符[0].lower(), *包标识符.split("."))
-            # 复制清单过去
-            os.makedirs(清单目录, exist_ok=True)
-            for 清单文件 in os.listdir(清单文件目录):
-                shutil.copy(os.path.join(清单文件目录, 清单文件), 清单目录)
-    else: # 不符合
-        print(f"{MSHead.Error} {Fore.RED}参数错误，使用 sundry help 来查看帮助{Fore.RESET}")
+    manifest_dir: Path | None = get_manifest_dir_from_args(args)
+    if not manifest_dir:
         return 1
 
-    # ============================================================
+    result = validate_manifest(manifest_dir)
+    if result:
+        return result
+    del result
 
-    if PR编号:
-        清单目录 = os.path.join(VERIFY_TEMP_DIR, "PRManifest", PR编号)
-        if 获取PR清单(PR编号, 清单目录, github_token):
-            return 1
-    elif not 清单目录:
-        清单目录 = 获取清单目录(包标识符, 包版本, winget_pkgs目录=winget_pkgs目录)
-        if not 清单目录:
-            print(f"{MSHead.Error} 获取清单目录失败")
-            return 1
+    old_registry_entries: list[REGISTRY_ENTRY] = read_installer_registry_entries()
 
-        if 审查者列表 := find_reviewers(包标识符, Path(winget_pkgs目录)):
-            print(f"{Fore.YELLOW}⚠ 看起来此包的修改需要 {'、'.join(审查者列表)} 的审查{Fore.RESET}")
+    result = operate_local_manifest(manifest_dir, _test_install)
+    if result:
+        return result
+    del result
 
-    # 如果有任何一步失败了，就 return 1
-    if 验证清单(清单目录):
-        return 1
-    安装前AAF = 读取AAF字段()
-    if 测试安装与卸载(清单目录, "安装"):
-        return 1
+    new_registry_entries: list[REGISTRY_ENTRY] = read_installer_registry_entries()
+
+    registry_entries_diff: list[REGISTRY_ENTRY] = []
+    for registry_entry in new_registry_entries:
+        if registry_entry not in old_registry_entries:
+            registry_entries_diff.append(registry_entry)
+
+    if registry_entries_diff:
+        for i, registry_entry in enumerate(registry_entries_diff):
+            print(
+                f"{f'({i+1}/{len(registry_entries_diff)})' if len(registry_entries_diff) > 1 else MSHead.Message} 注册表条目变更："
+            )
+            registry_entry.print_yaml()
+
     else:
-        安装后AAF = 读取AAF字段()
-        # 对比 AAF 字段，并找出具体不同
-        不同条目: list[dict[str, str | int]] = []
-        for 条目 in 安装后AAF:
-            if 条目 not in 安装前AAF:
-                不同条目.append(条目)
-        if 不同条目:
-            print(f"{MSHead.Message} Apps And Features 条目变更:")
-            for 条目 in 不同条目:
-                print(highlight(yaml.dump(转换AAF条目为YAML(条目), sort_keys=False, allow_unicode=True, default_flow_style=False), YamlLexer(), TerminalFormatter())) # type: ignore - 依赖问题
-        else:
-            print(f"{MSHead.Warning} Apps And Features 条目没有变化")
+        print(f"{MSHead.Warning} 没有找到注册表条目变更")
 
-        try:
-            input("按 ENTER 继续测试卸载，按 CTRL + C 结束...")
-            if 测试安装与卸载(清单目录, "卸载"):
-                return 1
-            raise KeyboardInterrupt # 和下面 except 相同的处理
-        except KeyboardInterrupt:
-            if PR编号:
-                print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 #{PR编号} 的清单")
-            elif not 包版本:
-                print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 {包标识符} 的本地清单")
-            else:
-                print(f"{Fore.GREEN}✓{Fore.RESET} 成功验证 {包标识符} {包版本} 的本地清单")
-            return 0
-
-def 验证清单(清单目录: str) -> int:
-    # 使用 winget validate 验证清单文件，并返回 winget 退出代码
     try:
-        print("正在验证清单修改...")
-        subprocess.run(["winget", "validate", "--manifest", 清单目录], check=True)
-        # WinGet 会输出清单验证成功
+        input("按 ENTER 继续测试卸载，按 CTRL + C 结束...")
+        result = operate_local_manifest(manifest_dir, _test_uninstall)
+        if result:
+            return result
+        del result
+    except KeyboardInterrupt:
+        pass
+
+    print(f"{MSHead.Success} 成功测试指定的清单")
+    return 0
+
+
+def _test_install(manifest_dir: Path) -> int:
+    """
+    尝试使用 `winget install --manifest` 命令安装清单。
+
+    Args:
+        manifest_dir: 清单文件目录所在位置路径。
+
+    Returns:
+        int: WinGet 退出代码
+    """
+
+    try:
+        print(f"{MSHead.Information} 尝试安装 {manifest_dir} ...")
+        subprocess.run(
+            [
+                "winget",
+                "install",
+                "--manifest",
+                manifest_dir,
+                "--accept-source-agreements",
+                "--accept-package-agreements",
+            ],
+            check=True,
+        )
         return 0
     except subprocess.CalledProcessError as e:
-        if e.returncode == 2316632104:
-            # 清单验证成功，但出现警告
-            return 0
-        else:
-            return e.returncode
+        print(
+            f"{MSHead.Error} 尝试安装包失败，WinGet 返回非零退出代码 {Fore.RED}{e.returncode}{Fore.RESET}"
+        )
+        return e.returncode
 
-def 测试安装与卸载(清单目录: str, 操作: str) -> int:
-    # 使用 winget install/uninstall --manifest 尝试安装与卸载清单中的程序，并返回 winget 退出代码
 
-    if 操作 == "卸载":
-        命令 = "uninstall"
-    else:
-        命令 = "install"
+def _test_uninstall(manifest_dir: Path) -> int:
+    """
+    尝试使用 `winget uninstall --manifest` 命令卸载清单。
 
-    # 运行 winget settings export 并获取 LocalManifestFiles 是否为 true
-    # 输出示例
-    # {"$schema":"https://aka.ms/winget-settings-export.schema.json","adminSettings":{"BypassCertificatePinningForMicrosoftStore":false,"InstallerHashOverride":false,"LocalArchiveMalwareScanOverride":false,"LocalManifestFiles":true,"ProxyCommandLineOptions":false},"userSettingsFile":"C:\\Users\\xxx\\AppData\\Local\\Packages\\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\\LocalState\\settings.json"}
+    Args:
+        manifest_dir: 清单文件目录所在位置路径。
+
+    Returns:
+        int: WinGet 退出代码。
+    """
+
     try:
-        settings_output = subprocess.check_output(["winget", "settings", "export"], text=True)
-        settings = json.loads(settings_output)
+        print(f"{MSHead.Information} 尝试卸载 {manifest_dir} ...")
+        subprocess.run(
+            [
+                "winget",
+                "uninstall",
+                "--manifest",
+                manifest_dir,
+                "--accept-source-agreements",
+            ],
+            check=True,
+        )
+        return 0
     except subprocess.CalledProcessError as e:
-        print(f"{MSHead.Error} 获取 winget 设置失败: {e}")
-        return 1
+        print(
+            f"{MSHead.Error} 尝试卸载包失败，WinGet 返回非零退出代码 {Fore.RED}{e.returncode}{Fore.RESET}"
+        )
+        return e.returncode
+
+
+def operate_local_manifest(manifest_dir: Path, operation: Callable[[Path], int]) -> int:
+    """
+    （如果未启用）尝试临时启用 WinGet 本地清单操作，然后运行指定的操作函数。
+
+    Args:
+        manifest_dir:
+            清单文件夹所在位置路径，将作为参数传递给 `operation` 指定的函数。
+        operation:
+            需要运行的操作函数。
+
+    Returns:
+        1: 处理 WinGet 本地清单设置时遇到错误。
+        int: WinGet 退出代码。
+    """
+
+    try:
+        winget_settings = json.loads(
+            subprocess.check_output(
+                ["winget", "settings", "export"], text=True, timeout=10
+            )
+        )
+
+        if not isinstance(winget_settings, dict):
+            raise TypeError(
+                f"解析后的 WinGet 设置不是字典，而是 {type(winget_settings).__name__}"
+            )
+    except subprocess.CalledProcessError as e:
+        print(
+            f"{MSHead.Error} 获取 winget 设置失败: {Fore.BLUE}{' '.join(e.cmd)}{Fore.RESET} 命令返回非零退出代码 {Fore.RED}{e.returncode}{Fore.RESET}"
+        )
+        return e.returncode
     except json.JSONDecodeError as e:
-        print(f"{MSHead.Error} 解析 winget 设置失败: {e}")
+        print(
+            f"{MSHead.Error} 解析 winget 设置失败:\n{e.doc}\n{Fore.RED}{e.msg}{Fore.RESET}"
+        )
+        return 1
+    except TypeError as e:
+        print(f"{MSHead.Error} {e}")
         return 1
 
-    if not settings.get("adminSettings", {}).get("LocalManifestFiles", False): # 如果没有启用本地清单
+    temporarily_enabled = False
+    # 如果没有启用本地清单
+    if not winget_settings.get("adminSettings", {}).get("LocalManifestFiles", False):  # pyright: ignore[reportUnknownMemberType]
         if ctypes.windll.shell32.IsUserAnAdmin() == 0:
-            # 启用本地清单需要管理员权限
-            print(f"{MSHead.Error} 允许{操作}本地清单中的程序需要管理员权限")
-            print(f"{Fore.YELLOW}Hint{Fore.RESET} 请在管理员权限的终端运行: winget settings --enable LocalManifestFiles")
+            # 启用本地清单操作需要管理员权限
+            print(f"{MSHead.Error} 你没有启用本地清单操作，临时启用它需要管理员权限")
+            print(
+                f"{MSHead.Hint} 请在管理员权限的终端中运行: {Fore.BLUE}winget settings --enable LocalManifestFiles{Fore.RESET}"
+            )
             return 1
         else:
             try:
-                临时启用 = True
-                subprocess.run(["winget", "settings", "--enable", "LocalManifestFiles"], check=True)
-                print(f"{MSHead.Message} 临时启用 LocalManifestFiles")
+                subprocess.run(
+                    ["winget", "settings", "--enable", "LocalManifestFiles"], check=True
+                )
+                temporarily_enabled = True
+                print(
+                    f"{MSHead.Message} 临时启用 WinGet 本地清单操作 (LocalManifestFiles)"
+                )
             except subprocess.CalledProcessError as e:
-                print(f"{MSHead.Error} 启用 LocalManifestFiles 失败: {e}")
-                return 1
-    else:
-        临时启用 = False
+                print(
+                    f"{MSHead.Error} 你没有启用本地清单操作，Sundry 尝试临时启用它但 WinGet 返回了非零退出代码 {Fore.RED}{e.returncode}{Fore.RESET}"
+                )
+                return e.returncode
 
-    # 尝试运行 WinGet 操作
-    try:
-        print(f"尝试{操作}包...")
-        完整命令 = ["winget", 命令, "--manifest", 清单目录, "--accept-source-agreements"]
-        if 命令 == "install":
-            完整命令.append("--accept-package-agreements")
-        subprocess.run(完整命令, check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"{MSHead.Error} 尝试{操作}包失败: WinGet 返回 {e.returncode}")
-        return 1
+    result: int = operation(manifest_dir)
 
-    try:
-        if 临时启用:
+    if temporarily_enabled:
+        try:
             print(f"{MSHead.Message} 还原 LocalManifestFiles 设置")
-            subprocess.run(["winget", "settings", "--disable", "LocalManifestFiles"], check=True)
-    except subprocess.CalledProcessError as e:
-        print(f"{MSHead.Error} 还原 LocalManifestFiles 设置失败: {e}")
-        return 1
+            subprocess.run(
+                ["winget", "settings", "--disable", "LocalManifestFiles"], check=True
+            )
+        except subprocess.CalledProcessError as e:
+            print(
+                f"{MSHead.Error} 还原 LocalManifestFiles 设置失败，WinGet 返回非零退出代码 {Fore.RED}{e.returncode}{Fore.RESET}"
+            )
+            print(
+                f"{MSHead.Hint} 手动运行 {Fore.BLUE}{' '.join(e.cmd)}{Fore.RESET} 命令还原"
+            )
+            return e.returncode
 
-    return 0
-
-def 读取AAF字段():
-    # 机器范围 AAF: 计算机\HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\<ProductCode>
-    # 用户范围 AAF: 计算机\HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Uninstall\<ProductCode>
-    # 此函数皆在实现获取机器/用户范围的 AAF，并返回获取到的结果
-    # 对应清单中的 AppsAndFeaturesEntries
-
-    # 定义关心的字段列表
-    关心的字段 = [
-        "DisplayName", "DisplayVersion", "Publisher", "UninstallString", "HelpLink",
-        "InstallLocation", "SystemComponent", "WindowsInstaller", "NoRemove", "NoModify",
-        "InstallSource", "EstimatedSize", "URLInfoAbout", "Comments"
-    ]
-
-    def _读取注册表值(键: winreg.HKEYType, 值名: str):
-        try:
-            值, 注册类型 = winreg.QueryValueEx(键, 值名)
-            if 注册类型 == winreg.REG_EXPAND_SZ:
-                # 展开环境变量
-                return os.path.expandvars(值)
-            elif 注册类型 in (winreg.REG_SZ, winreg.REG_MULTI_SZ):
-                return 值
-            elif 注册类型 == winreg.REG_DWORD:
-                return 值
-            else:
-                # 其他类型转换为字符串
-                return str(值)
-        except FileNotFoundError:
-            return None
-
-    def _读取注册表条目(hive: int, subkey: str, access: int=0):
-        entries: list[dict[str, str | int]] = []
-        try:
-            with winreg.ConnectRegistry(None, hive) as reg:
-                with winreg.OpenKey(reg, subkey, 0, winreg.KEY_READ | access) as key:
-                    index = 0
-                    while True:
-                        try:
-                            子键名称 = winreg.EnumKey(key, index)
-                            index += 1
-                            with winreg.OpenKey(key, 子键名称) as 子键句柄:
-                                entry: dict[str, str | int] = {"ProductCode": 子键名称}
-                                # 读取所有关心的字段
-                                for 字段 in 关心的字段:
-                                    值 = _读取注册表值(子键句柄, 字段)
-                                    if 值 is not None:
-                                        entry[字段] = 值
-                                # 添加范围标识
-                                entry["Scope"] = "machine" if hive == winreg.HKEY_LOCAL_MACHINE else "user"
-                                entries.append(entry)
-                        except PermissionError:
-                            continue
-                        except OSError as e:
-                            if e.winerror == 259: # 没有更多项目
-                                break
-        except FileNotFoundError:
-            pass
-        return entries
-
-    所有条目: list[dict[str, str | int]] = []
-
-    # 读取机器范围 (64位和32位) - WOW
-    所有条目.extend(_读取注册表条目(
-        winreg.HKEY_LOCAL_MACHINE,
-        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
-        winreg.KEY_WOW64_64KEY
-    ))
-
-    所有条目.extend(_读取注册表条目(
-        winreg.HKEY_LOCAL_MACHINE,
-        "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Uninstall",
-        winreg.KEY_WOW64_32KEY
-    ))
-
-    # 读取用户范围
-    所有条目.extend(_读取注册表条目(
-        winreg.HKEY_CURRENT_USER,
-        "Software\\Microsoft\\Windows\\CurrentVersion\\Uninstall"
-    ))
-
-    return 所有条目
-
-def 转换AAF条目为YAML(AAF条目: dict[str, str | int]):
-    # 顶层字段
-    YAML条目: dict[str, str | list[dict[str, str]]] = {}
-    if "Scope" in AAF条目:
-        YAML条目["Scope"] = str(AAF条目["Scope"])
-    if "HelpLink" in AAF条目:
-        YAML条目["PublisherSupportUrl"] = str(AAF条目["HelpLink"])
-
-    # AppsAndFeaturesEntries
-    程序与功能条目: dict[str, str] = {}
-    for 字段 in ["DisplayName", "DisplayVersion", "Publisher", "ProductCode"]:
-        if 字段 in AAF条目:
-            程序与功能条目[字段] = str(AAF条目[字段])
-
-    if 程序与功能条目:
-        YAML条目["AppsAndFeaturesEntries"] = [程序与功能条目]
-    else:
-        YAML条目["AppsAndFeaturesEntries"] = []
-
-    # 其他字段
-    用过的字段 = ["Scope", "HelpLink", "DisplayName", "DisplayVersion", "Publisher", "ProductCode"]
-    其他条目: dict[str, str] = {}
-    for 键, 值 in AAF条目.items():
-        if 键 not in 用过的字段:
-            其他条目[键] = str(值)
-
-    if 其他条目:
-        YAML条目["OtherEntries"] = [其他条目]
-    else:
-        YAML条目["OtherEntries"] = []
-
-    return YAML条目
+    return result

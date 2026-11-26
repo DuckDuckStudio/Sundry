@@ -173,9 +173,6 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 
 ![Sundry verify 命令展示图。该命令用于测试本地或 PR 上的清单的安装和卸载，并获取注册表变更。](docs/photos/README/Demo/Commands/verify.png)
 
-> 截图是在 Hyper-V Windows 10 x64 虚拟机上的测试。
-> 虽然他们已经换成了 Windows 11 虚拟机，不过我觉得也没啥差别，Sundry 也可以在 Windows 11 虚拟机上使用。
-
 - 别名: `verify`, `验证`
 - 作用: **用于测试本地或 PR 上的清单的安装和卸载，并获取 ARP 条目变更。**
 - 用法:
