@@ -191,6 +191,18 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 </details>
 
 <details>
+  <summary><code>sundry reg</code></summary>
+
+![Sundry reg 命令展示图。该命令用于查找安装程序注册表条目。](docs/photos/README/Demo/Commands/reg.png)
+
+- 别名：没有别名，只能用 `reg`。
+- 作用：**查找安装程序注册表条目。**
+- 用法：`sundry reg <关键词>`（多个“关键词”会被合并为一个关键词）。
+- 示例：`sundry reg DuckStudio`。
+
+</details>
+
+<details>
   <summary><code>sundry ignore</code></summary>
 
 ![Sundry ignore 命令展示图。该命令用于管理 winget-tools 中的检测脚本的忽略字段。](docs/photos/README/Demo/Commands/ignore.png)
@@ -378,6 +390,7 @@ Sundry 会尝试分析下载成功的日志，跳过下载失败的日志。
 | modify | ✕ | 验证清单需要 WinGet，不确定如何读取 Token |
 | logs-analyse | 部分支持 | 不支持自动打开日志文件夹 |
 | verify | ✕ | 您只能在 Windows 上验证包 |
+| reg | ✕ | 只有 Windows 有注册表 |
 | ignore | 部分支持 | 仅支持 `list` 操作；不确定如何读取 Token |
 | cat | ✓ |  |
 | sync | ✓ |  |
