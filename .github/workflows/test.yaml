@@ -33,24 +33,22 @@ jobs:
         with:
           python-version: 3.15.x
 
+      - name: 安装 uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: false
+
+      - name: 安装依赖
+        run: uv sync
+
       - name: 更新版本号
-        run: python "自动化脚本/修改版本号.py" "123.456.789"
+        run: uv run "自动化脚本/修改版本号.py" "123.456.789"
 
       - name: 假装静默
         shell: bash
         run: |-
           echo "[DEBUG] 先通过修改源代码来假装获取到了用户输入，从而假装静默..."
-          python "./自动化脚本/假装静默.py"
-
-      - name: 安装依赖
-        run: |-
-          pip install "." --group "build"
-
-          # --only-deps 的变通实现
-          # 参阅 https://pip.pypa.io/en/stable/user_guide/#a-note-on-only-deps-and-requirement-requirements-from-script-and-group
-          pip uninstall sundry -y
-
-          pip list
+          uv run "./自动化脚本/假装静默.py"
 
       - name: 整理源码
         shell: bash
@@ -134,51 +132,51 @@ jobs:
       - name: 测试 - Sundry 基本命令
         shell: bash
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py help"
-          python ./Release/src/sundry.py help
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py help"
+          uv run ./Release/src/sundry.py help
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py ver"
-          python ./Release/src/sundry.py ver
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py ver"
+          uv run ./Release/src/sundry.py ver
 
       - name: 测试 - config
         shell: bash
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
-          python ./Release/src/sundry.py config show
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py config show"
+          uv run ./Release/src/sundry.py config show
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config update"
-          python ./Release/src/sundry.py config update
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
-          python ./Release/src/sundry.py config show
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py config update"
+          uv run ./Release/src/sundry.py config update
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py config show"
+          uv run ./Release/src/sundry.py config show
           echo =================================================================
           # 这之后的修改对应新版配置文件
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config debug y"
-          python ./Release/src/sundry.py config debug y
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py config show"
-          python ./Release/src/sundry.py config show
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py config debug y"
+          uv run ./Release/src/sundry.py config debug y
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py config show"
+          uv run ./Release/src/sundry.py config show
 
       - name: 测试 - autoremove
         shell: bash
         if: ${{ runner.os == 'Windows' }}
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py autoremove DuckStudio.GitHubView"
-          python ./Release/src/sundry.py autoremove DuckStudio.GitHubView
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py autoremove DuckStudio.GitHubView"
+          uv run ./Release/src/sundry.py autoremove DuckStudio.GitHubView
 
       - name: 测试 - logs-analyse
         shell: bash
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse 425671 --no-keep-logs"
-          python ./Release/src/sundry.py logs-analyse 425671 --no-keep-logs || exit_code=$?
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py logs-analyse 425671 --no-keep-logs"
+          uv run ./Release/src/sundry.py logs-analyse 425671 --no-keep-logs || exit_code=$?
           if [ "${exit_code:-0}" -nq 1 ]; then
             echo "[ERROR] logs-analyse 预期返回退出代码 1，实际为 ${exit_code:-0}"
             exit 1
           fi
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup logs-analyse"
-          python ./Release/src/sundry.py cleanup logs-analyse
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup logs-analyse"
+          uv run ./Release/src/sundry.py cleanup logs-analyse
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py logs-analyse 425671 --detailed --no-keep-logs"
-          python ./Release/src/sundry.py logs-analyse 425671 --detailed --no-keep-logs || exit_code=$?
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py logs-analyse 425671 --detailed --no-keep-logs"
+          uv run ./Release/src/sundry.py logs-analyse 425671 --detailed --no-keep-logs || exit_code=$?
           if [ "${exit_code:-0}" -nq 1 ]; then
             echo "[ERROR] logs-analyse 预期返回退出代码 1，实际为 ${exit_code:-0}"
             exit 1
@@ -188,47 +186,47 @@ jobs:
         shell: bash
         if: ${{ runner.os == 'Windows' }}
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py verify yugecin.osukps v6"
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py verify yugecin.osukps v6"
           # 我确信 GitHub Action Runner 没有预装 yugecin.osukps
-          python ./Release/src/sundry.py verify yugecin.osukps v6
+          uv run ./Release/src/sundry.py verify yugecin.osukps v6
           echo =================================================================
           echo "[DEBUG] 另存清单文件..."
           mkdir -p /tmp/SundryTestWorkflow/Manifests
           cp -rv ${GITHUB_WORKSPACE//\\//}/winget-pkgs/manifests/y/yugecin/osukps/v6 /tmp/SundryTestWorkflow/Manifests
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py verify /tmp/SundryTestWorkflow/Manifests/v6"
-          python ./Release/src/sundry.py verify "/tmp/SundryTestWorkflow/Manifests/v6"
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py verify /tmp/SundryTestWorkflow/Manifests/v6"
+          uv run ./Release/src/sundry.py verify "/tmp/SundryTestWorkflow/Manifests/v6"
 
       - name: 测试 - reg
         shell: bash
         if: ${{ runner.os == 'Windows' }}
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py reg visual studio"
-          python ./Release/src/sundry.py reg visual studio
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py reg visual studio"
+          uv run ./Release/src/sundry.py reg visual studio
 
       - name: 测试 - ignore
         shell: bash
         if: ${{ runner.os == 'Windows' }}
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py ignore list"
-          python ./Release/src/sundry.py ignore list
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py ignore list"
+          uv run ./Release/src/sundry.py ignore list
 
       - name: 测试 - cat
         shell: bash
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat Microsoft.FluentFonts 1.0.0.0"
-          python ./Release/src/sundry.py cat Microsoft.FluentFonts 1.0.0.0
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cat Microsoft.FluentFonts 1.0.0.0"
+          uv run ./Release/src/sundry.py cat Microsoft.FluentFonts 1.0.0.0
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all"
+          uv run ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 all
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 i"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 i
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 i"
+          uv run ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 i
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 l zh-CN"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 l zh-CN
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 l zh-CN"
+          uv run ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 l zh-CN
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 v"
-          python ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 v
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 v"
+          uv run ./Release/src/sundry.py cat DuckStudio.Sundry 1.4.2 v
 
       - name: 测试 - sync
         shell: bash
@@ -237,8 +235,8 @@ jobs:
           cd "$GITHUB_WORKSPACE/winget-pkgs"
           git reset --hard HEAD~666
           cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py sync"
-          python ./Release/src/sundry.py sync || exit_code=$?
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py sync"
+          uv run ./Release/src/sundry.py sync || exit_code=$?
           if [ "${exit_code:-0}" -eq 128 ]; then
             # fatal: could not read Username for 'https://github.com': No such device or address
             exit 0
@@ -248,11 +246,11 @@ jobs:
       - name: 测试 - repr
         shell: bash
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py repr C:/a/Sundry/Sundry/fun.txt"
-          python ./Release/src/sundry.py repr C:/a/Sundry/Sundry/fun.txt
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py repr C:/a/Sundry/Sundry/fun.txt"
+          uv run ./Release/src/sundry.py repr C:/a/Sundry/Sundry/fun.txt
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py repr <多行字符>"
-          python ./Release/src/sundry.py repr "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py repr <多行字符>"
+          uv run ./Release/src/sundry.py repr "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
           BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB"
 
       - name: 测试 - revert
@@ -266,8 +264,8 @@ jobs:
           echo "哎呦，刹不住车了嘿！现在人追着车跑嘿！现在人追着车跑！" > "ffffffffff.txt" # 创建一些测试文件
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert pkgs n y"
-          python ./Release/src/sundry.py revert pkgs n y
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py revert pkgs n y"
+          uv run ./Release/src/sundry.py revert pkgs n y
           echo =================================================================
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-tools"
           cd "$GITHUB_WORKSPACE/winget-tools"
@@ -277,8 +275,8 @@ jobs:
           echo "https://www.bilibili.com/video/BV1nKNyzREiY/" > "ffffffffff.txt" # 创建一些测试文件
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert tools n y"
-          python ./Release/src/sundry.py revert tools n y
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py revert tools n y"
+          uv run ./Release/src/sundry.py revert tools n y
           echo =================================================================
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-tools"
           cd "$GITHUB_WORKSPACE/winget-tools"
@@ -294,8 +292,8 @@ jobs:
           echo "【大脑里有像电视屏幕的东西？3天记3年单词？】https://www.bilibili.com/video/BV17yKGzYEVq/" > "ffffffffff.txt" # 创建一些测试文件
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert all n y"
-          python ./Release/src/sundry.py revert all n y
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py revert all n y"
+          uv run ./Release/src/sundry.py revert all n y
           echo =================================================================
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-pkgs"
           cd "$GITHUB_WORKSPACE/winget-pkgs"
@@ -309,8 +307,8 @@ jobs:
           git commit -m "https://www.bilibili.com/video/BV1GUjbzcE2J/"
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert pkgs y y"
-          python ./Release/src/sundry.py revert pkgs y y
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py revert pkgs y y"
+          uv run ./Release/src/sundry.py revert pkgs y y
           echo =================================================================
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-tools"
           cd "$GITHUB_WORKSPACE/winget-tools"
@@ -324,8 +322,8 @@ jobs:
           git commit -m "https://www.bilibili.com/video/BV1CKJNzpEBL/"
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert tools y y"
-          python ./Release/src/sundry.py revert tools y y
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py revert tools y y"
+          uv run ./Release/src/sundry.py revert tools y y
           echo =================================================================
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE/winget-tools"
           cd "$GITHUB_WORKSPACE/winget-tools"
@@ -349,37 +347,37 @@ jobs:
           git commit -m "唉乌蒙吃。"
           echo "[DEBUG] 运行 cd \$GITHUB_WORKSPACE"
           cd "$GITHUB_WORKSPACE"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py revert all y y"
-          python ./Release/src/sundry.py revert all y y
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py revert all y y"
+          uv run ./Release/src/sundry.py revert all y y
 
       - name: 测试 - fun
         shell: bash
         run: |-
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun"
-          python ./Release/src/sundry.py fun
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py fun"
+          uv run ./Release/src/sundry.py fun
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun random"
-          python ./Release/src/sundry.py fun random
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py fun random"
+          uv run ./Release/src/sundry.py fun random
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
-          python ./Release/src/sundry.py fun list
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py fun list"
+          uv run ./Release/src/sundry.py fun list
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun add <文本>"
-          python ./Release/src/sundry.py fun add "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
-          python ./Release/src/sundry.py fun list
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py fun add <文本>"
+          uv run ./Release/src/sundry.py fun add "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py fun list"
+          uv run ./Release/src/sundry.py fun list
           echo =================================================================
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun remove <文本>"
-          python ./Release/src/sundry.py fun remove "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
-          python ./Release/src/sundry.py fun list
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py fun remove <文本>"
+          uv run ./Release/src/sundry.py fun remove "TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT"
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py fun list"
+          uv run ./Release/src/sundry.py fun list
           echo =================================================================
           echo "[DEBUG] 运行 echo \"你以为你是谁啊？！\" > ffffffffff.txt"
           echo "你以为你是谁啊？！" > "ffffffffff.txt"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun import ffffffffff.txt"
-          python ./Release/src/sundry.py fun import "ffffffffff.txt"
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py fun list"
-          python ./Release/src/sundry.py fun list
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py fun import ffffffffff.txt"
+          uv run ./Release/src/sundry.py fun import "ffffffffff.txt"
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py fun list"
+          uv run ./Release/src/sundry.py fun list
 
       - name: 测试 - cleanup (Windows)
         shell: bash
@@ -405,24 +403,24 @@ jobs:
 
           ls -a -R /tmp/Sundry
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup logs-analyse"
-          python ./Release/src/sundry.py cleanup logs-analyse
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup logs-analyse"
+          uv run ./Release/src/sundry.py cleanup logs-analyse
           ls -a -R /tmp/Sundry
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup autoremove"
-          python ./Release/src/sundry.py cleanup autoremove
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup autoremove"
+          uv run ./Release/src/sundry.py cleanup autoremove
           ls -a -R /tmp/Sundry
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup aec)"
-          python ./Release/src/sundry.py cleanup
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup (等效于 cleanup aec)"
+          uv run ./Release/src/sundry.py cleanup
           ls -a -R /tmp/Sundry
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup cache"
-          python ./Release/src/sundry.py cleanup cache
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup cache"
+          uv run ./Release/src/sundry.py cleanup cache
           ls -a -R /tmp/Sundry
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup all"
-          python ./Release/src/sundry.py cleanup all
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup all"
+          uv run ./Release/src/sundry.py cleanup all
           ls -a /tmp
 
       - name: 测试 - cleanup (Linux)
@@ -449,22 +447,22 @@ jobs:
 
           tree -a -f /tmp/Sundry/
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup logs-analyse"
-          python ./Release/src/sundry.py cleanup logs-analyse
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup logs-analyse"
+          uv run ./Release/src/sundry.py cleanup logs-analyse
           tree -a -f /tmp/Sundry/
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup autoremove"
-          python ./Release/src/sundry.py cleanup autoremove
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup autoremove"
+          uv run ./Release/src/sundry.py cleanup autoremove
           tree -a -f /tmp/Sundry/
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup (等效于 cleanup aec)"
-          python ./Release/src/sundry.py cleanup
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup (等效于 cleanup aec)"
+          uv run ./Release/src/sundry.py cleanup
           tree -a -f /tmp/Sundry/
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup cache"
-          python ./Release/src/sundry.py cleanup cache
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup cache"
+          uv run ./Release/src/sundry.py cleanup cache
           tree -a -f /tmp/Sundry/
 
-          echo "[DEBUG] 运行 python ./Release/src/sundry.py cleanup all"
-          python ./Release/src/sundry.py cleanup all
+          echo "[DEBUG] 运行 uv run ./Release/src/sundry.py cleanup all"
+          uv run ./Release/src/sundry.py cleanup all
           tree -d -f -L 1 /tmp/

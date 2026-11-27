@@ -31,6 +31,15 @@ jobs:
         with:
           python-version: 3.14.x
 
+      - name: 安装 uv
+        uses: astral-sh/setup-uv@68559e99cc807c1eb7e9238fd43a15bba460eec2 # v10.3.3
+        with:
+          enable-cache: false
+
+      - name: 安装依赖
+        shell: pwsh
+        run: uv sync --group "build"
+
       - name: 更新版本号
         shell: pwsh
         env:
@@ -55,18 +64,7 @@ jobs:
             }
           }
           Write-Host "Version: $version"
-          python "自动化脚本/修改版本号.py" "$version"
-
-      - name: 安装 Python 包依赖
-        shell: pwsh
-        run: |-
-          pip install "." --group "build"
-
-          # --only-deps 的变通实现
-          # 参阅 https://pip.pypa.io/en/stable/user_guide/#a-note-on-only-deps-and-requirement-requirements-from-script-and-group
-          pip uninstall sundry -y
-
-          pip list
+          uv run "自动化脚本/修改版本号.py" "$version"
 
       - name: 获取 UPX
         shell: pwsh
@@ -113,7 +111,7 @@ jobs:
 
       - name: 构建 Sundry
         shell: pwsh
-        run: pyinstaller --onefile --distpath="Release/pack" --name="sundry.exe" "src/sundry.py" --collect-data ajaw --upx-dir="upx" -i "icon/Sundry.ico"
+        run: uv run pyinstaller --onefile --distpath="Release/pack" --name="sundry.exe" "src/sundry.py" --collect-data ajaw --upx-dir="upx" -i "icon/Sundry.ico"
 
       - name: 创建构建结果归档
         shell: pwsh
