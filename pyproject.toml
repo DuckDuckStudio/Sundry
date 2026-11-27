@@ -56,7 +56,6 @@ strict_xfail = true
 
 [dependency-groups]
 build = [
-    "Pillow==13.0.0",
     "pyinstaller==6.22.3",
 ]
 lint = [
